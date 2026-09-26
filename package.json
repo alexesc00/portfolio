@@ -3,14 +3,18 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": "^24.21.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check"
+    "check": "astro check",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.2",
@@ -26,9 +30,31 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "typescript": "^6.0.3"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^3.2.1",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "simple-git-hooks": "^2.14.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.1"
   },
   "allowScripts": {
-    "esbuild": true
+    "esbuild": true,
+    "fsevents": false,
+    "simple-git-hooks": false
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown",
+    "*.{js,mjs,ts,tsx,astro}": "eslint --fix"
   }
 }

@@ -10,6 +10,6 @@ export default defineConfig({
   integrations: [react(), mdx()],
 
   vite: {
-    plugins: [tailwindcss()]
-  }
+    plugins: [tailwindcss()],
+  },
 });

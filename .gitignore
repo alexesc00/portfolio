@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Local working files, not part of the site
+references/
+vault/
+conventions/
+CLAUDE.local.md
+.claude/launch.json

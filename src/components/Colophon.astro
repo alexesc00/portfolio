@@ -1,4 +1,6 @@
 ---
+import ThemeSwitch from './ThemeSwitch.astro';
+
 const repositoryUrl = 'https://github.com/alexesc00/portfolio';
 ---
 
@@ -7,19 +9,12 @@ const repositoryUrl = 'https://github.com/alexesc00/portfolio';
   <span class="block md:inline">Designed in Figma,</span>{' '}
   <span class="block md:inline">
     built in the open on{' '}
-    <a
-      href={repositoryUrl}
-      class="text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
-    >
+    <a href={repositoryUrl} class="text-text">
       <span class="underline">GitHub</span> <span aria-hidden="true">↗</span>
     </a>
     ,
   </span>{' '}
   <span class="block md:inline">
-    shown in{' '}
-    <span class="text-text">
-      <span class="light:hidden">dark</span>
-      <span class="hidden light:inline">light</span>
-    </span>
+    shown in <ThemeSwitch />
   </span>
 </p>

@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { themeStorageKey } from '../lib/theme';
 import '../styles/global.css';
 
 interface Props {
@@ -15,6 +16,21 @@ const { title } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    {/* Runs before anything is drawn, so the page never flashes the wrong theme. */}
+    <script is:inline define:vars={{ themeStorageKey }}>
+      let theme = null;
+      try {
+        theme = localStorage.getItem(themeStorageKey);
+      } catch {
+        // Storage is blocked; fall back to the system setting.
+      }
+      if (theme !== 'dark' && theme !== 'light') {
+        theme = matchMedia('(prefers-color-scheme: light)').matches
+          ? 'light'
+          : 'dark';
+      }
+      document.documentElement.dataset.theme = theme;
+    </script>
     <Font cssVariable="--font-overused-grotesk" preload />
   </head>
   <body>

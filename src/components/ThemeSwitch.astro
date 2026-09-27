@@ -1,0 +1,118 @@
+{/* The accessible name starts with the visible word, so voice control users can say what they see. */}
+<button
+  type="button"
+  class="cursor-pointer text-text underline decoration-dotted"
+  data-theme-switch
+>
+  <span class="light:hidden">
+    dark<span class="sr-only">, switch to light mode</span>
+  </span>
+  <span class="hidden light:inline">
+    light<span class="sr-only">, switch to dark mode</span>
+  </span>
+</button>
+
+<script>
+  import { type Theme, themeStorageKey } from '../lib/theme';
+
+  const root = document.documentElement;
+  const systemPrefersLight = matchMedia('(prefers-color-scheme: light)');
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function currentTheme(): Theme {
+    return root.dataset.theme === 'light' ? 'light' : 'dark';
+  }
+
+  function savedTheme(): Theme | null {
+    try {
+      const saved = localStorage.getItem(themeStorageKey);
+      return saved === 'dark' || saved === 'light' ? saved : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveTheme(theme: Theme) {
+    try {
+      localStorage.setItem(themeStorageKey, theme);
+    } catch {
+      // Some browsers block storage in private windows. The switch still
+      // works; the choice just isn't remembered on the next visit.
+    }
+  }
+
+  /** Grows the new theme as a circle from `origin` over the old one. */
+  function revealTheme(theme: Theme, origin: Element) {
+    if (!('startViewTransition' in document) || prefersReducedMotion.matches) {
+      root.dataset.theme = theme;
+      return;
+    }
+
+    const { left, top, width, height } = origin.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    // Just far enough to reach the furthest corner, so the circle takes the
+    // same time to fill the screen wherever it starts.
+    const radius = Math.hypot(
+      Math.max(x, innerWidth - x),
+      Math.max(y, innerHeight - y),
+    );
+    root.style.setProperty('--reveal-x', `${x}px`);
+    root.style.setProperty('--reveal-y', `${y}px`);
+    root.style.setProperty('--reveal-radius', `${radius}px`);
+    root.dataset.themeReveal = '';
+
+    const transition = document.startViewTransition(() => {
+      root.dataset.theme = theme;
+    });
+    // The browser skips the animation when the tab isn't being drawn. The
+    // theme still changes, so there's nothing to handle.
+    transition.ready.catch(() => {});
+    transition.finished.finally(() => {
+      delete root.dataset.themeReveal;
+      root.style.removeProperty('--reveal-x');
+      root.style.removeProperty('--reveal-y');
+      root.style.removeProperty('--reveal-radius');
+    });
+  }
+
+  const button = document.querySelector('[data-theme-switch]');
+  button?.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    saveTheme(next);
+    revealTheme(next, button);
+  });
+
+  // Until the visitor chooses, keep following the system setting live.
+  systemPrefersLight.addEventListener('change', (event) => {
+    if (!savedTheme()) root.dataset.theme = event.matches ? 'light' : 'dark';
+  });
+</script>
+
+{/* Global because the reveal covers the whole page, not just the button. */}
+<style is:global>
+  /*
+   * The browser takes a picture of the page, switches the theme, then
+   * uncovers the new page over the picture. The old picture holds still.
+   * Clipping a picture never makes the browser lay the page out again,
+   * which is what makes most animations expensive.
+   */
+  :root[data-theme-reveal]::view-transition-old(root) {
+    animation: none;
+  }
+
+  :root[data-theme-reveal]::view-transition-new(root) {
+    animation: theme-reveal var(--transition-duration-reveal) var(--ease-in-out);
+  }
+
+  @keyframes theme-reveal {
+    from {
+      clip-path: circle(0 at var(--reveal-x) var(--reveal-y));
+    }
+    to {
+      clip-path: circle(
+        var(--reveal-radius) at var(--reveal-x) var(--reveal-y)
+      );
+    }
+  }
+</style>

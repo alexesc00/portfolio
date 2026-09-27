@@ -16,7 +16,7 @@ export default defineConfig({
       provider: fontProviders.local(),
       name: 'Overused Grotesk',
       cssVariable: '--font-overused-grotesk',
-      fallbacks: ['sans-serif'],
+      fallbacks: ['system-ui'],
       options: {
         variants: [
           {

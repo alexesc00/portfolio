@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Follows the system setting until the site has its own theme switch. */
+@custom-variant light (@media (prefers-color-scheme: light));
+
 @theme inline {
   --font-sans: var(--font-overused-grotesk);
 }

@@ -3,3 +3,72 @@
 @theme inline {
   --font-sans: var(--font-overused-grotesk);
 }
+
+/*
+ * Design tokens, signed off in the Figma file's Design system page.
+ * The defaults below are the dark mode; the light mode further down
+ * redefines only what differs. `static` keeps every token as a CSS
+ * variable even before a utility uses it, so scripts can read them too.
+ */
+@theme static {
+  /* Only the site's own colors and text styles exist as utilities. */
+  --color-*: initial;
+  --text-*: initial;
+
+  /* Every color is the ink at an opacity over the background. */
+  --color-background: #10100f;
+  --color-ink: #f7f7f3;
+  --color-text: var(--color-ink);
+  --color-text-muted: color-mix(in oklab, var(--color-ink) 60%, transparent);
+  --color-text-subtle: color-mix(in oklab, var(--color-ink) 40%, transparent);
+  --color-surface: color-mix(in oklab, var(--color-ink) 10%, transparent);
+  --color-border: color-mix(in oklab, var(--color-ink) 10%, transparent);
+
+  /* Everything scanned: header, hero corners, table, labels, buttons. */
+  --text-interface: 0.875rem;
+  --text-interface--line-height: 1.25rem;
+  --text-interface--letter-spacing: 0.01em;
+  --text-interface--font-weight: var(--weight-interface);
+
+  /* Everything read in paragraphs. */
+  --text-reading: 1.25rem;
+  --text-reading--line-height: 1.75rem;
+  --text-reading--font-weight: 400;
+
+  /* Phone values; the md breakpoint widens them below. */
+  --spacing-page: 1rem;
+  --spacing-inset: 1.5rem;
+
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --transition-duration-reveal: 700ms;
+  --transition-duration-afterglow-heat: 900ms;
+  --transition-duration-afterglow-smear: 700ms;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    /* Thin strokes break up on the dark background, so dark mode uses 500. */
+    --weight-interface: 500;
+
+    @variant md {
+      --spacing-page: 3rem;
+      --spacing-inset: 2rem;
+    }
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: light;
+      --color-background: #f7f7f3;
+      --color-ink: #10100f;
+      --color-surface: color-mix(in oklab, var(--color-ink) 5%, transparent);
+      /* 500 looks heavy on the light background. */
+      --weight-interface: 400;
+    }
+  }
+
+  body {
+    @apply bg-background text-interface text-text;
+  }
+}

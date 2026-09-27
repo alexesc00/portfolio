@@ -15,14 +15,26 @@
   --color-*: initial;
   --text-*: initial;
 
-  /* Every color is the ink at an opacity over the background. */
+  /* Every color is the foreground at an opacity over the background. */
   --color-background: #10100f;
-  --color-ink: #f7f7f3;
-  --color-text: var(--color-ink);
-  --color-text-muted: color-mix(in oklab, var(--color-ink) 60%, transparent);
-  --color-text-subtle: color-mix(in oklab, var(--color-ink) 40%, transparent);
-  --color-surface: color-mix(in oklab, var(--color-ink) 10%, transparent);
-  --color-border: color-mix(in oklab, var(--color-ink) 10%, transparent);
+  --color-foreground: #f7f7f3;
+  --color-text: var(--color-foreground);
+  --color-text-muted: color-mix(
+    in oklab,
+    var(--color-foreground) 60%,
+    transparent
+  );
+  --color-text-subtle: color-mix(
+    in oklab,
+    var(--color-foreground) 40%,
+    transparent
+  );
+  --color-surface: color-mix(
+    in oklab,
+    var(--color-foreground) 10%,
+    transparent
+  );
+  --color-border: color-mix(in oklab, var(--color-foreground) 10%, transparent);
 
   /* Everything scanned: header, hero corners, table, labels, buttons. */
   --text-interface: 0.875rem;
@@ -61,8 +73,12 @@
     :root {
       color-scheme: light;
       --color-background: #f7f7f3;
-      --color-ink: #10100f;
-      --color-surface: color-mix(in oklab, var(--color-ink) 5%, transparent);
+      --color-foreground: #10100f;
+      --color-surface: color-mix(
+        in oklab,
+        var(--color-foreground) 5%,
+        transparent
+      );
       /* 500 looks heavy on the light background. */
       --weight-interface: 400;
     }

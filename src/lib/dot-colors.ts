@@ -67,6 +67,9 @@ const streakSideways = 5;
 const streakUpright = 1.2;
 /** Upright motion bends the tail sideways by this much more. */
 const streakBend = 3;
+/** Shorter than this, in pixels, a streak looks just like a dot. */
+const shortestStreak = 0.5;
+const scratchTail = { x: 0, y: 0 };
 
 function heatAmount(heat: number): number {
   return Math.min(Math.abs(heat) * heatColorGain, 1);
@@ -138,7 +141,15 @@ export function streakTail(vx: number, vy: number, tail: Point): Point {
   return tail;
 }
 
-export const isStreak: (vx: number, vy: number) => boolean = () => true;
+/**
+ * Whether a dot moving at (`vx`, `vy`) smoothed is drawn as a streak.
+ * A tail shorter than half a pixel looks just like a dot, and a line
+ * costs more to draw than a filled dot.
+ */
+export function isStreak(vx: number, vy: number): boolean {
+  const tail = streakTail(vx, vy, scratchTail);
+  return Math.hypot(tail.x, tail.y) >= shortestStreak;
+}
 
 export function createTrails(count: number): Trails {
   return {

@@ -7,6 +7,7 @@ import {
   heatColorCount,
   heatStops,
   isGlowing,
+  isStreak,
   smearColorCount,
   smearColorIndex,
   smearColors,
@@ -200,6 +201,20 @@ describe('streakTail', () => {
 
     expect(streakTail(1, 0, tail)).toBe(tail);
     expect(tail.x).toBeLessThan(0);
+  });
+});
+
+describe('isStreak', () => {
+  it('draws a dot whose tail would be under half a pixel as a plain dot', () => {
+    // It would look the same, and a line costs more to draw than a dot.
+    expect(isStreak(0, 0)).toBe(false);
+    expect(isStreak(0.05, 0)).toBe(false);
+    expect(isStreak(0, 0.3)).toBe(false);
+  });
+
+  it('draws a dot moving faster than that as a streak', () => {
+    expect(isStreak(1, 0)).toBe(true);
+    expect(isStreak(0, 1)).toBe(true);
   });
 });
 

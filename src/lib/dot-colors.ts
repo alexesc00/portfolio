@@ -138,6 +138,8 @@ export function streakTail(vx: number, vy: number, tail: Point): Point {
   return tail;
 }
 
+export const isStreak: (vx: number, vy: number) => boolean = () => true;
+
 export function createTrails(count: number): Trails {
   return {
     heat: new Float32Array(count),

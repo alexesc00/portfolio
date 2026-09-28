@@ -130,14 +130,13 @@ export function smearColors(wheel: string[], foreground: string): string[] {
 /**
  * Where a streak's tail is, from the dot, for a dot moving at (`vx`,
  * `vy`) smoothed. A still dot has no tail, so it's drawn as a plain dot.
+ * Written into `tail`, so drawing a frame makes no new objects.
  */
-export const streakTail: (vx: number, vy: number, tail: Point) => Point = (
-  vx,
-  vy,
-) => ({
-  x: -vx * streakSideways - Math.sign(vx) * Math.abs(vy) * streakBend,
-  y: -vy * streakUpright,
-});
+export function streakTail(vx: number, vy: number, tail: Point): Point {
+  tail.x = -vx * streakSideways - Math.sign(vx) * Math.abs(vy) * streakBend;
+  tail.y = -vy * streakUpright;
+  return tail;
+}
 
 export function createTrails(count: number): Trails {
   return {

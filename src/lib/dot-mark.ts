@@ -109,6 +109,8 @@ export function stepDots(
   pushRadius: number,
 ): boolean {
   const frames = clampElapsed(elapsed) / frameLength;
+  // With no time passed nothing could move, so stillness can't be told.
+  if (frames === 0) return false;
   const frameDamping = damping ** frames;
   const { homeX, homeY, x, y, vx, vy } = dots;
   let motion = 0;
@@ -170,8 +172,23 @@ export function wanderPoint(time: number, mark: Box): Point {
 }
 
 /**
- * What pushes the dots: the pointer while there is one. Phones have no
- * hover, so after a moment without one a stand-in wanders over the mark.
+ * Whether `point` is close enough to `mark` to push any of its dots. A
+ * pointer further away counts as gone, so the stand-in can wander.
+ */
+export function isNearMark(
+  point: Point,
+  mark: Box,
+  pushRadius: number,
+): boolean {
+  const dx = Math.max(mark.x - point.x, 0, point.x - (mark.x + mark.width));
+  const dy = Math.max(mark.y - point.y, 0, point.y - (mark.y + mark.height));
+  return Math.hypot(dx, dy) < pushRadius;
+}
+
+/**
+ * What pushes the dots: the pointer while there is one near the mark.
+ * After a moment without one, a stand-in wanders over the mark, so it
+ * moves on phones, which have no hover, and under a resting cursor.
  */
 export function choosePusher({
   pointer,

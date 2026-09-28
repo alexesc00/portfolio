@@ -1,5 +1,10 @@
 export type Theme = 'dark' | 'light';
 
+export const themeColors: Record<Theme, string> = {
+  dark: 'not yet',
+  light: 'set',
+};
+
 /** The localStorage key that remembers a visitor's chosen theme. */
 export const themeStorageKey = 'theme';
 

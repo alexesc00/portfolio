@@ -176,6 +176,11 @@ export function choosePusher({
   return null;
 }
 
+export const canStopDrawing: (state: {
+  isSettled: boolean;
+  hasPointer: boolean;
+}) => boolean = () => false;
+
 /**
  * How many canvas pixels to draw per CSS pixel. Past 2× the extra
  * sharpness can't be seen on dots this small, but costs a lot to fill.

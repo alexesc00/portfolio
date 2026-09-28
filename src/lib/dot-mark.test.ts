@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canStopDrawing,
   canvasScale,
   choosePusher,
   idleBeforeWander,
@@ -229,6 +230,20 @@ describe('choosePusher', () => {
         mark,
       }),
     ).toEqual(wanderPoint(1234, mark));
+  });
+});
+
+describe('canStopDrawing', () => {
+  it('keeps drawing while dots are moving', () => {
+    expect(canStopDrawing({ isSettled: false, hasPointer: true })).toBe(false);
+  });
+
+  it('keeps drawing without a pointer, so the stand-in can wander', () => {
+    expect(canStopDrawing({ isSettled: true, hasPointer: false })).toBe(false);
+  });
+
+  it('stops once the dots have settled under a pointer', () => {
+    expect(canStopDrawing({ isSettled: true, hasPointer: true })).toBe(true);
   });
 });
 

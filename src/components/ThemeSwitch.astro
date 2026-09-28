@@ -1,14 +1,26 @@
+---
+import MoonIcon from './MoonIcon.astro';
+import SunIcon from './SunIcon.astro';
+
+/*
+ * As tall as the text, 1em, and a space's width before the word. The
+ * capitals are 0.65em tall, so dropping the icon (1 − 0.65) / 2 = 0.175em
+ * below the baseline centres it on them.
+ */
+const iconClass = 'mr-1 inline-block size-[1em] align-[-0.175em]';
+---
+
 {/* The accessible name starts with the visible word, so voice control users can say what they see. */}
-<button
-  type="button"
-  class="cursor-pointer text-text underline decoration-dotted"
-  data-theme-switch
->
+<button type="button" class="cursor-pointer text-text" data-theme-switch>
   <span class="light:hidden">
-    dark<span class="sr-only">, switch to light mode</span>
+    <MoonIcon class={iconClass} />
+    <span class="underline decoration-dotted">dark</span>
+    <span class="sr-only">, switch to light mode</span>
   </span>
   <span class="hidden light:inline">
-    light<span class="sr-only">, switch to dark mode</span>
+    <SunIcon class={iconClass} />
+    <span class="underline decoration-dotted">light</span>
+    <span class="sr-only">, switch to dark mode</span>
   </span>
 </button>
 

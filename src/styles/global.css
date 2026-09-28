@@ -62,6 +62,19 @@
   --text-reading--line-height: 1.75rem;
   --text-reading--font-weight: 400;
 
+  /*
+   * The dotted Æ in the middle of the hero: 60% of the screen height, or
+   * on narrow screens as big as keeps it to 85% of the width. The Æ
+   * itself is 0.869 of its font size wide, so that's 97.8vw.
+   */
+  --text-mark: min(60svh, 97.8vw);
+  --text-mark--line-height: 1;
+  --text-mark--font-weight: 700;
+
+  /* The mark's dots, in pixels because the canvas draws them in pixels. */
+  --spacing-dot: 6px;
+  --spacing-dot-size: 3px;
+
   /* Phone values; the md breakpoint widens them below. */
   --spacing-page: 1rem;
   --spacing-inset: 1.5rem;

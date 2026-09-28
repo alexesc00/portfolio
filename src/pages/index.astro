@@ -1,5 +1,6 @@
 ---
 import Colophon from '../components/Colophon.astro';
+import DotMark from '../components/DotMark.astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
@@ -9,7 +10,8 @@ import Layout from '../layouts/Layout.astro';
    * bottom line is never hidden behind the bar and nothing jumps when it
    * hides.
    */}
-  <div class="flex min-h-svh flex-col px-page py-inset">
+  <div class="relative isolate flex min-h-svh flex-col px-page py-inset">
+    <DotMark />
     <header class="flex items-start justify-between gap-page">
       <h1>Alex Escudero</h1>
       <Colophon />

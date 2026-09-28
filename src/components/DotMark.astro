@@ -1,0 +1,284 @@
+{/*
+ * The Æ drawn as dots, filling the hero behind its text. A still made in
+ * CSS shows first, and is all that visitors with reduced motion or without
+ * JavaScript see. The canvas takes over once it has drawn the same dots in
+ * the same places, so the swap can't be seen.
+ */}
+<div
+  class="group pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+  aria-hidden="true"
+  data-dot-mark
+>
+  <canvas class="invisible absolute inset-0 size-full group-data-drawn:visible"></canvas>
+  <span
+    class="still absolute top-1/2 left-1/2 -translate-1/2 text-mark text-foreground select-none group-data-drawn:invisible"
+    data-still
+  >
+    Æ
+  </span>
+</div>
+
+<style>
+  .still {
+    /* The Æ sits a little left of its box; this centers the letter itself. */
+    margin-left: 0.014em;
+    /* Soft edges half a pixel either side, like the canvas's dots. */
+    background-image: radial-gradient(
+      circle,
+      currentColor calc(var(--spacing-dot-size) / 2 - 0.5px),
+      transparent calc(var(--spacing-dot-size) / 2 + 0.5px)
+    );
+    background-size: var(--spacing-dot) var(--spacing-dot);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+</style>
+
+<script>
+  import {
+    canStopDrawing,
+    canvasScale,
+    choosePusher,
+    pushRadiusFor,
+    sampleDots,
+    stepDots,
+    type Box,
+    type Dots,
+    type Point,
+  } from '../lib/dot-mark';
+
+  const letter = 'Æ';
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  /** A length token, like `--spacing-dot`, in pixels. */
+  function tokenInPixels(name: string): number {
+    return parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(name),
+    );
+  }
+
+  /**
+   * Draws the letter off screen exactly where CSS draws the still, and
+   * returns its shape and the box around the letter itself.
+   */
+  function traceLetter(still: HTMLElement, box: Box) {
+    const style = getComputedStyle(still);
+    const scratch = document.createElement('canvas');
+    scratch.width = Math.ceil(box.width);
+    scratch.height = Math.ceil(box.height);
+    const context = scratch.getContext('2d', { willReadFrequently: true });
+    if (!context) return null;
+
+    context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const metrics = context.measureText(letter);
+    // CSS centers the font's full height in the line, which is as tall as
+    // the still's box, and sets the letter on the baseline inside it.
+    const baseline =
+      (box.height -
+        metrics.fontBoundingBoxAscent -
+        metrics.fontBoundingBoxDescent) /
+        2 +
+      metrics.fontBoundingBoxAscent;
+    context.fillText(letter, 0, baseline);
+    const { data } = context.getImageData(0, 0, scratch.width, scratch.height);
+
+    return {
+      isInside(x: number, y: number) {
+        const column = Math.floor(x - box.x);
+        const row = Math.floor(y - box.y);
+        if (column < 0 || row < 0 || column >= scratch.width) return false;
+        if (row >= scratch.height) return false;
+        return data[(row * scratch.width + column) * 4 + 3] > 127;
+      },
+      bounds: {
+        x: box.x - metrics.actualBoundingBoxLeft,
+        y: box.y + baseline - metrics.actualBoundingBoxAscent,
+        width: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+        height:
+          metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
+      },
+    };
+  }
+
+  function animate(
+    root: HTMLElement,
+    canvas: HTMLCanvasElement,
+    still: HTMLElement,
+    context: CanvasRenderingContext2D,
+  ) {
+    let dots: Dots | null = null;
+    let letterBounds: Box = { x: 0, y: 0, width: 0, height: 0 };
+    let pushRadius = 0;
+    let dotRadius = 0;
+    let scale = 1;
+    let color = '';
+    let pointer: Point | null = null;
+    // Counted from the start, so the mark rests a moment before wandering.
+    let pointerGoneAt = performance.now();
+    let isOnScreen = false;
+    let frameRequest = 0;
+    let lastFrame = 0;
+    let buildCount = 0;
+
+    async function build() {
+      const build = ++buildCount;
+      const style = getComputedStyle(still);
+      // The fallbacks in the font list name system fonts a visitor may not
+      // have, which fails the load even when the site's font arrives, so
+      // wait for every font to settle instead.
+      await document.fonts
+        .load(
+          `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
+          letter,
+        )
+        .catch(() => undefined);
+      await document.fonts.ready;
+      // A newer build started while the font loaded; let that one finish.
+      if (build !== buildCount || reducedMotion.matches) return;
+
+      const area = root.getBoundingClientRect();
+      const letterBox = still.getBoundingClientRect();
+      const box = {
+        x: letterBox.left - area.left,
+        y: letterBox.top - area.top,
+        width: letterBox.width,
+        height: letterBox.height,
+      };
+      const shape = traceLetter(still, box);
+      if (!shape) return;
+
+      scale = canvasScale(devicePixelRatio);
+      canvas.width = Math.round(area.width * scale);
+      canvas.height = Math.round(area.height * scale);
+      dotRadius = tokenInPixels('--spacing-dot-size') / 2;
+      dots = sampleDots({
+        box,
+        spacing: tokenInPixels('--spacing-dot'),
+        isInside: shape.isInside,
+      });
+      letterBounds = shape.bounds;
+      pushRadius = pushRadiusFor(letterBounds.height);
+      color = getComputedStyle(still).color;
+
+      draw();
+      root.dataset.drawn = '';
+      wake();
+    }
+
+    function draw() {
+      if (!dots) return;
+      context.setTransform(scale, 0, 0, scale, 0, 0);
+      context.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
+      context.fillStyle = color;
+      // One path for every dot: a single fill is far cheaper than one each.
+      context.beginPath();
+      for (let i = 0; i < dots.x.length; i++) {
+        context.moveTo(dots.x[i] + dotRadius, dots.y[i]);
+        context.arc(dots.x[i], dots.y[i], dotRadius, 0, Math.PI * 2);
+      }
+      context.fill();
+    }
+
+    function frame(now: number) {
+      if (!dots) return;
+      const elapsed = now - lastFrame;
+      lastFrame = now;
+      const pusher = choosePusher({
+        pointer,
+        idleFor: now - pointerGoneAt,
+        time: now,
+        mark: letterBounds,
+      });
+      const isSettled = stepDots(dots, elapsed, pusher, pushRadius);
+      draw();
+
+      const hasPointer = pointer !== null;
+      if (canStopDrawing({ isSettled, hasPointer }) || !canDraw()) {
+        frameRequest = 0;
+        return;
+      }
+      frameRequest = requestAnimationFrame(frame);
+    }
+
+    function canDraw() {
+      return isOnScreen && !document.hidden && !reducedMotion.matches;
+    }
+
+    function wake() {
+      if (frameRequest || !dots || !canDraw()) return;
+      lastFrame = performance.now();
+      frameRequest = requestAnimationFrame(frame);
+    }
+
+    function follow(clientX: number, clientY: number) {
+      const area = root.getBoundingClientRect();
+      const x = clientX - area.left;
+      const y = clientY - area.top;
+      if (x < 0 || y < 0 || x > area.width || y > area.height) {
+        release();
+        return;
+      }
+      pointer = { x, y };
+      wake();
+    }
+
+    function release() {
+      if (!pointer) return;
+      pointer = null;
+      pointerGoneAt = performance.now();
+      wake();
+    }
+
+    // Touch is followed through touch events, which keep coming while the
+    // page scrolls; pointer events stop as soon as a scroll starts.
+    window.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'touch') follow(event.clientX, event.clientY);
+    });
+    for (const type of ['touchstart', 'touchmove'] as const) {
+      window.addEventListener(
+        type,
+        (event) => {
+          const touch = event.touches[0];
+          if (touch) follow(touch.clientX, touch.clientY);
+        },
+        { passive: true },
+      );
+    }
+    window.addEventListener('touchend', release);
+    window.addEventListener('touchcancel', release);
+    document.documentElement.addEventListener('pointerleave', release);
+    window.addEventListener('blur', release);
+
+    new IntersectionObserver(([entry]) => {
+      isOnScreen = entry.isIntersecting;
+      wake();
+    }).observe(root);
+    document.addEventListener('visibilitychange', wake);
+
+    // Also runs once when it starts observing, which does the first build.
+    new ResizeObserver(() => build()).observe(root);
+
+    // Recolored straight away, so the theme reveal pictures the new color.
+    new MutationObserver(() => {
+      color = getComputedStyle(still).color;
+      draw();
+    }).observe(document.documentElement, { attributeFilter: ['data-theme'] });
+
+    reducedMotion.addEventListener('change', () => {
+      if (reducedMotion.matches) {
+        cancelAnimationFrame(frameRequest);
+        frameRequest = 0;
+        delete root.dataset.drawn;
+      } else {
+        build();
+      }
+    });
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-dot-mark]');
+  const canvas = root?.querySelector('canvas');
+  const still = root?.querySelector<HTMLElement>('[data-still]');
+  const context = canvas?.getContext('2d');
+  if (root && canvas && still && context) animate(root, canvas, still, context);
+</script>

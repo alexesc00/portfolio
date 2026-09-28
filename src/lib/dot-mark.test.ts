@@ -4,6 +4,7 @@ import {
   canvasScale,
   choosePusher,
   idleBeforeWander,
+  isNearMark,
   pushRadiusFor,
   sampleDots,
   stepDots,
@@ -155,6 +156,17 @@ describe('stepDots', () => {
 
     expect(dots.x[0]).toBe(20);
   });
+
+  it('does not call dots still on a frame where no time has passed', () => {
+    // A frame can be stamped a little before the loop was woken, so its
+    // time rounds down to nothing. Calling the dots still then would stop
+    // the loop before a returning pointer had pushed anything.
+    const dots = oneDot();
+    const pointer = { x: 50, y: 0 };
+
+    expect(stepDots(dots, 0, pointer, 120)).toBe(false);
+    expect(stepDots(dots, -8, pointer, 120)).toBe(false);
+  });
 });
 
 describe('pushRadiusFor', () => {
@@ -239,6 +251,28 @@ describe('choosePusher', () => {
         mark,
       }),
     ).toEqual(wanderPoint(1234, mark));
+  });
+});
+
+describe('isNearMark', () => {
+  const mark: Box = { x: 100, y: 100, width: 400, height: 300 };
+
+  it('counts a pointer over the mark', () => {
+    expect(isNearMark({ x: 300, y: 250 }, mark, 120)).toBe(true);
+  });
+
+  it('counts a pointer close enough to push the dots at its edge', () => {
+    expect(isNearMark({ x: 550, y: 250 }, mark, 120)).toBe(true);
+  });
+
+  it('does not count a pointer too far away to push any dot', () => {
+    expect(isNearMark({ x: 630, y: 250 }, mark, 120)).toBe(false);
+    expect(isNearMark({ x: 300, y: 530 }, mark, 120)).toBe(false);
+  });
+
+  it('measures past a corner to the corner itself', () => {
+    // 100px across and 100px down from the corner is 141px away.
+    expect(isNearMark({ x: 600, y: 500 }, mark, 120)).toBe(false);
   });
 });
 

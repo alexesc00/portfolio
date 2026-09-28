@@ -107,6 +107,8 @@ export function stepDots(
   let motion = 0;
 
   for (let i = 0; i < x.length; i++) {
+    const startVx = vx[i];
+    const startVy = vy[i];
     if (pusher) {
       const dx = pusher.x - x[i];
       const dy = pusher.y - y[i];
@@ -125,8 +127,12 @@ export function stepDots(
     x[i] += vx[i] * frames;
     y[i] += vy[i] * frames;
 
-    const offset = Math.hypot(x[i] - homeX[i], y[i] - homeY[i]);
-    motion = Math.max(motion, Math.abs(vx[i]) + Math.abs(vy[i]) + offset * 0.1);
+    // A dot is still when it's slow and nothing is speeding it up. Speed
+    // alone would count a dot at the top of a bounce as still; distance
+    // from home would never count one held off by a resting pointer.
+    const speed = Math.abs(vx[i]) + Math.abs(vy[i]);
+    const speedChange = Math.abs(vx[i] - startVx) + Math.abs(vy[i] - startVy);
+    motion = Math.max(motion, speed + speedChange);
   }
   return motion < stillMotion;
 }

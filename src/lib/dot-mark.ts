@@ -1,3 +1,9 @@
+/*
+ * The dotted Æ in the hero: its letter sampled into dots, and the physics
+ * that pushes dots away from the pointer and springs them home. No DOM
+ * here; the DotMark component does the drawing.
+ */
+
 export interface Point {
   x: number;
   y: number;
@@ -10,6 +16,7 @@ export interface Box {
   height: number;
 }
 
+/** Every dot's home, position and velocity, one entry per dot. */
 export interface Dots {
   homeX: Float32Array;
   homeY: Float32Array;
@@ -19,44 +26,163 @@ export interface Dots {
   vy: Float32Array;
 }
 
-export const idleBeforeWander = 0;
+/*
+ * The prototype's physics, tuned at 60 frames a second. Each step scales
+ * them by how many of those frames have passed, so the dots move at the
+ * same speed on a 120Hz screen.
+ */
+const frameLength = 1000 / 60;
+const pushStrength = 15;
+const springStrength = 0.08;
+const damping = 0.85;
+/** The push radius as tuned on a mark 350px tall. */
+const basePushRadius = 120;
+const basePushRadiusHeight = 350;
+/** A longer frame, after a stall or a background tab, would fling the dots. */
+const longestFrame = 50;
+/** Below this, movement is too small to see, so the dots count as still. */
+const stillMotion = 0.01;
 
-export const sampleDots: (options: {
+/** How long the pointer is gone before a stand-in starts to wander, in ms. */
+export const idleBeforeWander = 1500;
+
+/**
+ * One dot in the middle of every `spacing`-sized tile of `box` whose middle
+ * is inside the letter. The tiles line up with the CSS dot pattern of the
+ * still Æ, so the dots land exactly where the still drew them.
+ */
+export function sampleDots({
+  box,
+  spacing,
+  isInside,
+}: {
   box: Box;
   spacing: number;
   isInside: (x: number, y: number) => boolean;
-}) => Dots = () => {
-  const empty = new Float32Array(0);
-  return {
-    homeX: empty,
-    homeY: empty,
-    x: empty,
-    y: empty,
-    vx: empty,
-    vy: empty,
-  };
-};
+}): Dots {
+  const columns = Math.floor(box.width / spacing + 0.5);
+  const rows = Math.floor(box.height / spacing + 0.5);
+  const homes: number[] = [];
+  for (let row = 0; row < rows; row++) {
+    for (let column = 0; column < columns; column++) {
+      const x = box.x + (column + 0.5) * spacing;
+      const y = box.y + (row + 0.5) * spacing;
+      if (isInside(x, y)) homes.push(x, y);
+    }
+  }
 
-export const stepDots: (
+  const count = homes.length / 2;
+  const homeX = new Float32Array(count);
+  const homeY = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    homeX[i] = homes[i * 2];
+    homeY[i] = homes[i * 2 + 1];
+  }
+  return {
+    homeX,
+    homeY,
+    x: homeX.slice(),
+    y: homeY.slice(),
+    vx: new Float32Array(count),
+    vy: new Float32Array(count),
+  };
+}
+
+/**
+ * Moves the dots on by `elapsed` milliseconds: pushed away from `pusher`
+ * when they're within `pushRadius` of it, and always pulled home. Returns
+ * whether every dot has come to rest.
+ */
+export function stepDots(
   dots: Dots,
   elapsed: number,
   pusher: Point | null,
   pushRadius: number,
-) => boolean = () => false;
+): boolean {
+  // Clamped at zero too: a clock that steps backwards would make the
+  // damping amplify instead, and blow the dots apart.
+  const frames = Math.min(Math.max(elapsed, 0), longestFrame) / frameLength;
+  const frameDamping = damping ** frames;
+  const { homeX, homeY, x, y, vx, vy } = dots;
+  let motion = 0;
 
-export const pushRadiusFor: (markHeight: number) => number = () => 0;
+  for (let i = 0; i < x.length; i++) {
+    if (pusher) {
+      const dx = pusher.x - x[i];
+      const dy = pusher.y - y[i];
+      const distance = Math.hypot(dx, dy);
+      if (distance < pushRadius && distance > 0) {
+        const force =
+          ((pushRadius - distance) / pushRadius) * pushStrength * frames;
+        vx[i] -= (dx / distance) * force;
+        vy[i] -= (dy / distance) * force;
+      }
+    }
+    vx[i] =
+      (vx[i] + (homeX[i] - x[i]) * springStrength * frames) * frameDamping;
+    vy[i] =
+      (vy[i] + (homeY[i] - y[i]) * springStrength * frames) * frameDamping;
+    x[i] += vx[i] * frames;
+    y[i] += vy[i] * frames;
 
-export const wanderPoint: (time: number, mark: Box) => Point = () => ({
-  x: 0,
-  y: 0,
-});
+    const offset = Math.hypot(x[i] - homeX[i], y[i] - homeY[i]);
+    motion = Math.max(motion, Math.abs(vx[i]) + Math.abs(vy[i]) + offset * 0.1);
+  }
+  return motion < stillMotion;
+}
 
-export const choosePusher: (state: {
+/**
+ * The push radius for a mark `markHeight` pixels tall. A fixed radius would
+ * open a hole across the whole letter on a phone, so it scales with the
+ * mark, within limits.
+ */
+export function pushRadiusFor(markHeight: number): number {
+  const scale = Math.min(
+    Math.max(markHeight / basePushRadiusHeight, 0.55),
+    1.4,
+  );
+  return basePushRadius * scale;
+}
+
+/**
+ * Where the stand-in pointer is at `time` milliseconds: a slow figure of
+ * eight across `mark`, going round about every 15 seconds.
+ */
+export function wanderPoint(time: number, mark: Box): Point {
+  const seconds = time / 1000;
+  return {
+    x: mark.x + mark.width * (0.5 + 0.5 * Math.sin(seconds * 0.43)),
+    y: mark.y + mark.height * (0.5 + 0.32 * Math.sin(seconds * 0.86 + 0.6)),
+  };
+}
+
+/**
+ * What pushes the dots: the pointer while there is one. Phones have no
+ * hover, so after a moment without one a stand-in wanders over the mark,
+ * unless wandering is off (for reduced motion).
+ */
+export function choosePusher({
+  pointer,
+  idleFor,
+  canWander,
+  time,
+  mark,
+}: {
   pointer: Point | null;
   idleFor: number;
   canWander: boolean;
   time: number;
   mark: Box;
-}) => Point | null = () => null;
+}): Point | null {
+  if (pointer) return pointer;
+  if (canWander && idleFor > idleBeforeWander) return wanderPoint(time, mark);
+  return null;
+}
 
-export const canvasScale: (devicePixelRatio: number) => number = () => 0;
+/**
+ * How many canvas pixels to draw per CSS pixel. Past 2× the extra
+ * sharpness can't be seen on dots this small, but costs a lot to fill.
+ */
+export function canvasScale(devicePixelRatio: number): number {
+  return Math.min(devicePixelRatio, 2);
+}

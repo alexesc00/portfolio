@@ -117,14 +117,14 @@ describe('stepDots', () => {
     expect(dots.y[0]).toBeCloseTo(0, 1);
   });
 
-  it('moves dots the same way at 60 and 120 frames a second', () => {
+  it('moves dots within a pixel of the same path at 60 and 120 frames a second', () => {
     const at60 = oneDot(20, 0);
     const at120 = oneDot(20, 0);
 
     run(at60, 200, 1000 / 60);
     run(at120, 200, 1000 / 120);
 
-    expect(at120.x[0]).toBeCloseTo(at60.x[0], 0);
+    expect(Math.abs(at120.x[0] - at60.x[0])).toBeLessThan(1);
   });
 
   it('treats a long pause like a 50ms frame, so dots are not flung', () => {

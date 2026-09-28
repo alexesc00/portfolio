@@ -16,6 +16,12 @@ describe('mixColors', () => {
   it('reads colors written in capitals or with space around them', () => {
     expect(mixColors(' #E15614 ', '#0F7166', 0)).toBe('#e15614');
   });
+
+  it('refuses a color it can’t read, rather than mixing it as black', () => {
+    // A missing token reads as an empty string.
+    expect(() => mixColors('', '#0f7166', 0.5)).toThrow();
+    expect(() => mixColors('#e15614', 'red', 0.5)).toThrow();
+  });
 });
 
 describe('rampColor', () => {

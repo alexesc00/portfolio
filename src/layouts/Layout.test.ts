@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -36,6 +37,13 @@ function tags(tagName: string): Record<string, string>[] {
   );
 }
 
+/*
+ * The site is served from a base path on GitHub Pages. The test renderer
+ * doesn't apply it, so links are checked against whichever base is in use;
+ * the build puts /portfolio in front.
+ */
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 describe('the page head', () => {
   it('describes the page for search results and link previews', () => {
     expect(tags('meta')).toContainEqual({
@@ -49,12 +57,12 @@ describe('the page head', () => {
 
     expect(links).toContainEqual({
       rel: 'icon',
-      href: '/portfolio/favicon.svg',
+      href: `${base}/favicon.svg`,
       type: 'image/svg+xml',
     });
     expect(links).toContainEqual({
       rel: 'icon',
-      href: '/portfolio/favicon-32.png',
+      href: `${base}/favicon-32.png`,
       sizes: '32x32',
     });
   });
@@ -62,8 +70,21 @@ describe('the page head', () => {
   it('gives phones the icon for their home screen', () => {
     expect(tags('link')).toContainEqual({
       rel: 'apple-touch-icon',
-      href: '/portfolio/apple-touch-icon.png',
+      href: `${base}/apple-touch-icon.png`,
     });
+  });
+
+  it('links only icons that are in public/', () => {
+    const icons = tags('link').filter((link) => link.rel.includes('icon'));
+
+    expect(icons.length).toBeGreaterThan(0);
+    for (const { href } of icons) {
+      const file = new URL(
+        `../../public${href.slice(base.length)}`,
+        import.meta.url,
+      );
+      expect(existsSync(file), href).toBe(true);
+    }
   });
 
   it('colors the browser bar to match each theme, even without scripts', () => {

@@ -1,0 +1,64 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+{/*
+ * The sun beside "light", drawn in the text color. Exported from the
+ * Figma section "Theme switch icon" on the Hero type page. Decorative:
+ * the button's words say what it does.
+ */}
+<svg viewBox="0 0 14 14" fill="none" aria-hidden="true" class={className}>
+  <circle cx="7" cy="7" r="2.375" stroke="currentColor" stroke-width="1.25" />
+  <path
+    d="M11.8999 7H13.1999"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M10.4648 10.4648L11.3841 11.3841"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M7 11.8999V13.1999"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M3.53496 10.4648L2.61572 11.3841"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M2.0998 7H0.799805"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M3.53496 3.53496L2.61572 2.61572"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M7 2.0998V0.799805"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+  <path
+    d="M10.4648 3.53496L11.3841 2.61572"
+    stroke="currentColor"
+    stroke-width="1.25"
+    stroke-linecap="round"
+  />
+</svg>

@@ -204,9 +204,9 @@ describe('choosePusher', () => {
   it('follows the pointer while there is one', () => {
     const pointer = { x: 10, y: 20 };
 
-    expect(
-      choosePusher({ pointer, idleFor: 0, canWander: true, time: 0, mark }),
-    ).toEqual(pointer);
+    expect(choosePusher({ pointer, idleFor: 0, time: 0, mark })).toEqual(
+      pointer,
+    );
   });
 
   it('pushes nothing for a moment after the pointer leaves', () => {
@@ -214,7 +214,6 @@ describe('choosePusher', () => {
       choosePusher({
         pointer: null,
         idleFor: idleBeforeWander - 1,
-        canWander: true,
         time: 0,
         mark,
       }),
@@ -226,23 +225,10 @@ describe('choosePusher', () => {
       choosePusher({
         pointer: null,
         idleFor: idleBeforeWander + 1,
-        canWander: true,
         time: 1234,
         mark,
       }),
     ).toEqual(wanderPoint(1234, mark));
-  });
-
-  it('never wanders when wandering is off', () => {
-    expect(
-      choosePusher({
-        pointer: null,
-        idleFor: idleBeforeWander * 10,
-        canWander: false,
-        time: 0,
-        mark,
-      }),
-    ).toBeNull();
   });
 });
 

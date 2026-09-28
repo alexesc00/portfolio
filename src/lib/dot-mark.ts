@@ -158,24 +158,21 @@ export function wanderPoint(time: number, mark: Box): Point {
 
 /**
  * What pushes the dots: the pointer while there is one. Phones have no
- * hover, so after a moment without one a stand-in wanders over the mark,
- * unless wandering is off (for reduced motion).
+ * hover, so after a moment without one a stand-in wanders over the mark.
  */
 export function choosePusher({
   pointer,
   idleFor,
-  canWander,
   time,
   mark,
 }: {
   pointer: Point | null;
   idleFor: number;
-  canWander: boolean;
   time: number;
   mark: Box;
 }): Point | null {
   if (pointer) return pointer;
-  if (canWander && idleFor > idleBeforeWander) return wanderPoint(time, mark);
+  if (idleFor > idleBeforeWander) return wanderPoint(time, mark);
   return null;
 }
 

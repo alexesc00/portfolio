@@ -248,12 +248,16 @@
       wake();
     }
 
-    /** Mixes the palette for the theme showing, into its table. */
+    /**
+     * Mixes the palette for the theme showing into its table. Mixing
+     * throws if a token can't be read, so nothing changes until it has
+     * worked: a first build leaves the CSS still showing, and a theme
+     * switch keeps the colors it had.
+     */
     function recolor() {
-      theme = currentTheme();
+      const nextTheme = currentTheme();
       const foreground = token('--color-foreground');
-      glows = new Map();
-      if (theme === 'dark') {
+      if (nextTheme === 'dark') {
         const ramp = heatStops.map((at, i) => ({
           at,
           color: token(`--color-heat-${i + 1}`),
@@ -265,6 +269,8 @@
         );
         smearTable = smearColors(wheel, foreground);
       }
+      theme = nextTheme;
+      glows = new Map();
     }
 
     function draw() {

@@ -13,7 +13,12 @@ export interface RampStop {
 type Triple = [number, number, number];
 
 function hexToRgb(hex: string): Triple {
-  const value = parseInt(hex.trim().slice(1), 16);
+  const digits = hex.trim();
+  // Anything else would parse as black, and draw black without a word.
+  if (!/^#[0-9a-f]{6}$/i.test(digits)) {
+    throw new Error(`Can't mix "${hex}": colors are written like #e15614`);
+  }
+  const value = parseInt(digits.slice(1), 16);
   return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
 }
 

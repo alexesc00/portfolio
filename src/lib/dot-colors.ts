@@ -131,12 +131,13 @@ export function smearColors(wheel: string[], foreground: string): string[] {
  * Where a streak's tail is, from the dot, for a dot moving at (`vx`,
  * `vy`) smoothed. A still dot has no tail, so it's drawn as a plain dot.
  */
-export function streakTail(vx: number, vy: number): Point {
-  return {
-    x: -vx * streakSideways - Math.sign(vx) * Math.abs(vy) * streakBend,
-    y: -vy * streakUpright,
-  };
-}
+export const streakTail: (vx: number, vy: number, tail: Point) => Point = (
+  vx,
+  vy,
+) => ({
+  x: -vx * streakSideways - Math.sign(vx) * Math.abs(vy) * streakBend,
+  y: -vy * streakUpright,
+});
 
 export function createTrails(count: number): Trails {
   return {
@@ -190,18 +191,19 @@ export function stepTrails(
 /**
  * Fills `order` with the dots' numbers, grouped by their entry in
  * `colors`, so each color can be drawn as one path. Dots keep their
- * order within a color.
+ * order within a color. `starts` holds one more entry than there are
+ * colors; it's passed in so drawing a frame makes no new arrays.
  */
 export function sortByColor(
   colors: Uint16Array,
-  colorCount: number,
   order: Uint32Array,
+  starts: Uint32Array,
 ) {
   // A counting sort: linear in the dots, where a comparison sort isn't.
-  const starts = new Uint32Array(colorCount + 1);
+  starts.fill(0);
   for (const color of colors) starts[color + 1]++;
-  for (let color = 0; color < colorCount; color++) {
-    starts[color + 1] += starts[color];
+  for (let color = 1; color < starts.length; color++) {
+    starts[color] += starts[color - 1];
   }
   for (let i = 0; i < colors.length; i++) order[starts[colors[i]]++] = i;
 }

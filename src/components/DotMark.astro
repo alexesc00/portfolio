@@ -185,6 +185,10 @@
     // order of it, so each color is drawn as one path.
     let colors = new Uint16Array(0);
     let order = new Uint32Array(0);
+    // Made once and reused, so drawing a frame leaves nothing to collect.
+    const heatStarts = new Uint32Array(heatColorCount + 1);
+    const smearStarts = new Uint32Array(smearColorCount + 1);
+    const tail = { x: 0, y: 0 };
     let heatTable: string[] = [];
     let smearTable: string[] = [];
     let glows = new Map<number, HTMLCanvasElement>();
@@ -285,7 +289,7 @@
       const { x, y } = dots;
       const { heat } = trails;
       for (let i = 0; i < x.length; i++) colors[i] = heatColorIndex(heat[i]);
-      sortByColor(colors, heatColorCount, order);
+      sortByColor(colors, order, heatStarts);
 
       // Glows first, added as light, so overlapping ones brighten.
       const glowRadius = dotRadius * glowReach;
@@ -312,7 +316,7 @@
       for (let i = 0; i < dots.x.length; i++) {
         colors[i] = smearColorIndex(vx[i], vy[i]);
       }
-      sortByColor(colors, smearColorCount, order);
+      sortByColor(colors, order, smearStarts);
 
       forEachColor((color, start, end) => {
         // Still dots are drawn as dots, which is far cheaper than lines.
@@ -370,7 +374,7 @@
       context.beginPath();
       for (let n = start; n < end; n++) {
         const i = order[n];
-        const tail = streakTail(vx[i], vy[i]);
+        streakTail(vx[i], vy[i], tail);
         context.moveTo(x[i] + tail.x, y[i] + tail.y);
         context.lineTo(x[i], y[i]);
       }

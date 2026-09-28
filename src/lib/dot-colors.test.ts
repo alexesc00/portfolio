@@ -166,28 +166,40 @@ describe('smearColors', () => {
 });
 
 describe('streakTail', () => {
+  /** The tail for a dot moving at (`vx`, `vy`). */
+  function tailFor(vx: number, vy: number) {
+    return streakTail(vx, vy, { x: 0, y: 0 });
+  }
+
   it('has no tail on a still dot, so it draws as a plain dot', () => {
-    const tail = streakTail(0, 0);
+    const tail = tailFor(0, 0);
 
     expect(Math.hypot(tail.x, tail.y)).toBe(0);
   });
 
   it('trails behind the way the dot came from', () => {
-    expect(streakTail(1, 0).x).toBeLessThan(0);
-    expect(streakTail(0, 1).y).toBeLessThan(0);
+    expect(tailFor(1, 0).x).toBeLessThan(0);
+    expect(tailFor(0, 1).y).toBeLessThan(0);
   });
 
   it('grows longer the faster the dot moves', () => {
-    expect(Math.abs(streakTail(2, 0).x)).toBeGreaterThan(
-      Math.abs(streakTail(1, 0).x),
+    expect(Math.abs(tailFor(2, 0).x)).toBeGreaterThan(
+      Math.abs(tailFor(1, 0).x),
     );
   });
 
   it('stretches sideways more than up and down', () => {
-    const sideways = Math.abs(streakTail(1, 0).x);
-    const upright = Math.abs(streakTail(0, 1).y);
+    const sideways = Math.abs(tailFor(1, 0).x);
+    const upright = Math.abs(tailFor(0, 1).y);
 
     expect(sideways).toBeGreaterThan(upright * 2);
+  });
+
+  it('fills in the point it is given, so a frame makes no new objects', () => {
+    const tail = { x: 0, y: 0 };
+
+    expect(streakTail(1, 0, tail)).toBe(tail);
+    expect(tail.x).toBeLessThan(0);
   });
 });
 
@@ -305,9 +317,21 @@ describe('sortByColor', () => {
   it('puts dots of the same color next to each other, in dot order', () => {
     const colors = new Uint16Array([2, 0, 2, 1, 0]);
     const order = new Uint32Array(colors.length);
+    // One more than the three colors.
+    const starts = new Uint32Array(4);
 
-    sortByColor(colors, 3, order);
+    sortByColor(colors, order, starts);
 
     expect(Array.from(order)).toEqual([1, 4, 3, 0, 2]);
+  });
+
+  it('can reuse its counts from one frame to the next', () => {
+    const order = new Uint32Array(3);
+    const starts = new Uint32Array(3);
+
+    sortByColor(new Uint16Array([1, 0, 1]), order, starts);
+    sortByColor(new Uint16Array([0, 1, 0]), order, starts);
+
+    expect(Array.from(order)).toEqual([0, 2, 1]);
   });
 });

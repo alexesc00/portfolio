@@ -13,33 +13,19 @@
 </button>
 
 <script>
-  import { type Theme, themeStorageKey } from '../lib/theme';
+  import {
+    oppositeTheme,
+    parseTheme,
+    readSavedTheme,
+    revealRadius,
+    saveTheme,
+    systemTheme,
+    type Theme,
+  } from '../lib/theme';
 
   const root = document.documentElement;
   const systemPrefersLight = matchMedia('(prefers-color-scheme: light)');
   const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-
-  function currentTheme(): Theme {
-    return root.dataset.theme === 'light' ? 'light' : 'dark';
-  }
-
-  function savedTheme(): Theme | null {
-    try {
-      const saved = localStorage.getItem(themeStorageKey);
-      return saved === 'dark' || saved === 'light' ? saved : null;
-    } catch {
-      return null;
-    }
-  }
-
-  function saveTheme(theme: Theme) {
-    try {
-      localStorage.setItem(themeStorageKey, theme);
-    } catch {
-      // Some browsers block storage in private windows. The switch still
-      // works; the choice just isn't remembered on the next visit.
-    }
-  }
 
   /** Grows the new theme as a circle from `origin` over the old one. */
   function revealTheme(theme: Theme, origin: Element) {
@@ -51,11 +37,9 @@
     const { left, top, width, height } = origin.getBoundingClientRect();
     const x = left + width / 2;
     const y = top + height / 2;
-    // Just far enough to reach the furthest corner, so the circle takes the
-    // same time to fill the screen wherever it starts.
-    const radius = Math.hypot(
-      Math.max(x, innerWidth - x),
-      Math.max(y, innerHeight - y),
+    const radius = revealRadius(
+      { x, y },
+      { width: innerWidth, height: innerHeight },
     );
     root.style.setProperty('--reveal-x', `${x}px`);
     root.style.setProperty('--reveal-y', `${y}px`);
@@ -78,14 +62,16 @@
 
   const button = document.querySelector('[data-theme-switch]');
   button?.addEventListener('click', () => {
-    const next = currentTheme() === 'dark' ? 'light' : 'dark';
-    saveTheme(next);
+    const next = oppositeTheme(parseTheme(root.dataset.theme) ?? 'dark');
+    saveTheme(() => localStorage, next);
     revealTheme(next, button);
   });
 
   // Until the visitor chooses, keep following the system setting live.
   systemPrefersLight.addEventListener('change', (event) => {
-    if (!savedTheme()) root.dataset.theme = event.matches ? 'light' : 'dark';
+    if (!readSavedTheme(() => localStorage)) {
+      root.dataset.theme = systemTheme(event.matches);
+    }
   });
 </script>
 

@@ -20,6 +20,7 @@
     revealRadius,
     saveTheme,
     systemTheme,
+    themeColors,
     type Theme,
   } from '../lib/theme';
 
@@ -27,10 +28,21 @@
   const systemPrefersLight = matchMedia('(prefers-color-scheme: light)');
   const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
+  /** Switches the page to `theme`, browser bar included. */
+  function showTheme(theme: Theme) {
+    root.dataset.theme = theme;
+    // Both tags, since the browser picks one by the system setting.
+    for (const meta of document.querySelectorAll<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    )) {
+      meta.content = themeColors[theme];
+    }
+  }
+
   /** Grows the new theme as a circle from `origin` over the old one. */
   function revealTheme(theme: Theme, origin: Element) {
     if (!('startViewTransition' in document) || prefersReducedMotion.matches) {
-      root.dataset.theme = theme;
+      showTheme(theme);
       return;
     }
 
@@ -46,9 +58,7 @@
     root.style.setProperty('--reveal-radius', `${radius}px`);
     root.dataset.themeReveal = '';
 
-    const transition = document.startViewTransition(() => {
-      root.dataset.theme = theme;
-    });
+    const transition = document.startViewTransition(() => showTheme(theme));
     // The browser skips the animation when the tab isn't being drawn. The
     // theme still changes, so there's nothing to handle.
     transition.ready.catch(() => {});
@@ -70,7 +80,7 @@
   // Until the visitor chooses, keep following the system setting live.
   systemPrefersLight.addEventListener('change', (event) => {
     if (!readSavedTheme(() => localStorage)) {
-      root.dataset.theme = systemTheme(event.matches);
+      showTheme(systemTheme(event.matches));
     }
   });
 </script>

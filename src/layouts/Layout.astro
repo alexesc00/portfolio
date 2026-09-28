@@ -1,13 +1,18 @@
 ---
 import { Font } from 'astro:assets';
-import { themeStorageKey } from '../lib/theme';
+import { themeColors, themeStorageKey } from '../lib/theme';
 import '../styles/global.css';
 
 interface Props {
   title: string;
+  /** Shown under the title in search results and link previews. */
+  description: string;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
+/** A file from public/, under the path the site is served from. */
+const publicFile = (name: string) =>
+  `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${name}`;
 ---
 
 <!doctype html>
@@ -16,8 +21,23 @@ const { title } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={publicFile('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={publicFile('favicon-32.png')} sizes="32x32" />
+    <link rel="apple-touch-icon" href={publicFile('apple-touch-icon.png')} />
+    {/* Without scripts, the browser bar follows the system setting. */}
+    <meta
+      name="theme-color"
+      content={themeColors.dark}
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content={themeColors.light}
+      media="(prefers-color-scheme: light)"
+    />
     {/* Runs before anything is drawn, so the page never flashes the wrong theme. */}
-    <script is:inline define:vars={{ themeStorageKey }}>
+    <script is:inline define:vars={{ themeStorageKey, themeColors }}>
       let theme = null;
       try {
         theme = localStorage.getItem(themeStorageKey);
@@ -30,6 +50,12 @@ const { title } = Astro.props;
           : 'dark';
       }
       document.documentElement.dataset.theme = theme;
+      // Both tags, since the browser picks one by the system setting.
+      for (const meta of document.querySelectorAll(
+        'meta[name="theme-color"]',
+      )) {
+        meta.content = themeColors[theme];
+      }
     </script>
     <Font cssVariable="--font-overused-grotesk" preload />
   </head>

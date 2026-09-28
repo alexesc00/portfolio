@@ -1,5 +1,15 @@
 export type Theme = 'dark' | 'light';
 
+/**
+ * The browser bar color for each theme: the background, so the bar and
+ * the page read as one. Written out because the head script needs them
+ * before the stylesheet loads; a test keeps them matching the tokens.
+ */
+export const themeColors: Record<Theme, string> = {
+  dark: '#10100f',
+  light: '#f7f7f3',
+};
+
 /** The localStorage key that remembers a visitor's chosen theme. */
 export const themeStorageKey = 'theme';
 

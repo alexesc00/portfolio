@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   oppositeTheme,
@@ -6,6 +7,7 @@ import {
   revealRadius,
   saveTheme,
   systemTheme,
+  themeColors,
   themeStorageKey,
 } from './theme';
 
@@ -102,5 +104,21 @@ describe('revealRadius', () => {
     expect(revealRadius({ x: 780, y: 20 }, viewport)).toBeCloseTo(
       Math.hypot(780, 580),
     );
+  });
+});
+
+describe('themeColors', () => {
+  it('matches the background tokens, dark and then light', () => {
+    // The head script needs these before the stylesheet loads, so they
+    // can't be read from it; this keeps the two from drifting apart.
+    const css = readFileSync(
+      new URL('../styles/global.css', import.meta.url),
+      'utf8',
+    );
+    const backgrounds = [
+      ...css.matchAll(/--color-background:\s*(#[0-9a-f]{6})/gi),
+    ].map(([, color]) => color.toLowerCase());
+
+    expect(backgrounds).toEqual([themeColors.dark, themeColors.light]);
   });
 });

@@ -51,6 +51,32 @@
   );
   --color-border: color-mix(in oklab, var(--color-foreground) 10%, transparent);
 
+  /*
+   * The dotted Æ's colors while it moves, and nothing else's. Heat, for
+   * dark mode, runs from cold to hot along a ramp; where each color sits
+   * on it is in src/lib/dot-colors.ts. Smear, for light mode, is a wheel
+   * of directions, one color every 60° from travelling right.
+   */
+  --color-heat-1: #0b1d6b;
+  --color-heat-2: #0962fc;
+  --color-heat-3: #19e7ff;
+  --color-heat-4: #f4fbff;
+  --color-heat-5: #fcfbcb;
+  --color-heat-6: #fcfb6b;
+  --color-heat-7: #fff112;
+  --color-heat-8: #ffd817;
+  --color-heat-9: #f39f09;
+  --color-heat-10: #de4b00;
+  --color-heat-11: #ec1b00;
+  --color-heat-12: #aa110b;
+  --color-heat-13: #5c0703;
+  --color-smear-1: #e15614;
+  --color-smear-2: #d8c42c;
+  --color-smear-3: #6b9041;
+  --color-smear-4: #0f7166;
+  --color-smear-5: #1f6fc0;
+  --color-smear-6: #db4578;
+
   /* Everything scanned: header, hero corners, table, labels, buttons. */
   --text-interface: 0.875rem;
   --text-interface--line-height: 1.25rem;

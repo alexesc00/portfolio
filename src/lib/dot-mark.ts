@@ -38,7 +38,6 @@ const damping = 0.85;
 /** The push radius as tuned on a mark 350px tall. */
 const basePushRadius = 120;
 const basePushRadiusHeight = 350;
-/** A longer frame, after a stall or a background tab, would fling the dots. */
 const longestFrame = 50;
 /** Below this, movement is too small to see, so the dots count as still. */
 const stillMotion = 0.01;
@@ -89,6 +88,16 @@ export function sampleDots({
 }
 
 /**
+ * How much of `elapsed` milliseconds to move things on by. A long frame,
+ * after a stall or a background tab, would fling the dots; a clock that
+ * steps backwards would make the damping amplify instead, and blow them
+ * apart.
+ */
+export function clampElapsed(elapsed: number): number {
+  return Math.min(Math.max(elapsed, 0), longestFrame);
+}
+
+/**
  * Moves the dots on by `elapsed` milliseconds: pushed away from `pusher`
  * when they're within `pushRadius` of it, and always pulled home. Returns
  * whether every dot has come to rest.
@@ -99,9 +108,7 @@ export function stepDots(
   pusher: Point | null,
   pushRadius: number,
 ): boolean {
-  // Clamped at zero too: a clock that steps backwards would make the
-  // damping amplify instead, and blow the dots apart.
-  const frames = Math.min(Math.max(elapsed, 0), longestFrame) / frameLength;
+  const frames = clampElapsed(elapsed) / frameLength;
   const frameDamping = damping ** frames;
   const { homeX, homeY, x, y, vx, vy } = dots;
   let motion = 0;

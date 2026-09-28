@@ -108,6 +108,15 @@ describe('stepDots', () => {
     expect(stepDots(dots, frame60, null, 120)).toBe(false);
   });
 
+  it('settles while a resting pointer holds a dot away from home', () => {
+    const dots = oneDot();
+
+    const isSettled = run(dots, 3000, frame60, { x: 50, y: 0 });
+
+    expect(dots.x[0]).toBeLessThan(-1);
+    expect(isSettled).toBe(true);
+  });
+
   it('springs a displaced dot back home and settles', () => {
     const dots = oneDot(20, -10);
 

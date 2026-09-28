@@ -56,6 +56,7 @@
     canStopDrawing,
     canvasScale,
     choosePusher,
+    isNearMark,
     pushRadiusFor,
     sampleDots,
     stepDots,
@@ -438,13 +439,12 @@
 
     function follow(clientX: number, clientY: number) {
       const area = root.getBoundingClientRect();
-      const x = clientX - area.left;
-      const y = clientY - area.top;
-      if (x < 0 || y < 0 || x > area.width || y > area.height) {
+      const point = { x: clientX - area.left, y: clientY - area.top };
+      if (!isNearMark(point, letterBounds, pushRadius)) {
         release();
         return;
       }
-      pointer = { x, y };
+      pointer = point;
       wake();
     }
 

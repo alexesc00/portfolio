@@ -22,8 +22,8 @@ const afterglow = { heat: 900, smear: 700 };
 const foreground = '#f7f7f3';
 
 const heatRamp = [
-  '#0b1d6b',
-  '#0962fc',
+  '#335ada',
+  '#2d76ff',
   '#19e7ff',
   '#f4fbff',
   '#fcfbcb',
@@ -33,8 +33,8 @@ const heatRamp = [
   '#f39f09',
   '#de4b00',
   '#ec1b00',
-  '#aa110b',
-  '#5c0703',
+  '#ca392c',
+  '#b71b10',
 ].map((color, i) => ({ at: heatStops[i], color }));
 
 const smearWheel = [
@@ -94,11 +94,11 @@ describe('heatColors', () => {
   });
 
   it('runs to the hot end of the ramp for a dot pushed away fast', () => {
-    expect(colors[heatColorIndex(1)]).toBe('#5c0703');
+    expect(colors[heatColorIndex(1)]).toBe('#b71b10');
   });
 
   it('runs to the cold end of the ramp for a dot springing home fast', () => {
-    expect(colors[heatColorIndex(-1)]).toBe('#0b1d6b');
+    expect(colors[heatColorIndex(-1)]).toBe('#335ada');
   });
 
   it('mixes a gently pushed dot partway from the foreground to warm', () => {

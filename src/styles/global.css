@@ -57,8 +57,8 @@
    * on it is in src/lib/dot-colors.ts. Smear, for light mode, is a wheel
    * of directions, one color every 60° from travelling right.
    */
-  --color-heat-1: #0b1d6b;
-  --color-heat-2: #0962fc;
+  --color-heat-1: #335ada;
+  --color-heat-2: #2d76ff;
   --color-heat-3: #19e7ff;
   --color-heat-4: #f4fbff;
   --color-heat-5: #fcfbcb;
@@ -68,8 +68,8 @@
   --color-heat-9: #f39f09;
   --color-heat-10: #de4b00;
   --color-heat-11: #ec1b00;
-  --color-heat-12: #aa110b;
-  --color-heat-13: #5c0703;
+  --color-heat-12: #ca392c;
+  --color-heat-13: #b71b10;
   --color-smear-1: #e15614;
   --color-smear-2: #d8c42c;
   --color-smear-3: #6b9041;

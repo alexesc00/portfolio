@@ -1,0 +1,286 @@
+{
+  "collections": [
+    {
+      "name": "Color",
+      "modes": ["Dark", "Light"],
+      "variables": [
+        {
+          "name": "background",
+          "css": "--color-background",
+          "type": "COLOR",
+          "values": { "Dark": "#10100f", "Light": "#f7f7f3" }
+        },
+        {
+          "name": "surface",
+          "css": "--color-surface",
+          "type": "COLOR",
+          "values": { "Dark": "#f7f7f31a", "Light": "#10100f0d" }
+        },
+        {
+          "name": "text",
+          "css": "--color-text",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-foreground" },
+            "Light": { "alias": "--color-foreground" }
+          }
+        },
+        {
+          "name": "text-muted",
+          "css": "--color-text-muted",
+          "type": "COLOR",
+          "values": { "Dark": "#f7f7f399", "Light": "#10100f99" }
+        },
+        {
+          "name": "text-subtle",
+          "css": "--color-text-subtle",
+          "type": "COLOR",
+          "values": { "Dark": "#f7f7f366", "Light": "#10100f66" }
+        },
+        {
+          "name": "border",
+          "css": "--color-border",
+          "type": "COLOR",
+          "values": { "Dark": "#f7f7f31a", "Light": "#10100f1a" }
+        },
+        {
+          "name": "foreground",
+          "css": "--color-foreground",
+          "type": "COLOR",
+          "values": { "Dark": "#f7f7f3", "Light": "#10100f" }
+        },
+        {
+          "name": "weight-interface",
+          "css": "--weight-interface",
+          "type": "FLOAT",
+          "values": { "Dark": 500, "Light": 400 }
+        },
+        {
+          "name": "heat/heat-1",
+          "css": "--color-heat-1",
+          "type": "COLOR",
+          "values": { "Dark": "#335ada", "Light": "#335ada" }
+        },
+        {
+          "name": "heat/heat-2",
+          "css": "--color-heat-2",
+          "type": "COLOR",
+          "values": { "Dark": "#2d76ff", "Light": "#2d76ff" }
+        },
+        {
+          "name": "heat/heat-3",
+          "css": "--color-heat-3",
+          "type": "COLOR",
+          "values": { "Dark": "#19e7ff", "Light": "#19e7ff" }
+        },
+        {
+          "name": "heat/heat-4",
+          "css": "--color-heat-4",
+          "type": "COLOR",
+          "values": { "Dark": "#f4fbff", "Light": "#f4fbff" }
+        },
+        {
+          "name": "heat/heat-5",
+          "css": "--color-heat-5",
+          "type": "COLOR",
+          "values": { "Dark": "#fcfbcb", "Light": "#fcfbcb" }
+        },
+        {
+          "name": "heat/heat-6",
+          "css": "--color-heat-6",
+          "type": "COLOR",
+          "values": { "Dark": "#fcfb6b", "Light": "#fcfb6b" }
+        },
+        {
+          "name": "heat/heat-7",
+          "css": "--color-heat-7",
+          "type": "COLOR",
+          "values": { "Dark": "#fff112", "Light": "#fff112" }
+        },
+        {
+          "name": "heat/heat-8",
+          "css": "--color-heat-8",
+          "type": "COLOR",
+          "values": { "Dark": "#ffd817", "Light": "#ffd817" }
+        },
+        {
+          "name": "heat/heat-9",
+          "css": "--color-heat-9",
+          "type": "COLOR",
+          "values": { "Dark": "#f39f09", "Light": "#f39f09" }
+        },
+        {
+          "name": "heat/heat-10",
+          "css": "--color-heat-10",
+          "type": "COLOR",
+          "values": { "Dark": "#de4b00", "Light": "#de4b00" }
+        },
+        {
+          "name": "heat/heat-11",
+          "css": "--color-heat-11",
+          "type": "COLOR",
+          "values": { "Dark": "#ec1b00", "Light": "#ec1b00" }
+        },
+        {
+          "name": "heat/heat-12",
+          "css": "--color-heat-12",
+          "type": "COLOR",
+          "values": { "Dark": "#ca392c", "Light": "#ca392c" }
+        },
+        {
+          "name": "heat/heat-13",
+          "css": "--color-heat-13",
+          "type": "COLOR",
+          "values": { "Dark": "#b71b10", "Light": "#b71b10" }
+        },
+        {
+          "name": "smear/smear-1",
+          "css": "--color-smear-1",
+          "type": "COLOR",
+          "values": { "Dark": "#e15614", "Light": "#e15614" }
+        },
+        {
+          "name": "smear/smear-2",
+          "css": "--color-smear-2",
+          "type": "COLOR",
+          "values": { "Dark": "#d8c42c", "Light": "#d8c42c" }
+        },
+        {
+          "name": "smear/smear-3",
+          "css": "--color-smear-3",
+          "type": "COLOR",
+          "values": { "Dark": "#6b9041", "Light": "#6b9041" }
+        },
+        {
+          "name": "smear/smear-4",
+          "css": "--color-smear-4",
+          "type": "COLOR",
+          "values": { "Dark": "#0f7166", "Light": "#0f7166" }
+        },
+        {
+          "name": "smear/smear-5",
+          "css": "--color-smear-5",
+          "type": "COLOR",
+          "values": { "Dark": "#1f6fc0", "Light": "#1f6fc0" }
+        },
+        {
+          "name": "smear/smear-6",
+          "css": "--color-smear-6",
+          "type": "COLOR",
+          "values": { "Dark": "#db4578", "Light": "#db4578" }
+        }
+      ]
+    },
+    {
+      "name": "Layout",
+      "modes": ["Desktop", "Phone"],
+      "variables": [
+        {
+          "name": "spacing/page",
+          "css": "--spacing-page",
+          "type": "FLOAT",
+          "values": { "Desktop": 48, "Phone": 16 }
+        },
+        {
+          "name": "spacing/inset",
+          "css": "--spacing-inset",
+          "type": "FLOAT",
+          "values": { "Desktop": 32, "Phone": 24 }
+        },
+        {
+          "name": "spacing/dot",
+          "css": "--spacing-dot",
+          "type": "FLOAT",
+          "values": { "Desktop": 6, "Phone": 6 }
+        },
+        {
+          "name": "spacing/dot-size",
+          "css": "--spacing-dot-size",
+          "type": "FLOAT",
+          "values": { "Desktop": 3, "Phone": 3 }
+        },
+        {
+          "name": "text/interface",
+          "css": "--text-interface",
+          "type": "FLOAT",
+          "values": { "Desktop": 14, "Phone": 14 }
+        },
+        {
+          "name": "text/interface-line-height",
+          "css": "--text-interface--line-height",
+          "type": "FLOAT",
+          "values": { "Desktop": 20, "Phone": 20 }
+        },
+        {
+          "name": "text/interface-letter-spacing",
+          "css": "--text-interface--letter-spacing",
+          "type": "FLOAT",
+          "values": { "Desktop": 1, "Phone": 1 }
+        },
+        {
+          "name": "text/interface-weight",
+          "css": "--text-interface--font-weight",
+          "type": "FLOAT",
+          "values": {
+            "Desktop": { "alias": "--weight-interface" },
+            "Phone": { "alias": "--weight-interface" }
+          }
+        },
+        {
+          "name": "text/reading",
+          "css": "--text-reading",
+          "type": "FLOAT",
+          "values": { "Desktop": 20, "Phone": 20 }
+        },
+        {
+          "name": "text/reading-line-height",
+          "css": "--text-reading--line-height",
+          "type": "FLOAT",
+          "values": { "Desktop": 28, "Phone": 28 }
+        },
+        {
+          "name": "text/reading-weight",
+          "css": "--text-reading--font-weight",
+          "type": "FLOAT",
+          "values": { "Desktop": 400, "Phone": 400 }
+        }
+      ]
+    },
+    {
+      "name": "Motion",
+      "modes": ["Default"],
+      "variables": [
+        {
+          "name": "ease/out",
+          "css": "--ease-out",
+          "type": "EASING",
+          "values": { "Default": [0.19, 1, 0.22, 1] }
+        },
+        {
+          "name": "ease/in-out",
+          "css": "--ease-in-out",
+          "type": "EASING",
+          "values": { "Default": [0.4, 0, 0.2, 1] }
+        },
+        {
+          "name": "duration/reveal",
+          "css": "--transition-duration-reveal",
+          "type": "TIMING",
+          "values": { "Default": 0.7 }
+        },
+        {
+          "name": "duration/afterglow-heat",
+          "css": "--transition-duration-afterglow-heat",
+          "type": "TIMING",
+          "values": { "Default": 0.9 }
+        },
+        {
+          "name": "duration/afterglow-smear",
+          "css": "--transition-duration-afterglow-smear",
+          "type": "TIMING",
+          "values": { "Default": 0.7 }
+        }
+      ]
+    }
+  ]
+}

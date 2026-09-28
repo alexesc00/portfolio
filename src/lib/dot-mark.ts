@@ -176,10 +176,20 @@ export function choosePusher({
   return null;
 }
 
-export const canStopDrawing: (state: {
+/**
+ * Whether the drawing loop can stop until something wakes it. Once the
+ * dots settle under a pointer nothing changes until it moves; without a
+ * pointer the stand-in is about to wander, so the loop keeps going.
+ */
+export function canStopDrawing({
+  isSettled,
+  hasPointer,
+}: {
   isSettled: boolean;
   hasPointer: boolean;
-}) => boolean = () => false;
+}): boolean {
+  return isSettled && hasPointer;
+}
 
 /**
  * How many canvas pixels to draw per CSS pixel. Past 2× the extra

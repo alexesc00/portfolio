@@ -27,6 +27,7 @@ const css = `
   --text-interface--letter-spacing: 0.01em;
   --text-interface--font-weight: var(--weight-interface);
   --text-mark: min(60svh, 97.8vw);
+  --breakpoint-2xl: 90rem;
   --spacing-page: 1rem;
   --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
   --transition-duration-reveal: 700ms;
@@ -246,6 +247,12 @@ describe('compareWithFigma', () => {
 
     expect(differences.join('\n')).not.toContain('--font-sans');
     expect(differences.join('\n')).not.toContain('--text-mark');
+  });
+
+  it('doesn’t expect Figma to hold the breakpoints', () => {
+    const differences = compareWithFigma(tokens, matchingSnapshot());
+
+    expect(differences.join('\n')).not.toContain('--breakpoint-');
   });
 });
 

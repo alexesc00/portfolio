@@ -42,4 +42,16 @@ describe('the hero', () => {
     expect(html.match(/<header/g)).toHaveLength(1);
     expect(html).not.toContain('<main');
   });
+
+  it('links down to the work, the arrow kept from screen readers', () => {
+    expect(html).toMatch(
+      /<a[^>]* href="#work"[^>]*>\s*<span aria-hidden="true">↓<\/span>\s*Work\s*<\/a>/,
+    );
+  });
+
+  it('puts the link in the corner across from the tagline', () => {
+    expect(html.indexOf('href="#work"')).toBeGreaterThan(
+      html.indexOf('Design engineer'),
+    );
+  });
 });

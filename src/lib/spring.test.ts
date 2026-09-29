@@ -62,6 +62,29 @@ describe('springCurve', () => {
   });
 });
 
+describe('springCurve’s ending', () => {
+  // Stopping 0.2% short of rest and snapping the rest of the way leaves a
+  // step at the very end: 1.4px on a 700px drawer, moving 0.3px a frame.
+  // The step between any two of the last points stays under 0.07%, half
+  // a pixel on that drawer.
+  it('lands on rest without a step', () => {
+    for (const spring of [settleSpring, aeSpring]) {
+      const values = (
+        /^linear\((.+)\)$/.exec(springCurve(spring).easing)?.[1] ?? ''
+      )
+        .split(', ')
+        .map(Number);
+      const ending = values.slice(-8);
+
+      for (let i = 1; i < ending.length; i++) {
+        expect(Math.abs((ending[i] ?? 0) - (ending[i - 1] ?? 0))).toBeLessThan(
+          0.0007,
+        );
+      }
+    }
+  });
+});
+
 describe('stepConstants', () => {
   // The Æ's dots were first tuned by hand: each 60th of a second, a dot's
   // speed gains 0.08 of its distance from home and keeps 0.85 of itself.

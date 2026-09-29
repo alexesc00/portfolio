@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { beforeAll, describe, expect, it } from 'vitest';
+import siteConfig from '../../astro.config.mjs';
 import { themeColors } from '../lib/theme';
 import Layout from './Layout.astro';
 
@@ -16,7 +17,7 @@ let themeScript = '';
 
 beforeAll(async () => {
   const container = await AstroContainer.create({
-    astroConfig: { site: 'https://alexesc00.github.io' },
+    astroConfig: { site: siteConfig.site },
   });
   html = await container.renderToString(Layout, {
     props: { title: 'Test', description: 'A page for testing.' },
@@ -39,12 +40,8 @@ function tags(tagName: string): Record<string, string>[] {
   );
 }
 
-/*
- * The site is served from a base path on GitHub Pages. The test renderer
- * doesn't apply it, so links are checked against whichever base is in use;
- * the build puts /portfolio in front.
- */
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+/** Where the site is served, as link previews and search engines see it. */
+const home = 'https://alexescudero.design/';
 
 describe('the page head', () => {
   it('describes the page for search results and link previews', () => {
@@ -65,11 +62,11 @@ describe('the page head', () => {
     });
     expect(metas).toContainEqual({
       property: 'og:url',
-      content: `https://alexesc00.github.io${base}/`,
+      content: home,
     });
     expect(tags('link')).toContainEqual({
       rel: 'canonical',
-      href: `https://alexesc00.github.io${base}/`,
+      href: home,
     });
   });
 
@@ -77,9 +74,7 @@ describe('the page head', () => {
     const metas = tags('meta');
     const image = metas.find((meta) => meta.property === 'og:image');
 
-    expect(image?.content).toBe(
-      `https://alexesc00.github.io${base}/link-preview.png`,
-    );
+    expect(image?.content).toBe(`${home}link-preview.png`);
     expect(metas).toContainEqual({
       property: 'og:image:width',
       content: '1200',
@@ -109,12 +104,12 @@ describe('the page head', () => {
 
     expect(links).toContainEqual({
       rel: 'icon',
-      href: `${base}/favicon.svg`,
+      href: '/favicon.svg',
       type: 'image/svg+xml',
     });
     expect(links).toContainEqual({
       rel: 'icon',
-      href: `${base}/favicon-32.png`,
+      href: '/favicon-32.png',
       sizes: '32x32',
     });
   });
@@ -122,7 +117,7 @@ describe('the page head', () => {
   it('gives phones the icon for their home screen', () => {
     expect(tags('link')).toContainEqual({
       rel: 'apple-touch-icon',
-      href: `${base}/apple-touch-icon.png`,
+      href: '/apple-touch-icon.png',
     });
   });
 
@@ -131,10 +126,7 @@ describe('the page head', () => {
 
     expect(icons.length).toBeGreaterThan(0);
     for (const { href } of icons) {
-      const file = new URL(
-        `../../public${href.slice(base.length)}`,
-        import.meta.url,
-      );
+      const file = new URL(`../../public${href}`, import.meta.url);
       expect(existsSync(file), href).toBe(true);
     }
   });

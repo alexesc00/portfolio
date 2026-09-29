@@ -152,6 +152,38 @@ describe('the works table', () => {
     expect(group).toMatch(new RegExp(`<tr[^>]* id="${controls}"[^>]* hidden`));
   });
 
+  // A row that opens is uncovered by the rows under it sliding down, and
+  // covered again as they slide back. So each group paints its own
+  // background, and the line between two projects belongs to the group
+  // below it, moving with it; no row's line has to switch on or off.
+  it('draws the line between projects on the group below, which covers what it slides over', () => {
+    const groups = elements(html, 'tbody');
+    const headerRow = elements(elements(html, 'thead')[0], 'tr')[0] ?? '';
+
+    for (const group of groups) {
+      const openingTag = /^<tbody[^>]*>/.exec(group)?.[0] ?? '';
+      expect(openingTag).toMatch(/\bborder-t\b/);
+      expect(openingTag).toMatch(/\bbg-background\b/);
+      expect(openingTag).toMatch(/\blast:border-b\b/);
+    }
+    for (const row of [headerRow, ...bodyRows()]) {
+      expect(/^<tr[^>]*>/.exec(row)?.[0]).not.toMatch(/\bborder-b\b/);
+    }
+  });
+
+  // Category's text and the project's name each need a box of their own
+  // to roll up and out of the cell.
+  it('gives Category and the name over it their own boxes to roll', () => {
+    const [, category] = elements(bodyRows()[1], 'td');
+
+    expect(category).toMatch(
+      /<span[^>]* data-category[^>]*>\s*Events\s*<\/span>/,
+    );
+    expect(category).toMatch(
+      /<span[^>]* data-name[^>]*>\s*Project 2\s*<\/span>/,
+    );
+  });
+
   // The button's name already says it, so screen readers hear it once.
   it('keeps the project name beside Category for sighted visitors only', () => {
     const [, category] = elements(bodyRows()[1], 'td');

@@ -1,0 +1,119 @@
+---
+interface Props {
+  category: string;
+  /** The project's name, for a row that opens; a locked row has none. */
+  name?: string;
+}
+
+const { category, name } = Astro.props;
+---
+
+{/*
+ * Pointing at a row that opens rolls the project's name up into
+ * Category's place, and Category up and out of it. The button's name
+ * already says the project's name, so screen readers hear it once.
+ */}
+<span class="block py-3.5" data-rolls={name ? '' : undefined}>
+  <span class="relative block">
+    <span class="block" data-category>
+      {category}
+    </span>
+    {name && (
+      <span aria-hidden="true" class="absolute inset-0" data-name>
+        {name}
+      </span>
+    )}
+  </span>
+</span>
+
+<style>
+  /*
+   * The words roll through a window that fades out at its top and bottom
+   * instead of cutting them off. The 20px line starts 0.875rem down, below
+   * the cell's padding, and its letters run from 4.7px to 17.3px down it,
+   * so the fades stop short of them: a word at rest is never faded.
+   */
+  [data-rolls] {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent calc(0.875rem - 5px),
+      #000 calc(0.875rem + 4.5px),
+      #000 calc(0.875rem + 17.5px),
+      transparent calc(0.875rem + 25px)
+    );
+  }
+
+  /*
+   * A word arriving moves on the Æ spring, so it lands with its bounce; a
+   * word leaving settles, so it goes and never swings back into view.
+   * Fades always settle: a spring's swing back would flicker a fading word
+   * back in. A transition runs on the timing of the state it's heading
+   * into, so each state sets the timing for the words entering it.
+   */
+  [data-rolls] [data-category] {
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      translate var(--transition-duration-spring) var(--ease-spring);
+  }
+
+  [data-rolls] [data-name] {
+    opacity: 0;
+    translate: 0 100%;
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      translate var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  /*
+   * Only while the row is closed: an open row's heading already names the
+   * project, and pointing at it is about closing it.
+   */
+  @media (hover: hover) {
+    :global(tr:hover:not(:has([aria-expanded='true'])))
+      [data-rolls]
+      [data-category] {
+      opacity: 0;
+      translate: 0 -100%;
+      transition:
+        opacity var(--transition-duration-settle) var(--ease-settle),
+        translate var(--transition-duration-settle) var(--ease-settle);
+    }
+
+    :global(tr:hover:not(:has([aria-expanded='true'])))
+      [data-rolls]
+      [data-name] {
+      opacity: 1;
+      translate: 0 0;
+      transition:
+        opacity var(--transition-duration-settle) var(--ease-settle),
+        translate var(--transition-duration-spring) var(--ease-spring);
+    }
+  }
+
+  :global(tr:has(:focus-visible):not(:has([aria-expanded='true'])))
+    [data-rolls]
+    [data-category] {
+    opacity: 0;
+    translate: 0 -100%;
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      translate var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  :global(tr:has(:focus-visible):not(:has([aria-expanded='true'])))
+    [data-rolls]
+    [data-name] {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      translate var(--transition-duration-spring) var(--ease-spring);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-rolls] [data-category],
+    [data-rolls] [data-name] {
+      transition: none !important;
+    }
+  }
+</style>

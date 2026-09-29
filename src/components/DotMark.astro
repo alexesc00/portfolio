@@ -85,7 +85,7 @@
     return parseFloat(token(name));
   }
 
-  /** A duration token, like `--transition-duration-reveal`, in ms. */
+  /** A duration token, like `--transition-duration-afterglow-heat`, in ms. */
   function tokenInMilliseconds(name: string): number {
     const value = token(name);
     return value.endsWith('ms') ? parseFloat(value) : parseFloat(value) * 1000;

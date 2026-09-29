@@ -239,10 +239,13 @@ describe('compareWithFigma', () => {
 
   it('reports a token Figma doesn’t have', () => {
     const snapshot = matchingSnapshot();
-    snapshot.collections[2].variables.pop();
+    snapshot.collections[2].variables =
+      snapshot.collections[2].variables.filter(
+        (variable) => variable.css !== '--transition-duration-reveal',
+      );
 
     expect(compareWithFigma(tokens, snapshot)).toEqual([
-      '--ease-settle is in global.css but not in Figma',
+      '--transition-duration-reveal is in global.css but not in Figma',
     ]);
   });
 
@@ -273,12 +276,13 @@ describe('compareWithFigma', () => {
     const snapshot = matchingSnapshot();
     variableFor(snapshot, '--ease-settle').values.Default = { bounce: 0.2 };
 
-    const differences = compareWithFigma(tokens, snapshot);
+    const [curve, runTime] = compareWithFigma(tokens, snapshot);
 
-    expect(differences).toHaveLength(1);
-    expect(differences[0]).toMatch(
+    expect(curve).toMatch(
       /^--ease-settle, Default: Figma has a spring with bounce 0\.2, global\.css has linear\(/,
     );
+    // A different bounce also settles in a different time.
+    expect(runTime).toMatch(/^--transition-duration-settle: /);
   });
 
   it('reports a spring run for longer or shorter than its curve', () => {

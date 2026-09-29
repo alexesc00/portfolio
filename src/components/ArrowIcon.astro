@@ -1,0 +1,24 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+{/*
+ * The arrow on the button that opens a works table row, pointing up.
+ * Exported from the Figma component "Works table / Toggle"; turned
+ * half a turn, it's the component's down arrow. Decorative: the button
+ * is named in words.
+ */}
+<svg
+  viewBox="0 0 18 18"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.125"
+  aria-hidden="true"
+  class={className}
+>
+  <path d="M4.5 11.25L9 6.75L13.5 11.25" />
+</svg>

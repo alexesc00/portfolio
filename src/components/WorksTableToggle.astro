@@ -1,0 +1,49 @@
+---
+import { toggleWord } from '../lib/row-toggle';
+import ArrowIcon from './ArrowIcon.astro';
+
+interface Props {
+  projectName: string;
+  /** The id of the row this button opens. */
+  controls: string;
+}
+
+const { projectName, controls } = Astro.props;
+---
+
+{/*
+ * At rest it's a square with an arrow: up on a closed row, down on an
+ * open one. When the row is pointed at or the button has keyboard focus,
+ * it widens to say "Open" or "Close" and the arrow points the way the
+ * row will go. Its ::after covers the whole row, so the row can be
+ * clicked anywhere and pointing at the row is pointing at the button.
+ */}
+<button
+  type="button"
+  aria-expanded="false"
+  aria-controls={controls}
+  class="group/toggle flex h-12 cursor-pointer items-center gap-2.5 rounded-xl bg-surface px-3.75 after:absolute after:inset-0 hover:pr-4 focus-visible:pr-4"
+  data-row-toggle
+>
+  <ArrowIcon class="size-4.5 shrink-0 group-hover/toggle:rotate-180 group-focus-visible/toggle:rotate-180 group-aria-expanded/toggle:rotate-180 group-aria-expanded/toggle:group-hover/toggle:rotate-0 group-aria-expanded/toggle:group-focus-visible/toggle:rotate-0" />
+  <span
+    class="sr-only group-hover/toggle:not-sr-only group-focus-visible/toggle:not-sr-only"
+    data-toggle-word
+  >
+    {toggleWord.closed}
+  </span>
+  <span class="sr-only">{` ${projectName}`}</span>
+</button>
+
+<script>
+  import { toggleRow } from '../lib/row-toggle';
+
+  for (const button of document.querySelectorAll('[data-row-toggle]')) {
+    const panel = document.getElementById(
+      button.getAttribute('aria-controls') ?? '',
+    );
+    const word = button.querySelector('[data-toggle-word]');
+    if (!panel || !word) continue;
+    button.addEventListener('click', () => toggleRow({ button, word, panel }));
+  }
+</script>

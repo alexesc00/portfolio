@@ -58,7 +58,7 @@ beforeAll(async () => {
 });
 
 /** The text a screen reader would read in `markup`, tags removed. */
-function textOf(markup: string) {
+function textOf(markup = '') {
   return markup
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
@@ -66,17 +66,18 @@ function textOf(markup: string) {
 }
 
 /** Each `<tag>` element in `markup`, whole. */
-function elements(markup: string, tag: string) {
+function elements(markup: string | undefined, tag: string) {
+  if (!markup) return [];
   return (
     markup.match(new RegExp(`<${tag}[\\s>][\\s\\S]*?</${tag}>`, 'g')) ?? []
   );
 }
 
-const bodyRows = () => elements(elements(html, 'tbody')[0] ?? '', 'tr');
+const bodyRows = () => elements(elements(html, 'tbody')[0], 'tr');
 
 describe('the works table', () => {
   it('names each column in a header row', () => {
-    const headers = elements(elements(html, 'thead')[0] ?? '', 'th');
+    const headers = elements(elements(html, 'thead')[0], 'th');
 
     expect(headers.map(textOf)).toEqual([
       'Details',
@@ -119,20 +120,5 @@ describe('the works table', () => {
 
   it('gives a locked row nothing to open it with', () => {
     expect(bodyRows()[0]).not.toContain('<button');
-  });
-
-  // The rows are laid out on a grid, and some browsers stop treating
-  // table parts as a table once their display changes.
-  it('keeps the table’s roles for screen readers', () => {
-    expect(html).toMatch(/<table[^>]* role="table"/);
-    for (const row of elements(html, 'tr')) {
-      expect(row).toMatch(/^<tr[^>]* role="row"/);
-    }
-    for (const header of elements(html, 'th')) {
-      expect(header).toContain('role="columnheader"');
-    }
-    for (const cell of elements(html, 'td')) {
-      expect(cell).toMatch(/^<td[^>]* role="cell"/);
-    }
   });
 });

@@ -1,0 +1,78 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import EyeIcon from './EyeIcon.astro';
+import LockIcon from './LockIcon.astro';
+
+interface Props {
+  projects: CollectionEntry<'projects'>['data'][];
+}
+
+const { projects } = Astro.props;
+const rows = projects.toSorted((a, b) => a.order - b.order);
+
+/*
+ * Every row is the same grid, so the columns line up without the
+ * browser's table layout: 6 columns on phones and at 768 wide, 12 from
+ * 1024 up. A column the screen is too narrow for is hidden from sight
+ * but still read out by screen readers. On phones, What I did drops
+ * onto a second line under Solution.
+ */
+const row = 'grid grid-cols-6 gap-x-2 md:gap-x-6 lg:grid-cols-12';
+const column = {
+  details: 'col-span-1 lg:col-span-4 xl:col-span-1',
+  category: 'sr-only xl:not-sr-only xl:col-span-3',
+  solution: 'col-span-5 pr-6 md:col-span-2 md:pr-0 lg:col-span-4',
+  whatIDid:
+    'col-span-5 col-start-2 pr-6 md:col-span-3 md:col-start-auto lg:col-span-4 2xl:col-span-3 2xl:pr-0',
+  segment: 'sr-only 2xl:not-sr-only 2xl:col-span-1 2xl:text-right',
+};
+// Header cells are bold and centered by default; this sets them like the rows.
+const header = 'text-left text-interface';
+---
+
+<table class="block w-full">
+  <thead class="block">
+    <tr
+      class:list={[row, 'border-b border-border pt-8 pb-4.75 text-text-muted']}
+    >
+      <th scope="col" class:list={[header, column.details, 'pl-3.75']}>
+        <EyeIcon class="size-4.5" />
+        <span class="sr-only">Details</span>
+      </th>
+      <th scope="col" class:list={[header, column.category]}>
+        Category
+      </th>
+      <th scope="col" class:list={[header, column.solution]}>
+        Solution
+      </th>
+      <th scope="col" class:list={[header, column.whatIDid, 'max-md:sr-only']}>
+        What I did
+      </th>
+      <th scope="col" class:list={[header, column.segment]}>
+        Segment
+      </th>
+    </tr>
+  </thead>
+  <tbody class="block">
+    {rows.map((project) => (
+      <tr class:list={[row, 'border-b border-border pt-2 pb-1.75']}>
+        <td class={column.details}>
+          {project.locked && (
+            <div class="flex size-12 items-center justify-center rounded-xl bg-surface">
+              <LockIcon class="size-4.5" />
+              <span class="sr-only">Locked, under NDA</span>
+            </div>
+          )}
+        </td>
+        <td class:list={[column.category, 'py-3.5']}>{project.category}</td>
+        <td class:list={[column.solution, 'py-3.5 max-md:pb-0']}>
+          {project.solution}
+        </td>
+        <td class:list={[column.whatIDid, 'py-3.5 max-md:pt-2']}>
+          {project.practices.join(', ')}
+        </td>
+        <td class:list={[column.segment, 'py-3.5']}>{project.segment}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>

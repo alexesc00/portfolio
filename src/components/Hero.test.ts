@@ -25,7 +25,7 @@ describe('the hero', () => {
       /^<header[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/,
     );
     expect(frame).toContain('Alex Escudero');
-    expect(frame).toContain('Design engineer');
+    expect(frame).toContain('Product designer');
     expect(frame).toContain('data-theme-switch');
   });
 
@@ -51,7 +51,7 @@ describe('the hero', () => {
 
   it('puts the link in the corner across from the tagline', () => {
     expect(html.indexOf('href="#work"')).toBeGreaterThan(
-      html.indexOf('Design engineer'),
+      html.indexOf('Product designer'),
     );
   });
 });

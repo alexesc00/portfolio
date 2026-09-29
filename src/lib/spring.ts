@@ -21,6 +21,8 @@ const frame = 1000 / 60;
 /** How close to rest a curve has to stay before CSS can stop drawing it. */
 const rest = 0.002;
 const longest = 5000;
+/** How many of the last points ease onto rest: 100ms. */
+const landing = 6;
 
 /** How far along `spring` is at `time` milliseconds: 0 at the start, 1 at rest. */
 export function springProgress({ duration, bounce }: Spring, time: number) {
@@ -39,8 +41,9 @@ export function springProgress({ duration, bounce }: Spring, time: number) {
 
 /**
  * `spring` as a CSS linear() easing, a point every 60th of a second, and
- * how long to run it: until it stays within 0.2% of rest, where the last
- * point snaps it there.
+ * how long to run it: until it stays within 0.2% of rest. Snapping that
+ * last 0.2% would leave a step at the end, 1.4px on a 700px drawer, so
+ * the last points ease onto rest instead.
  */
 export function springCurve(spring: Spring) {
   const values: number[] = [];
@@ -51,9 +54,13 @@ export function springCurve(spring: Spring) {
     if (Math.abs(1 - value) >= rest) lastAwayFromRest = step;
   }
   const end = lastAwayFromRest + 1;
-  const points = values
-    .slice(0, end)
-    .map((value) => String(Number(value.toFixed(4))));
+  const landingStart = end - landing;
+  const points = values.slice(0, end).map((value, step) => {
+    const through = Math.max(step - landingStart, 0) / landing;
+    // Smoothstep: starts and ends gently, so the landing has no corners.
+    const pull = through * through * (3 - 2 * through);
+    return String(Number((value + (1 - value) * pull).toFixed(4)));
+  });
   points.push('1');
   return {
     easing: `linear(${points.join(', ')})`,

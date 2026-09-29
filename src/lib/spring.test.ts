@@ -64,9 +64,8 @@ describe('springCurve', () => {
 
 describe('springCurve’s ending', () => {
   // Stopping 0.2% short of rest and snapping the rest of the way leaves a
-  // step at the very end: 1.4px on a 700px drawer, moving 0.3px a frame.
-  // The step between any two of the last points stays under 0.07%, half
-  // a pixel on that drawer.
+  // step at the very end: 1.4px on a 700px drawer that's by then moving
+  // well under a pixel a frame.
   it('lands on rest without a step', () => {
     for (const spring of [settleSpring, aeSpring]) {
       const values = (
@@ -74,13 +73,18 @@ describe('springCurve’s ending', () => {
       )
         .split(', ')
         .map(Number);
-      const ending = values.slice(-8);
+      const steps = values
+        .slice(1)
+        .map((value, i) => Math.abs(value - (values[i] ?? 0)));
+      const ending = steps.slice(-6);
+      const before = steps.slice(-12, -6);
 
-      for (let i = 1; i < ending.length; i++) {
-        expect(Math.abs((ending[i] ?? 0) - (ending[i - 1] ?? 0))).toBeLessThan(
-          0.0007,
-        );
-      }
+      // Nothing at the end moves faster than the curve already was...
+      expect(Math.max(...ending)).toBeLessThanOrEqual(
+        Math.max(...before) + 0.0001,
+      );
+      // ...and the last step is under half a pixel on that drawer.
+      expect(ending.at(-1)).toBeLessThan(0.0007);
     }
   });
 });

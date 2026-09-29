@@ -68,8 +68,9 @@ describe('the opened row', () => {
     expect(html).toMatch(/^\s*<tr[^>]* id="works-plots"[^>]* hidden/);
   });
 
+  // One level under the section's own heading.
   it('heads the write-up with the project’s name', () => {
-    expect(html).toMatch(/<h2[^>]*>\s*Plots\s*<\/h2>/);
+    expect(html).toMatch(/<h3[^>]*>\s*Plots\s*<\/h3>/);
   });
 
   it('shows both paragraphs of the write-up, in order', () => {

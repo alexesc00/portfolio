@@ -1,0 +1,51 @@
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+import type { CollectionEntry } from 'astro:content';
+import { beforeAll, describe, expect, it } from 'vitest';
+import WorksSection from './WorksSection.astro';
+
+const projects: CollectionEntry<'projects'>['data'][] = [
+  {
+    order: 1,
+    locked: true,
+    category: 'Government AI',
+    solution: 'AI application for a federal workforce program',
+    practices: ['Product design', 'Development'],
+    segment: 'Government',
+  },
+];
+
+let html = '';
+
+beforeAll(async () => {
+  const container = await AstroContainer.create();
+  html = await container.renderToString(WorksSection, { props: { projects } });
+});
+
+describe('the works section', () => {
+  it('is where the hero’s Work link lands', () => {
+    expect(html).toMatch(/^<section[^>]* id="work"/);
+  });
+
+  it('is named by its heading', () => {
+    const labelledBy = /<section[^>]* aria-labelledby="([^"]+)"/.exec(
+      html,
+    )?.[1];
+    const heading = /<h2[^>]* id="([^"]+)"[^>]*>\s*Selected work\s*<\/h2>/.exec(
+      html,
+    )?.[1];
+
+    expect(labelledBy).toBeDefined();
+    expect(labelledBy).toBe(heading);
+  });
+
+  it('stops growing at 1440, in line with the hero', () => {
+    expect(html).toMatch(
+      /^<section[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/,
+    );
+  });
+
+  it('shows the works table under the heading', () => {
+    expect(html.indexOf('<table')).toBeGreaterThan(html.indexOf('<h2'));
+    expect(html).toContain('AI application for a federal workforce program');
+  });
+});

@@ -9,7 +9,7 @@ writeUp:
   - >-
     Plots is a phone app for finding events and buying tickets, for hosts and
     their attendees. Payouts ran through Stripe, which the app hid once linked,
-    so when Stripe paused a payout over a missing ID, hosts could not see why.
+    so when Stripe paused a payout, hosts could not see why.
   - >-
     I designed a Payouts page for all of a host’s events, with alerts that name
     the Stripe problem before a payout pauses. I defined three custom APIs with

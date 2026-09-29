@@ -11,7 +11,7 @@ beforeAll(async () => {
 
 /** The page frame's opening tag and everything inside it. */
 function pageFrame() {
-  const start = html.search(/<div[^>]* data-page-frame/);
+  const start = html.search(/<header[^>]* data-page-frame/);
   return start === -1 ? '' : html.slice(start);
 }
 
@@ -21,7 +21,9 @@ describe('the hero', () => {
   it('keeps its corners in a frame that stops growing at 1440', () => {
     const frame = pageFrame();
 
-    expect(frame).toMatch(/^<div[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/);
+    expect(frame).toMatch(
+      /^<header[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/,
+    );
     expect(frame).toContain('Alex Escudero');
     expect(frame).toContain('Design engineer');
     expect(frame).toContain('data-theme-switch');
@@ -31,6 +33,13 @@ describe('the hero', () => {
     const markStart = html.indexOf('text-mark');
 
     expect(markStart).toBeGreaterThan(-1);
-    expect(markStart).toBeLessThan(html.search(/<div[^>]* data-page-frame/));
+    expect(markStart).toBeLessThan(html.search(/<header[^>]* data-page-frame/));
+  });
+
+  // The works section below is the page's main content, so the hero is
+  // the page's header rather than a main of its own.
+  it('is the page’s header, with no main inside it', () => {
+    expect(html.match(/<header/g)).toHaveLength(1);
+    expect(html).not.toContain('<main');
   });
 });

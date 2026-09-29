@@ -1,0 +1,7 @@
+order: 2
+# Client work under NDA, so the row can't be opened.
+locked: true
+category: Government AI
+solution: Branded design system for prototyping AI apps in Streamlit
+practices: [Design systems, Brand identity, Development]
+segment: Government

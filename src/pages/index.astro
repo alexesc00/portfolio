@@ -1,6 +1,10 @@
 ---
+import { getCollection } from 'astro:content';
 import Hero from '../components/Hero.astro';
+import WorksSection from '../components/WorksSection.astro';
 import Layout from '../layouts/Layout.astro';
+
+const projects = (await getCollection('projects')).map(({ data }) => data);
 ---
 
 <Layout
@@ -8,4 +12,7 @@ import Layout from '../layouts/Layout.astro';
   description="Alex Escudero is a design engineer. This site was designed in Figma and built in the open on GitHub."
 >
   <Hero />
+  <main>
+    <WorksSection projects={projects} />
+  </main>
 </Layout>

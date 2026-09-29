@@ -27,7 +27,7 @@ const { projectName, controls } = Astro.props;
   class="group/toggle flex h-12 cursor-pointer items-center gap-2.5 rounded-xl bg-surface px-3.75 after:absolute after:inset-0 after:z-10 hover:pr-4 focus-visible:pr-4"
   data-row-toggle
 >
-  <ArrowIcon class="size-4.5 shrink-0 group-hover/toggle:rotate-180 group-focus-visible/toggle:rotate-180 group-aria-expanded/toggle:rotate-180 group-aria-expanded/toggle:group-hover/toggle:rotate-0 group-aria-expanded/toggle:group-focus-visible/toggle:rotate-0" />
+  <ArrowIcon class="size-4.5 shrink-0 transition-transform duration-spring ease-spring group-hover/toggle:rotate-180 group-focus-visible/toggle:rotate-180 group-aria-expanded/toggle:rotate-180 group-aria-expanded/toggle:group-hover/toggle:rotate-0 group-aria-expanded/toggle:group-focus-visible/toggle:rotate-0 motion-reduce:transition-none" />
   <span
     class="sr-only group-hover/toggle:not-sr-only group-focus-visible/toggle:not-sr-only"
     data-toggle-word
@@ -38,14 +38,149 @@ const { projectName, controls } = Astro.props;
 </button>
 
 <script>
+  import {
+    coverOffset,
+    opennessAt,
+    planDrawer,
+    type DrawerSlide,
+  } from '../lib/row-drawer';
   import { toggleRow } from '../lib/row-toggle';
+
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const tokens = getComputedStyle(document.documentElement);
+  const settle = {
+    duration: parseFloat(
+      tokens.getPropertyValue('--transition-duration-settle'),
+    ),
+    easing: tokens.getPropertyValue('--ease-settle').trim(),
+  };
+
+  /** Each drawer still moving: its slide, and the animations running it. */
+  const moving = new Map<
+    HTMLElement,
+    { slide: DrawerSlide; animations: Animation[] }
+  >();
+
+  /** How open a moving drawer has got to, or null for one at rest. */
+  function currentOpenness(panel: HTMLElement) {
+    const drawer = moving.get(panel);
+    if (!drawer) return null;
+    const progress = drawer.animations[0]?.effect?.getComputedTiming().progress;
+    return opennessAt(drawer.slide, progress ?? 1);
+  }
+
+  /**
+   * Opens or closes the drawer holding `panel`, the write-up under the
+   * row in `group`. The groups under it slide down to uncover it, or up
+   * over it; the last group has none under it, so its write-up fades. A
+   * drawer still moving turns round from where it is. Only transform and
+   * opacity change, so the page isn't laid out again every frame.
+   */
+  function slideDrawer(panel: HTMLElement, group: Element, isOpening: boolean) {
+    const openness = currentOpenness(panel);
+    moving.get(panel)?.animations.forEach((animation) => animation.cancel());
+    moving.delete(panel);
+    // A closing write-up stays in view until it's covered, but out of
+    // reach of the keyboard and screen readers straight away.
+    panel.inert = !isOpening;
+    if (isOpening) panel.hidden = false;
+    if (reducedMotion.matches) {
+      panel.hidden = !isOpening;
+      return;
+    }
+
+    const slide = planDrawer({ isOpening, openness });
+    const below = [...(group.parentElement?.children ?? [])].filter(
+      (sibling) =>
+        sibling.tagName === 'TBODY' &&
+        group.compareDocumentPosition(sibling) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    const height = panel.getBoundingClientRect().height;
+    const timing = { ...settle, fill: 'forwards' as const };
+    // Several drawers can move at once, so each adds its own slide to the
+    // groups under it.
+    const animations = below.length
+      ? below.map((sibling) =>
+          sibling.animate(
+            [
+              { translate: `0 ${coverOffset(slide.from, height)}px` },
+              { translate: `0 ${coverOffset(slide.to, height)}px` },
+            ],
+            { ...timing, composite: 'add' },
+          ),
+        )
+      : [
+          panel.animate(
+            [{ opacity: slide.from }, { opacity: slide.to }],
+            timing,
+          ),
+        ];
+    const drawer = { slide, animations };
+    moving.set(panel, drawer);
+
+    animations[0]?.finished.then(
+      () => {
+        if (moving.get(panel) !== drawer) return;
+        // Hidden in the same frame the groups drop their slide, so nothing
+        // jumps: the page closes up exactly where they had slid to.
+        if (!isOpening) panel.hidden = true;
+        for (const animation of animations) animation.cancel();
+        moving.delete(panel);
+      },
+      // Cancelled by a click that turned the drawer round.
+      () => {},
+    );
+  }
 
   for (const button of document.querySelectorAll('[data-row-toggle]')) {
     const panel = document.getElementById(
       button.getAttribute('aria-controls') ?? '',
     );
     const word = button.querySelector('[data-toggle-word]');
-    if (!panel || !word) continue;
-    button.addEventListener('click', () => toggleRow({ button, word, panel }));
+    const group = button.closest('tbody');
+    if (!panel || !word || !group) continue;
+    button.addEventListener('click', () => {
+      slideDrawer(panel, group, toggleRow({ button, word }));
+    });
   }
 </script>
+
+<style>
+  /*
+   * The word slides in on the Æ spring as it appears beside the arrow,
+   * and fades in on the settle spring, since a spring's swing back would
+   * flicker a fade.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) {
+      button:hover [data-toggle-word] {
+        animation:
+          toggle-word-slide var(--transition-duration-spring) var(--ease-spring)
+            both,
+          toggle-word-fade var(--transition-duration-settle) var(--ease-settle)
+            both;
+      }
+    }
+
+    button:focus-visible [data-toggle-word] {
+      animation:
+        toggle-word-slide var(--transition-duration-spring) var(--ease-spring)
+          both,
+        toggle-word-fade var(--transition-duration-settle) var(--ease-settle)
+          both;
+    }
+  }
+
+  @keyframes toggle-word-slide {
+    from {
+      translate: calc(var(--spacing) * -2) 0;
+    }
+  }
+
+  @keyframes toggle-word-fade {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

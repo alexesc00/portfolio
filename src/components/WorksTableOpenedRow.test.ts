@@ -68,6 +68,11 @@ describe('the opened row', () => {
     expect(html).toMatch(/^\s*<tr[^>]* id="works-plots"[^>]* hidden/);
   });
 
+  // The line under it belongs to the group below, so it slides with it.
+  it('leaves the line under it to the group below', () => {
+    expect(/^\s*<tr[^>]*>/.exec(html)?.[0]).not.toMatch(/\bborder-b\b/);
+  });
+
   // One level under the section's own heading.
   it('heads the write-up with the project’s name', () => {
     expect(html).toMatch(/<h3[^>]*>\s*Plots\s*<\/h3>/);

@@ -106,6 +106,16 @@ describe('the site’s springs', () => {
     expect(settleSpring.bounce).toBe(0);
   });
 
+  it('draw the Æ spring’s curve into global.css', () => {
+    const tokens = readCssTokens(readFileSync('src/styles/global.css', 'utf8'));
+    const curve = springCurve(aeSpring);
+
+    expect(tokens.get('--ease-spring')?.base).toBe(curve.easing);
+    expect(tokens.get('--transition-duration-spring')?.base).toBe(
+      `${curve.duration}ms`,
+    );
+  });
+
   it('use the duration in global.css', () => {
     const tokens = readCssTokens(readFileSync('src/styles/global.css', 'utf8'));
 

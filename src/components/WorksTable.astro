@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import EyeIcon from './EyeIcon.astro';
 import { worksGrid } from '../lib/works-grid';
 import LockIcon from './LockIcon.astro';
+import WorksTableCategory from './WorksTableCategory.astro';
 import WorksTableOpenedRow from './WorksTableOpenedRow.astro';
 import WorksTableToggle from './WorksTableToggle.astro';
 
@@ -36,12 +37,7 @@ const header = 'text-left text-interface';
 
 <table class="block w-full">
   <thead class="block">
-    <tr
-      class:list={[
-        worksGrid,
-        'border-b border-border pt-6 pb-4.75 text-text-muted',
-      ]}
-    >
+    <tr class:list={[worksGrid, 'pt-6 pb-4.75 text-text-muted']}>
       <th scope="col" class:list={[header, column.details, 'pl-3.75']}>
         <EyeIcon class="size-4.5" />
         <span class="sr-only">Details</span>
@@ -60,18 +56,15 @@ const header = 'text-left text-interface';
       </th>
     </tr>
   </thead>
-  {/* One group per project: its row, then the row it opens. */}
+  {/*
+   * One group per project: its row, then the row it opens. A row opens
+   * like a drawer, uncovered by the groups under it sliding down, so each
+   * group paints the page's background and carries the line above it.
+   * The line moves with the group, and no line switches on or off.
+   */}
   {rows.map((project) => (
-    <tbody class="block">
-      <tr
-        class:list={[
-          worksGrid,
-          'relative border-b border-border pt-2 pb-1.75',
-          // An open row hands its bottom line to the row it opens.
-          !project.locked &&
-            'group/row has-aria-expanded:border-b-0 has-aria-expanded:pb-2',
-        ]}
-      >
+    <tbody class="block border-t border-border bg-background last:border-b">
+      <tr class:list={[worksGrid, 'relative pt-2 pb-1.75']}>
         <td class={column.details}>
           {project.locked ? (
             <div class="flex size-12 items-center justify-center rounded-xl bg-surface">
@@ -85,28 +78,16 @@ const header = 'text-left text-interface';
             />
           )}
         </td>
-        {/* Pointing at the row shows the project's name over its Category. */}
+        {/*
+         * The padding and the name's position live inside the cell: the
+         * class that shows the cell from 1280 up also resets its padding
+         * and position.
+         */}
         <td class={column.category}>
-          {/*
-           * The padding and the name's position live on wrappers, not the
-           * cell: the class that shows the cell from 1280 up also resets its
-           * padding and position.
-           */}
-          <span class="block py-3.5">
-            <span class="relative block">
-              <span class="group-hover/row:opacity-0 group-has-focus-visible/row:opacity-0">
-                {project.category}
-              </span>
-              {!project.locked && (
-                <span
-                  aria-hidden="true"
-                  class="absolute inset-0 opacity-0 group-hover/row:opacity-100 group-has-focus-visible/row:opacity-100"
-                >
-                  {project.name}
-                </span>
-              )}
-            </span>
-          </span>
+          <WorksTableCategory
+            category={project.category}
+            name={project.locked ? undefined : project.name}
+          />
         </td>
         <td class:list={[column.solution, 'py-3.5 max-md:pb-0']}>
           {project.solution}

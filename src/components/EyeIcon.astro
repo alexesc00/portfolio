@@ -1,0 +1,26 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+{/*
+ * The eye over the works table's first column, drawn in the text color.
+ * Exported from the Figma component "Works table / Header". Decorative:
+ * the column's name is in words beside it.
+ */}
+<svg
+  viewBox="0 0 18 18"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.125"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class={className}
+>
+  <path d="M1.5 9C1.5 9 4.2 3.75 9 3.75C13.8 3.75 16.5 9 16.5 9C16.5 9 13.8 14.25 9 14.25C4.2 14.25 1.5 9 1.5 9Z" />
+  <path d="M9 11.25C10.2426 11.25 11.25 10.2426 11.25 9C11.25 7.75736 10.2426 6.75 9 6.75C7.75736 6.75 6.75 7.75736 6.75 9C6.75 10.2426 7.75736 11.25 9 11.25Z" />
+</svg>

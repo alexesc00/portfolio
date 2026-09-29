@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import WorksTable from './WorksTable.astro';
+
+interface Props {
+  projects: CollectionEntry<'projects'>['data'][];
+}
+
+const { projects } = Astro.props;
+---
+
+<section
+  id="work"
+  aria-labelledby="work-heading"
+  class="mx-auto w-full max-w-(--breakpoint-2xl) px-page pt-8 pb-inset"
+>
+  <h2 id="work-heading" class="text-reading">
+    Selected work
+  </h2>
+  <WorksTable projects={projects} />
+</section>

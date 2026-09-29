@@ -1,0 +1,33 @@
+order: 5
+locked: false
+name: Baobab
+category: Climate
+solution: Web platform where a whole company collects its ESG data
+practices: [Product design, Design systems]
+segment: Business
+writeUp:
+  - >-
+    Baobab is a web platform where a whole company collects its environmental,
+    social and governance (ESG) data, for the leaders and staff of smaller
+    consumer brands. Brands need data behind their impact claims, but reporting
+    usually falls on one consultant.
+  - >-
+    Leaders assign team members to each impact area, so data entry is spread
+    across the staff instead of falling on one person. I split areas into
+    modules, then worksheets that share a layout and show progress. The
+    interface is now used to track sustainability on residential construction
+    projects.
+images:
+  wide:
+    dark: ../../assets/works/baobab/wide-dark.png
+    light: ../../assets/works/baobab/wide-light.png
+    alt: >-
+      A Baobab project: a ring showing 72% of embodied carbon logged against an
+      80% target, progress bars for three impact areas, and the team assigned
+      to waste diversion, each marked as lead or data entry.
+  phone:
+    dark: ../../assets/works/baobab/phone-dark.png
+    light: ../../assets/works/baobab/phone-light.png
+    alt: >-
+      A Baobab project: a ring showing 72% of embodied carbon logged against an
+      80% target, above the progress bars for its impact areas.

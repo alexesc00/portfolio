@@ -1,0 +1,32 @@
+order: 3
+locked: false
+name: Plots
+category: Events
+solution: Payouts page that shows event hosts when money arrives
+practices: [Product design, Strategy]
+segment: Consumer
+writeUp:
+  - >-
+    Plots is a phone app for finding events and buying tickets, for hosts and
+    their attendees. Payouts ran through Stripe, which the app hid once linked,
+    so when Stripe paused a payout over a missing ID, hosts could not see why.
+  - >-
+    I designed a Payouts page for all of a host’s events, with alerts that name
+    the Stripe problem before a payout pauses. I defined three custom APIs with
+    the engineers to pull the Stripe data into the app, and the page shipped
+    with them.
+images:
+  wide:
+    dark: ../../assets/works/plots/wide-dark.png
+    light: ../../assets/works/plots/wide-light.png
+    alt: >-
+      The Plots Payouts page: $500.00 pending, a $50.00 dispute, and an alert
+      that payouts are paused until the host uploads an ID, with a Fix issue
+      button.
+  phone:
+    dark: ../../assets/works/plots/phone-dark.png
+    light: ../../assets/works/plots/phone-light.png
+    alt: >-
+      The Plots Payouts page: $500.00 pending, a $50.00 dispute, and an alert
+      that payouts are paused until the host uploads an ID, with a Fix issue
+      button.

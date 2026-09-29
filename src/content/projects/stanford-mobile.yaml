@@ -1,0 +1,34 @@
+order: 4
+locked: false
+name: Stanford Mobile
+category: Education
+solution: University campus app that puts the most-used screens first
+practices: [App design, Research]
+segment: Consumer
+writeUp:
+  - >-
+    Stanford Mobile is the university’s campus app for first-year students and
+    visitors: bus schedules, dining halls and events. People needed the
+    information they used most, but it was buried, and planning a campus bus
+    trip meant remembering details between screens.
+  - >-
+    My redesign puts the home screen in order of use: health check and mobile
+    ID first, then dining and transport, with events gathered at the bottom. I
+    added defaults to the trip planner, which starts from the rider’s current
+    location and will not confirm a trip without a destination.
+images:
+  wide:
+    dark: ../../assets/works/stanford-mobile/wide-dark.png
+    light: ../../assets/works/stanford-mobile/wide-light.png
+    alt: >-
+      Three Stanford Mobile screens: the home screen with tiles for Health
+      Check, Mobile ID, Where to Eat, Transportation, News and Events; the trip
+      planner, starting from the current location; and three bus routes with
+      their times.
+  phone:
+    dark: ../../assets/works/stanford-mobile/phone-dark.png
+    light: ../../assets/works/stanford-mobile/phone-light.png
+    alt: >-
+      The Stanford Mobile home screen, with tiles for Health Check, Mobile ID,
+      Where to Eat, Transportation, News and Events, beside the trip planner
+      starting from the current location.

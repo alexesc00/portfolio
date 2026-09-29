@@ -1,0 +1,33 @@
+order: 6
+locked: false
+name: Tango
+category: Transit
+solution: Transit app that pairs students with a riding buddy
+practices: [App design, Web design]
+segment: Consumer
+writeUp:
+  - >-
+    Tango is a phone app for big-city students that pairs up transit riders
+    going the same way. Lone riders need company against harassment, but
+    testers worried about finding a buddy in a busy station with no way to
+    reach them.
+  - >-
+    I matched riders on similar routes and gave each pair an in-app chat for
+    meeting at the station, along with a way to ask for a new match. I designed
+    every screen, from matching to rating a buddy at the end, and built the
+    landing page myself.
+images:
+  wide:
+    dark: ../../assets/works/tango/wide-dark.png
+    light: ../../assets/works/tango/wide-light.png
+    alt: >-
+      The Tango landing page: three phones showing the app’s map, a buddy match
+      and a route, beside the line “It takes two to transit.” and an Explore
+      button.
+  phone:
+    dark: ../../assets/works/tango/phone-dark.png
+    light: ../../assets/works/tango/phone-light.png
+    alt: >-
+      The Tango landing page: three phones showing the app’s map, a buddy match
+      and a route, beside the line “It takes two to transit.” and an Explore
+      button.

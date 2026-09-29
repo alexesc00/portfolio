@@ -15,16 +15,16 @@ import DotMark from './DotMark.astro';
    * and centers on wider screens. The dotted Æ stays outside the frame
    * so it can use the whole screen.
    */}
-  <div
+  <header
     class="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-1 flex-col px-page"
     data-page-frame
   >
-    <header class="flex items-start justify-between gap-page">
+    <div class="flex items-start justify-between gap-page">
       <h1>Alex Escudero</h1>
       <Colophon />
-    </header>
-    <main class="flex flex-1 items-end">
+    </div>
+    <div class="flex flex-1 items-end">
       <p class="text-text-muted">Design engineer</p>
-    </main>
-  </div>
+    </div>
+  </header>
 </div>

@@ -45,7 +45,7 @@ describe('the hero', () => {
 
   it('links down to the work, the arrow kept from screen readers', () => {
     expect(html).toMatch(
-      /<a[^>]* href="#work"[^>]*>\s*<span aria-hidden="true">↓<\/span>\s*Work\s*<\/a>/,
+      /<a[^>]* href="#work"[^>]*>\s*<span[^>]* aria-hidden="true"[^>]*>↓<\/span>\s*Work\s*<\/a>/,
     );
   });
 

@@ -64,10 +64,9 @@ function openProject(): Record<string, unknown> {
   };
 }
 
-/** A project under NDA: row text only. */
+/** A project under NDA: row text only, and no name, which never shows. */
 function lockedProject(): Record<string, unknown> {
   return {
-    name: 'MissionML: CAT',
     order: 1,
     locked: true,
     category: 'Government AI',
@@ -82,7 +81,7 @@ describe('projectSchema', () => {
     expect(schema.safeParse(openProject()).success).toBe(true);
   });
 
-  it.each(['name', 'category', 'solution', 'practices', 'segment'])(
+  it.each(['category', 'solution', 'practices', 'segment'])(
     'rejects a project with no %s',
     (field) => {
       expect(schema.safeParse(without(openProject(), field)).success).toBe(
@@ -91,11 +90,11 @@ describe('projectSchema', () => {
     },
   );
 
-  it('accepts a locked project with no write-up or images', () => {
+  it('accepts a locked project with no name, write-up or images', () => {
     expect(schema.safeParse(lockedProject()).success).toBe(true);
   });
 
-  it.each(['writeUp', 'images'])(
+  it.each(['name', 'writeUp', 'images'])(
     'rejects a project that can be opened but has no %s',
     (field) => {
       expect(schema.safeParse(without(openProject(), field)).success).toBe(

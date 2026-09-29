@@ -168,6 +168,12 @@
           "css": "--color-smear-6",
           "type": "COLOR",
           "values": { "Dark": "#db4578", "Light": "#db4578" }
+        },
+        {
+          "name": "border-strong",
+          "css": "--color-border-strong",
+          "type": "COLOR",
+          "values": { "Dark": "#f7f7f338", "Light": "#10100f33" }
         }
       ]
     },

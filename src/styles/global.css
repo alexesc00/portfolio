@@ -50,6 +50,12 @@
     transparent
   );
   --color-border: color-mix(in oklab, var(--color-foreground) 10%, transparent);
+  /* For a hairline that has to draw an edge on its own over an image. */
+  --color-border-strong: color-mix(
+    in oklab,
+    var(--color-foreground) 22%,
+    transparent
+  );
 
   /*
    * The dotted Æ's colors while it moves, and nothing else's. Heat, for
@@ -132,6 +138,11 @@
       --color-surface: color-mix(
         in oklab,
         var(--color-foreground) 5%,
+        transparent
+      );
+      --color-border-strong: color-mix(
+        in oklab,
+        var(--color-foreground) 20%,
         transparent
       );
       /* 500 looks heavy on the light background. */

@@ -149,4 +149,19 @@ describe('the works table', () => {
       /<span[^>]* aria-hidden="true"[^>]*>\s*Project 2\s*<\/span>/,
     );
   });
+
+  // not-sr-only, which shows a column once the screen is wide enough,
+  // also sets padding to 0, so a cell that uses it would lose its
+  // padding and sit higher than the rest of the row.
+  it('keeps every row cell’s padding where showing a column can’t undo it', () => {
+    const shownByWidth = bodyRows()
+      .flatMap((row) => elements(row, 'td'))
+      .filter((cell) => /^<td[^>]*not-sr-only/.test(cell));
+
+    expect(shownByWidth.length).toBeGreaterThan(0);
+    for (const cell of shownByWidth) {
+      expect(/^<td[^>]*>/.exec(cell)?.[0]).not.toMatch(/\bp[xytblr]?-/);
+      expect(cell).toMatch(/^<td[^>]*>\s*<[^>]* class="[^"]*\bpy-3\.5/);
+    }
+  });
 });

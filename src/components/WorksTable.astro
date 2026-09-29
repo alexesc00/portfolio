@@ -86,23 +86,26 @@ const header = 'text-left text-interface';
           )}
         </td>
         {/* Pointing at the row shows the project's name over its Category. */}
-        <td class:list={[column.category, 'py-3.5']}>
+        <td class={column.category}>
           {/*
-           * The name is placed against this wrapper, not the cell: the
-           * class that shows the cell from 1280 up also resets its position.
+           * The padding and the name's position live on wrappers, not the
+           * cell: the class that shows the cell from 1280 up also resets its
+           * padding and position.
            */}
-          <span class="relative block">
-            <span class="group-hover/row:opacity-0 group-has-focus-visible/row:opacity-0">
-              {project.category}
-            </span>
-            {!project.locked && (
-              <span
-                aria-hidden="true"
-                class="absolute inset-0 opacity-0 group-hover/row:opacity-100 group-has-focus-visible/row:opacity-100"
-              >
-                {project.name}
+          <span class="block py-3.5">
+            <span class="relative block">
+              <span class="group-hover/row:opacity-0 group-has-focus-visible/row:opacity-0">
+                {project.category}
               </span>
-            )}
+              {!project.locked && (
+                <span
+                  aria-hidden="true"
+                  class="absolute inset-0 opacity-0 group-hover/row:opacity-100 group-has-focus-visible/row:opacity-100"
+                >
+                  {project.name}
+                </span>
+              )}
+            </span>
           </span>
         </td>
         <td class:list={[column.solution, 'py-3.5 max-md:pb-0']}>
@@ -111,7 +114,9 @@ const header = 'text-left text-interface';
         <td class:list={[column.whatIDid, 'py-3.5 max-md:pt-2']}>
           {project.practices.join(', ')}
         </td>
-        <td class:list={[column.segment, 'py-3.5']}>{project.segment}</td>
+        <td class={column.segment}>
+          <span class="block py-3.5">{project.segment}</span>
+        </td>
       </tr>
       {!project.locked && (
         <WorksTableOpenedRow project={project} id={openedRowId(project.name)} />

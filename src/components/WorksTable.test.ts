@@ -73,7 +73,9 @@ function elements(markup: string | undefined, tag: string) {
   );
 }
 
-const bodyRows = () => elements(elements(html, 'tbody')[0], 'tr');
+/** Each project's own row, the first in its group; an opened row follows it. */
+const bodyRows = () =>
+  elements(html, 'tbody').map((group) => elements(group, 'tr')[0] ?? '');
 
 describe('the works table', () => {
   it('names each column in a header row', () => {
@@ -120,5 +122,31 @@ describe('the works table', () => {
 
   it('gives a locked row nothing to open it with', () => {
     expect(bodyRows()[0]).not.toContain('<button');
+  });
+
+  it('gives each row that can be opened a button named after the project', () => {
+    const [button] = elements(bodyRows()[1], 'button');
+
+    expect(button).toContain('type="button"');
+    expect(textOf(button)).toBe('Open Project 2');
+  });
+
+  it('starts every row closed, with the row it opens hidden', () => {
+    const [group] = elements(html, 'tbody').slice(1);
+    const [button] = elements(group, 'button');
+    const controls = /aria-controls="([^"]+)"/.exec(button ?? '')?.[1];
+
+    expect(button).toContain('aria-expanded="false"');
+    expect(controls).toBeTruthy();
+    expect(group).toMatch(new RegExp(`<tr[^>]* id="${controls}"[^>]* hidden`));
+  });
+
+  // The button's name already says it, so screen readers hear it once.
+  it('keeps the project name beside Category for sighted visitors only', () => {
+    const [, category] = elements(bodyRows()[1], 'td');
+
+    expect(category).toMatch(
+      /<span[^>]* aria-hidden="true"[^>]*>\s*Project 2\s*<\/span>/,
+    );
   });
 });

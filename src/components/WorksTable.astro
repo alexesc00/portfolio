@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import EyeIcon from './EyeIcon.astro';
 import LockIcon from './LockIcon.astro';
+import WorksTableToggle from './WorksTableToggle.astro';
 
 interface Props {
   projects: CollectionEntry<'projects'>['data'][];
@@ -9,6 +10,10 @@ interface Props {
 
 const { projects } = Astro.props;
 const rows = projects.toSorted((a, b) => a.order - b.order);
+
+/** The id of the row that opens under the project's own row. */
+const openedRowId = (name: string) =>
+  `works-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
 /*
  * Every row is the same grid, so the columns line up without the
@@ -53,18 +58,51 @@ const header = 'text-left text-interface';
       </th>
     </tr>
   </thead>
-  <tbody class="block">
-    {rows.map((project) => (
-      <tr class:list={[row, 'border-b border-border pt-2 pb-1.75']}>
+  {/* One group per project: its row, then the row it opens. */}
+  {rows.map((project) => (
+    <tbody class="block">
+      <tr
+        class:list={[
+          row,
+          'relative border-b border-border pt-2 pb-1.75',
+          // An open row hands its bottom line to the row it opens.
+          !project.locked &&
+            'group/row has-aria-expanded:border-b-0 has-aria-expanded:pb-2',
+        ]}
+      >
         <td class={column.details}>
-          {project.locked && (
+          {project.locked ? (
             <div class="flex size-12 items-center justify-center rounded-xl bg-surface">
               <LockIcon class="size-4.5" />
               <span class="sr-only">Locked, under NDA</span>
             </div>
+          ) : (
+            <WorksTableToggle
+              projectName={project.name}
+              controls={openedRowId(project.name)}
+            />
           )}
         </td>
-        <td class:list={[column.category, 'py-3.5']}>{project.category}</td>
+        {/* Pointing at the row shows the project's name over its Category. */}
+        <td class:list={[column.category, 'py-3.5']}>
+          {/*
+           * The name is placed against this wrapper, not the cell: the
+           * class that shows the cell from 1280 up also resets its position.
+           */}
+          <span class="relative block">
+            <span class="group-hover/row:opacity-0 group-has-focus-visible/row:opacity-0">
+              {project.category}
+            </span>
+            {!project.locked && (
+              <span
+                aria-hidden="true"
+                class="absolute inset-0 opacity-0 group-hover/row:opacity-100 group-has-focus-visible/row:opacity-100"
+              >
+                {project.name}
+              </span>
+            )}
+          </span>
+        </td>
         <td class:list={[column.solution, 'py-3.5 max-md:pb-0']}>
           {project.solution}
         </td>
@@ -73,6 +111,13 @@ const header = 'text-left text-interface';
         </td>
         <td class:list={[column.segment, 'py-3.5']}>{project.segment}</td>
       </tr>
-    ))}
-  </tbody>
+      {!project.locked && (
+        <tr
+          id={openedRowId(project.name)}
+          hidden
+          class="block border-b border-border"
+        />
+      )}
+    </tbody>
+  ))}
 </table>

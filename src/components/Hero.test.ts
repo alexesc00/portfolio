@@ -1,0 +1,36 @@
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+import { beforeAll, describe, expect, it } from 'vitest';
+import Hero from './Hero.astro';
+
+let html = '';
+
+beforeAll(async () => {
+  const container = await AstroContainer.create();
+  html = await container.renderToString(Hero);
+});
+
+/** The page frame's opening tag and everything inside it. */
+function pageFrame() {
+  const start = html.search(/<div[^>]* data-page-frame/);
+  return start === -1 ? '' : html.slice(start);
+}
+
+describe('the hero', () => {
+  // So on screens wider than 1440 the hero's corners stay on the same
+  // edges as everything under them.
+  it('keeps its corners in a frame that stops growing at 1440', () => {
+    const frame = pageFrame();
+
+    expect(frame).toMatch(/^<div[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/);
+    expect(frame).toContain('Alex Escudero');
+    expect(frame).toContain('Design engineer');
+    expect(frame).toContain('data-theme-switch');
+  });
+
+  it('lets the dotted Æ use the whole screen, outside the frame', () => {
+    const markStart = html.indexOf('text-mark');
+
+    expect(markStart).toBeGreaterThan(-1);
+    expect(markStart).toBeLessThan(html.search(/<div[^>]* data-page-frame/));
+  });
+});

@@ -107,6 +107,13 @@
   --spacing-dot: 6px;
   --spacing-dot-size: 3px;
 
+  /*
+   * The widths the Figma layouts are drawn at: md 768, lg 1024 and
+   * xl 1280 are Tailwind's own, and 2xl moves from 1536 to 1440, where
+   * the page also stops growing.
+   */
+  --breakpoint-2xl: 90rem;
+
   /* Phone values; the md breakpoint widens them below. */
   --spacing-page: 1rem;
   --spacing-inset: 1.5rem;

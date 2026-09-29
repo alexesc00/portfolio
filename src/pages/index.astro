@@ -1,6 +1,5 @@
 ---
-import Colophon from '../components/Colophon.astro';
-import DotMark from '../components/DotMark.astro';
+import Hero from '../components/Hero.astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
@@ -8,19 +7,5 @@ import Layout from '../layouts/Layout.astro';
   title="Alex Escudero"
   description="Alex Escudero is a design engineer. This site was designed in Figma and built in the open on GitHub."
 >
-  {/*
-   * svh is the screen height with a phone's address bar showing, so the
-   * bottom line is never hidden behind the bar and nothing jumps when it
-   * hides.
-   */}
-  <div class="relative isolate flex min-h-svh flex-col px-page py-inset">
-    <DotMark />
-    <header class="flex items-start justify-between gap-page">
-      <h1>Alex Escudero</h1>
-      <Colophon />
-    </header>
-    <main class="flex flex-1 items-end">
-      <p class="text-text-muted">Design engineer</p>
-    </main>
-  </div>
+  <Hero />
 </Layout>

@@ -5,6 +5,9 @@ import {
   readCssTokens,
   type FigmaSnapshot,
 } from './design-tokens';
+import { settleSpring, springCurve } from './spring';
+
+const settle = springCurve(settleSpring);
 
 /** A small global.css with one of each kind of token. */
 const css = `
@@ -31,6 +34,9 @@ const css = `
   --spacing-page: 1rem;
   --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
   --transition-duration-reveal: 700ms;
+  --spring-duration: 385ms;
+  --ease-settle: ${settle.easing};
+  --transition-duration-settle: ${settle.duration}ms;
 }
 
 @layer base {
@@ -144,6 +150,18 @@ function matchingSnapshot(): FigmaSnapshot {
             type: 'TIMING',
             values: { Default: 0.7 },
           },
+          {
+            name: 'duration/spring',
+            css: '--spring-duration',
+            type: 'TIMING',
+            values: { Default: 0.385 },
+          },
+          {
+            name: 'ease/settle',
+            css: '--ease-settle',
+            type: 'EASING',
+            values: { Default: { bounce: 0 } },
+          },
         ],
       },
     ],
@@ -224,7 +242,7 @@ describe('compareWithFigma', () => {
     snapshot.collections[2].variables.pop();
 
     expect(compareWithFigma(tokens, snapshot)).toEqual([
-      '--transition-duration-reveal is in global.css but not in Figma',
+      '--ease-settle is in global.css but not in Figma',
     ]);
   });
 
@@ -247,6 +265,37 @@ describe('compareWithFigma', () => {
 
     expect(differences.join('\n')).not.toContain('--font-sans');
     expect(differences.join('\n')).not.toContain('--text-mark');
+  });
+
+  // Figma holds a spring as a bounce and one swing's duration, the way
+  // Apple does. CSS needs the curve drawn out, so the check redraws it.
+  it('reports a spring whose bounce differs from the curve in global.css', () => {
+    const snapshot = matchingSnapshot();
+    variableFor(snapshot, '--ease-settle').values.Default = { bounce: 0.2 };
+
+    const differences = compareWithFigma(tokens, snapshot);
+
+    expect(differences).toHaveLength(1);
+    expect(differences[0]).toMatch(
+      /^--ease-settle, Default: Figma has a spring with bounce 0\.2, global\.css has linear\(/,
+    );
+  });
+
+  it('reports a spring run for longer or shorter than its curve', () => {
+    const changed = new Map(tokens);
+    changed.set('--transition-duration-settle', { base: '700ms' });
+
+    expect(compareWithFigma(changed, matchingSnapshot())).toEqual([
+      `--transition-duration-settle: global.css has 700ms, the spring’s curve runs ${settle.duration}ms`,
+    ]);
+  });
+
+  it('doesn’t expect Figma to hold how long code runs a spring', () => {
+    const differences = compareWithFigma(tokens, matchingSnapshot());
+
+    expect(differences.join('\n')).not.toContain(
+      '--transition-duration-settle',
+    );
   });
 
   it('doesn’t expect Figma to hold the breakpoints', () => {

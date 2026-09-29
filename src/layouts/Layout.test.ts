@@ -15,7 +15,9 @@ let html = '';
 let themeScript = '';
 
 beforeAll(async () => {
-  const container = await AstroContainer.create();
+  const container = await AstroContainer.create({
+    astroConfig: { site: 'https://alexesc00.github.io' },
+  });
   html = await container.renderToString(Layout, {
     props: { title: 'Test', description: 'A page for testing.' },
   });

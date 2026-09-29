@@ -131,6 +131,17 @@ describe('the works table', () => {
     expect(textOf(button)).toBe('Open Project 2');
   });
 
+  // The button's ::after stretches it over the whole row. Anything in the
+  // row that's moved, masked or faded is painted above an ::after without
+  // a z-index and takes the pointer from it, so the row stops opening.
+  it('lays the button’s click area over everything else in its row', () => {
+    const [button] = elements(bodyRows()[1], 'button');
+    const openingTag = /^<button[^>]*>/.exec(button ?? '')?.[0] ?? '';
+
+    expect(openingTag).toMatch(/\bafter:inset-0\b/);
+    expect(openingTag).toMatch(/\bafter:z-\d+\b/);
+  });
+
   it('starts every row closed, with the row it opens hidden', () => {
     const [group] = elements(html, 'tbody').slice(1);
     const [button] = elements(group, 'button');

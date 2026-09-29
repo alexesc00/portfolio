@@ -1,7 +1,9 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import EyeIcon from './EyeIcon.astro';
+import { worksGrid } from '../lib/works-grid';
 import LockIcon from './LockIcon.astro';
+import WorksTableOpenedRow from './WorksTableOpenedRow.astro';
 import WorksTableToggle from './WorksTableToggle.astro';
 
 interface Props {
@@ -16,13 +18,10 @@ const openedRowId = (name: string) =>
   `works-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
 /*
- * Every row is the same grid, so the columns line up without the
- * browser's table layout: 6 columns on phones and at 768 wide, 12 from
- * 1024 up. A column the screen is too narrow for is hidden from sight
- * but still read out by screen readers. On phones, What I did drops
- * onto a second line under Solution.
+ * A column the screen is too narrow for is hidden from sight but still
+ * read out by screen readers. On phones, What I did drops onto a second
+ * line under Solution.
  */
-const row = 'grid grid-cols-6 gap-x-2 md:gap-x-6 lg:grid-cols-12';
 const column = {
   details: 'col-span-1 lg:col-span-4 xl:col-span-1',
   category: 'sr-only xl:not-sr-only xl:col-span-3',
@@ -38,7 +37,10 @@ const header = 'text-left text-interface';
 <table class="block w-full">
   <thead class="block">
     <tr
-      class:list={[row, 'border-b border-border pt-8 pb-4.75 text-text-muted']}
+      class:list={[
+        worksGrid,
+        'border-b border-border pt-8 pb-4.75 text-text-muted',
+      ]}
     >
       <th scope="col" class:list={[header, column.details, 'pl-3.75']}>
         <EyeIcon class="size-4.5" />
@@ -63,7 +65,7 @@ const header = 'text-left text-interface';
     <tbody class="block">
       <tr
         class:list={[
-          row,
+          worksGrid,
           'relative border-b border-border pt-2 pb-1.75',
           // An open row hands its bottom line to the row it opens.
           !project.locked &&
@@ -112,11 +114,7 @@ const header = 'text-left text-interface';
         <td class:list={[column.segment, 'py-3.5']}>{project.segment}</td>
       </tr>
       {!project.locked && (
-        <tr
-          id={openedRowId(project.name)}
-          hidden
-          class="block border-b border-border"
-        />
+        <WorksTableOpenedRow project={project} id={openedRowId(project.name)} />
       )}
     </tbody>
   ))}

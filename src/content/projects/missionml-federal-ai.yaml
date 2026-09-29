@@ -1,0 +1,7 @@
+order: 1
+# Client work under NDA, so the row can't be opened.
+locked: true
+category: Government AI
+solution: AI application for a federal workforce program
+practices: [Product design, Development]
+segment: Government

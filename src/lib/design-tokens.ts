@@ -34,9 +34,10 @@ export interface FigmaSnapshot {
 /*
  * Tokens Figma has no variable for, on purpose. The font family is set
  * in Figma's text styles instead, and the Æ's size is a formula of the
- * screen size, which a variable can't hold.
+ * screen size, which a variable can't hold. Breakpoints are the widths
+ * Figma's frames are drawn at.
  */
-const notInFigma = [/^--font-/, /^--text-mark/];
+const notInFigma = [/^--font-/, /^--text-mark/, /^--breakpoint-/];
 
 const tolerance = 0.001;
 

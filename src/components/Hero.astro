@@ -1,0 +1,30 @@
+---
+import Colophon from './Colophon.astro';
+import DotMark from './DotMark.astro';
+---
+
+{/*
+ * svh is the screen height with a phone's address bar showing, so the
+ * bottom line is never hidden behind the bar and nothing jumps when it
+ * hides.
+ */}
+<div class="relative isolate flex min-h-svh flex-col py-inset">
+  <DotMark />
+  {/*
+   * The page stops growing at 1440, the width the design is drawn at,
+   * and centers on wider screens. The dotted Æ stays outside the frame
+   * so it can use the whole screen.
+   */}
+  <div
+    class="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-1 flex-col px-page"
+    data-page-frame
+  >
+    <header class="flex items-start justify-between gap-page">
+      <h1>Alex Escudero</h1>
+      <Colophon />
+    </header>
+    <main class="flex flex-1 items-end">
+      <p class="text-text-muted">Design engineer</p>
+    </main>
+  </div>
+</div>

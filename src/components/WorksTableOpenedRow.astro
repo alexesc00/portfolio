@@ -1,4 +1,5 @@
 ---
+import type { ImageOutputFormat } from 'astro';
 import { Picture } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { worksGrid } from '../lib/works-grid';
@@ -18,19 +19,19 @@ const { project, id } = Astro.props;
 const { wide, phone } = project.images;
 
 // Each image is exported at twice the size Figma draws it.
-const formats = ['avif', 'webp'] as const;
+const formats: ImageOutputFormat[] = ['avif', 'webp'];
 const wideImage = {
   widths: [672, 888, 1344, 1776],
   sizes: '(min-width: 1024px) 66vw, 100vw',
   formats,
-  loading: 'lazy',
-} as const;
+  loading: 'lazy' as const,
+};
 const phoneImage = {
   widths: [358, 716],
   sizes: '100vw',
   formats,
-  loading: 'lazy',
-} as const;
+  loading: 'lazy' as const,
+};
 ---
 
 {/*

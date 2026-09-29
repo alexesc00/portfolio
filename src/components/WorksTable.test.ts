@@ -149,4 +149,21 @@ describe('the works table', () => {
       /<span[^>]* aria-hidden="true"[^>]*>\s*Project 2\s*<\/span>/,
     );
   });
+
+  // not-sr-only, which shows a column once the screen is wide enough,
+  // also sets padding to 0, so a cell that uses it would lose its
+  // padding and sit higher than the rest of the row.
+  it('keeps every row cell’s padding where showing a column can’t undo it', () => {
+    const cells = bodyRows().flatMap((row) => elements(row, 'td'));
+    const openingTags = cells.map((cell) => /^<td[^>]*>/.exec(cell)?.[0] ?? '');
+
+    for (const tag of openingTags.filter((tag) =>
+      tag.includes('not-sr-only'),
+    )) {
+      expect(tag).not.toMatch(/\bp[xytblr]?-/);
+    }
+    for (const cell of cells.filter((cell) => cell.includes('not-sr-only'))) {
+      expect(cell).toMatch(/<td[^>]*>\s*<[^>]* class="[^"]*\bpy-3\.5/);
+    }
+  });
 });

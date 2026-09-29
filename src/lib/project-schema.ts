@@ -59,6 +59,7 @@ export function projectSchema({ image }: SchemaContext) {
         wide: themedImage,
         phone: themedImage,
       }),
+      // The page adds a ↗ after the text.
       link: z.object({ url: z.url({ protocol: /^https$/ }), text }).optional(),
     }),
   ]);

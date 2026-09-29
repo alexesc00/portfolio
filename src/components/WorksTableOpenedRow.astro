@@ -1,0 +1,83 @@
+---
+import type { ImageOutputFormat } from 'astro';
+import { Picture } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { worksGrid } from '../lib/works-grid';
+
+type OpenProject = Extract<
+  CollectionEntry<'projects'>['data'],
+  { locked: false }
+>;
+
+interface Props {
+  project: OpenProject;
+  /** The id the row's button points at. */
+  id: string;
+}
+
+const { project, id } = Astro.props;
+const { wide, phone } = project.images;
+
+// Each image is exported at twice the size Figma draws it.
+const formats: ImageOutputFormat[] = ['avif', 'webp'];
+const wideImage = {
+  widths: [672, 888, 1344, 1776],
+  sizes: '(min-width: 1024px) 66vw, 100vw',
+  formats,
+  loading: 'lazy' as const,
+};
+const phoneImage = {
+  widths: [358, 716],
+  sizes: '100vw',
+  formats,
+  loading: 'lazy' as const,
+};
+---
+
+{/*
+ * The write-up sits beside the image from 1024 wide up, set smaller
+ * below 1280 so it fits, and above the image on narrower screens. Every
+ * image comes in a wide and a phone version, each in dark and light;
+ * only the one that fits the screen and theme shows, and the hidden
+ * ones never load.
+ */}
+<tr id={id} hidden class="block border-b border-border pt-10 pb-5.75">
+  <td colspan="5" class:list={[worksGrid, 'gap-y-10']}>
+    <div class="col-span-6 text-reading md:col-span-4 lg:pr-6 lg:max-xl:text-interface">
+      <h2>{project.name}</h2>
+      <p class="mt-3 text-text-muted">{project.writeUp[0]}</p>
+      <p class="mt-5 text-text-muted">{project.writeUp[1]}</p>
+      {project.link && (
+        <a href={project.link.url} class="mt-6 inline-block text-interface">
+          {project.link.text} <span aria-hidden="true">↗</span>
+        </a>
+      )}
+    </div>
+    <div class="col-span-6 lg:col-span-8">
+      <Picture
+        src={wide.dark}
+        alt={wide.alt}
+        {...wideImage}
+        class="h-auto w-full max-md:hidden light:hidden"
+      />
+      <Picture
+        src={wide.light}
+        alt={wide.alt}
+        {...wideImage}
+        class="hidden h-auto w-full md:light:block"
+      />
+      <Picture
+        src={phone.dark}
+        alt={phone.alt}
+        {...phoneImage}
+        class="h-auto w-full md:hidden light:hidden"
+      />
+      <Picture
+        src={phone.light}
+        alt={phone.alt}
+        {...phoneImage}
+        class="hidden h-auto w-full max-md:light:block"
+      />
+    </div>
+  </td>
+</tr>

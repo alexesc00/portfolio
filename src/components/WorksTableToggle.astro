@@ -17,12 +17,14 @@ const { projectName, controls } = Astro.props;
  * it widens to say "Open" or "Close" and the arrow points the way the
  * row will go. Its ::after covers the whole row, so the row can be
  * clicked anywhere and pointing at the row is pointing at the button.
+ * The ::after sits above the row's text: text that's positioned, moved,
+ * masked or faded would otherwise be painted over it and take the pointer.
  */}
 <button
   type="button"
   aria-expanded="false"
   aria-controls={controls}
-  class="group/toggle flex h-12 cursor-pointer items-center gap-2.5 rounded-xl bg-surface px-3.75 after:absolute after:inset-0 hover:pr-4 focus-visible:pr-4"
+  class="group/toggle flex h-12 cursor-pointer items-center gap-2.5 rounded-xl bg-surface px-3.75 after:absolute after:inset-0 after:z-10 hover:pr-4 focus-visible:pr-4"
   data-row-toggle
 >
   <ArrowIcon class="size-4.5 shrink-0 group-hover/toggle:rotate-180 group-focus-visible/toggle:rotate-180 group-aria-expanded/toggle:rotate-180 group-aria-expanded/toggle:group-hover/toggle:rotate-0 group-aria-expanded/toggle:group-focus-visible/toggle:rotate-0" />

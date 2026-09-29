@@ -15,7 +15,9 @@ let html = '';
 let themeScript = '';
 
 beforeAll(async () => {
-  const container = await AstroContainer.create();
+  const container = await AstroContainer.create({
+    astroConfig: { site: 'https://alexesc00.github.io' },
+  });
   html = await container.renderToString(Layout, {
     props: { title: 'Test', description: 'A page for testing.' },
   });
@@ -50,6 +52,56 @@ describe('the page head', () => {
       name: 'description',
       content: 'A page for testing.',
     });
+  });
+
+  it('gives link previews the title, description and address', () => {
+    const metas = tags('meta');
+
+    expect(metas).toContainEqual({ property: 'og:type', content: 'website' });
+    expect(metas).toContainEqual({ property: 'og:title', content: 'Test' });
+    expect(metas).toContainEqual({
+      property: 'og:description',
+      content: 'A page for testing.',
+    });
+    expect(metas).toContainEqual({
+      property: 'og:url',
+      content: `https://alexesc00.github.io${base}/`,
+    });
+    expect(tags('link')).toContainEqual({
+      rel: 'canonical',
+      href: `https://alexesc00.github.io${base}/`,
+    });
+  });
+
+  it('gives link previews a large image, at a full address', () => {
+    const metas = tags('meta');
+    const image = metas.find((meta) => meta.property === 'og:image');
+
+    expect(image?.content).toBe(
+      `https://alexesc00.github.io${base}/link-preview.png`,
+    );
+    expect(metas).toContainEqual({
+      property: 'og:image:width',
+      content: '1200',
+    });
+    expect(metas).toContainEqual({
+      property: 'og:image:height',
+      content: '630',
+    });
+    expect(
+      metas.find((meta) => meta.property === 'og:image:alt')?.content,
+    ).toBeTruthy();
+    // X reads its own tag to show the image large instead of as a thumbnail.
+    expect(metas).toContainEqual({
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    });
+  });
+
+  it('links a preview image that is in public/', () => {
+    expect(
+      existsSync(new URL('../../public/link-preview.png', import.meta.url)),
+    ).toBe(true);
   });
 
   it('gives browser tabs the icon as SVG, with a PNG for browsers without SVG icons', () => {

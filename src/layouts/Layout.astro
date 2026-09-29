@@ -13,6 +13,15 @@ const { title, description } = Astro.props;
 /** A file from public/, under the path the site is served from. */
 const publicFile = (name: string) =>
   `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${name}`;
+/*
+ * Link previews need full addresses; apps that fetch them don't resolve
+ * paths. `site` in the Astro config is the origin they're built on.
+ */
+const site = Astro.site ?? Astro.url;
+const pageUrl = new URL(Astro.url.pathname, site).href;
+const previewImageUrl = new URL(publicFile('link-preview.png'), site).href;
+const previewImageAlt =
+  'The letters Æ, the site’s mark, light on a dark background.';
 ---
 
 <!doctype html>
@@ -22,6 +31,17 @@ const publicFile = (name: string) =>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={pageUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Alex Escudero" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:image" content={previewImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={previewImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href={publicFile('favicon.svg')} type="image/svg+xml" />
     <link rel="icon" href={publicFile('favicon-32.png')} sizes="32x32" />
     <link rel="apple-touch-icon" href={publicFile('apple-touch-icon.png')} />

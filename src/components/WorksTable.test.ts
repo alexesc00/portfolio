@@ -154,16 +154,14 @@ describe('the works table', () => {
   // also sets padding to 0, so a cell that uses it would lose its
   // padding and sit higher than the rest of the row.
   it('keeps every row cell’s padding where showing a column can’t undo it', () => {
-    const cells = bodyRows().flatMap((row) => elements(row, 'td'));
-    const openingTags = cells.map((cell) => /^<td[^>]*>/.exec(cell)?.[0] ?? '');
+    const shownByWidth = bodyRows()
+      .flatMap((row) => elements(row, 'td'))
+      .filter((cell) => /^<td[^>]*not-sr-only/.test(cell));
 
-    for (const tag of openingTags.filter((tag) =>
-      tag.includes('not-sr-only'),
-    )) {
-      expect(tag).not.toMatch(/\bp[xytblr]?-/);
-    }
-    for (const cell of cells.filter((cell) => cell.includes('not-sr-only'))) {
-      expect(cell).toMatch(/<td[^>]*>\s*<[^>]* class="[^"]*\bpy-3\.5/);
+    expect(shownByWidth.length).toBeGreaterThan(0);
+    for (const cell of shownByWidth) {
+      expect(/^<td[^>]*>/.exec(cell)?.[0]).not.toMatch(/\bp[xytblr]?-/);
+      expect(cell).toMatch(/^<td[^>]*>\s*<[^>]* class="[^"]*\bpy-3\.5/);
     }
   });
 });

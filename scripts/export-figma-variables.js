@@ -34,6 +34,11 @@ export async function exportFigmaVariables(figma) {
             '#' +
             [value.r, value.g, value.b].map(hexByte).join('') +
             (alpha === 'ff' ? '' : alpha);
+        } else if (value.type === 'CUSTOM_SPRING') {
+          // A spring is its bounce; its duration is its own variable.
+          values[mode.name] = {
+            bounce: round(value.easingFunctionSpring.bounce),
+          };
         } else if (variable.resolvedType === 'EASING') {
           const { x1, y1, x2, y2 } = value.easingFunctionCubicBezier;
           values[mode.name] = [x1, y1, x2, y2].map(round);

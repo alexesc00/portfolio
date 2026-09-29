@@ -257,24 +257,6 @@
       "modes": ["Default"],
       "variables": [
         {
-          "name": "ease/out",
-          "css": "--ease-out",
-          "type": "EASING",
-          "values": { "Default": [0.19, 1, 0.22, 1] }
-        },
-        {
-          "name": "ease/in-out",
-          "css": "--ease-in-out",
-          "type": "EASING",
-          "values": { "Default": [0.4, 0, 0.2, 1] }
-        },
-        {
-          "name": "duration/reveal",
-          "css": "--transition-duration-reveal",
-          "type": "TIMING",
-          "values": { "Default": 0.7 }
-        },
-        {
           "name": "duration/afterglow-heat",
           "css": "--transition-duration-afterglow-heat",
           "type": "TIMING",
@@ -285,6 +267,18 @@
           "css": "--transition-duration-afterglow-smear",
           "type": "TIMING",
           "values": { "Default": 0.7 }
+        },
+        {
+          "name": "duration/spring",
+          "css": "--spring-duration",
+          "type": "TIMING",
+          "values": { "Default": 0.385 }
+        },
+        {
+          "name": "ease/settle",
+          "css": "--ease-settle",
+          "type": "EASING",
+          "values": { "Default": { "bounce": 0 } }
         }
       ]
     }

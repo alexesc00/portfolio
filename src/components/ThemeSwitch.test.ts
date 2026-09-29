@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { beforeAll, describe, expect, it } from 'vitest';
 import MoonIcon from './MoonIcon.astro';
@@ -64,5 +65,15 @@ describe('the theme switch', () => {
   it('is named by the visible word first, for voice control', () => {
     expect(spoken(darkLabel)).toBe('dark, switch to light mode');
     expect(spoken(lightLabel)).toBe('light, switch to dark mode');
+  });
+
+  // The circle grows on the site's calm spring: the Æ's spring without
+  // its bounce, so it settles instead of overshooting the screen's edge.
+  it('reveals the new theme on the calm spring', () => {
+    const source = readFileSync('src/components/ThemeSwitch.astro', 'utf8');
+
+    expect(source).toMatch(
+      /animation:\s*theme-reveal\s+var\(--transition-duration-settle\)\s+var\(--ease-settle\)/,
+    );
   });
 });

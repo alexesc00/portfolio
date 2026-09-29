@@ -4,6 +4,8 @@
  * here; the DotMark component does the drawing.
  */
 
+import { aeSpring, stepConstants } from './spring';
+
 export interface Point {
   x: number;
   y: number;
@@ -27,14 +29,14 @@ export interface Dots {
 }
 
 /*
- * The prototype's physics, tuned at 60 frames a second. Each step scales
- * them by how many of those frames have passed, so the dots move at the
- * same speed on a 120Hz screen.
+ * The physics, stepped at 60 frames a second. Each step scales it by how
+ * many of those frames have passed, so the dots move at the same speed on
+ * a 120Hz screen. The spring is the site's own: its constants come out
+ * within a thousandth of the prototype's hand-tuned 0.08 and 0.85.
  */
 const frameLength = 1000 / 60;
 const pushStrength = 15;
-const springStrength = 0.08;
-const damping = 0.85;
+const { springStrength, damping } = stepConstants(aeSpring, frameLength);
 /** The push radius as tuned on a mark 350px tall. */
 const basePushRadius = 120;
 const basePushRadiusHeight = 350;

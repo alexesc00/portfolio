@@ -5,6 +5,8 @@
  * that lives next to global.css, and the two are compared here.
  */
 
+import { springCurve } from './spring';
+
 /** A token's value, and the light mode and desktop values replacing it. */
 export interface CssToken {
   base: string;
@@ -12,8 +14,12 @@ export interface CssToken {
   desktop?: string;
 }
 
-/** A variable's value in one mode: a value, or a pointer to another token. */
-export type FigmaValue = string | number | number[] | { alias: string };
+/**
+ * A variable's value in one mode: a value, a pointer to another token, or
+ * a spring, which Figma holds as its bounce.
+ */
+export type FigmaValue =
+  string | number | number[] | { alias: string } | { bounce: number };
 
 export interface FigmaVariable {
   name: string;
@@ -38,6 +44,28 @@ export interface FigmaSnapshot {
  * Figma's frames are drawn at.
  */
 const notInFigma = [/^--font-/, /^--text-mark/, /^--breakpoint-/];
+
+/*
+ * Figma holds a spring the way Apple does, as a bounce, with one swing's
+ * duration in --spring-duration. CSS needs the curve drawn out, and how
+ * long to run it, so a spring's easing token is checked by drawing its
+ * curve again, and --transition-duration-<name> by how long it runs.
+ */
+const springDuration = '--spring-duration';
+const runTimeOf = (easing: string) =>
+  easing.replace(/^--ease-/, '--transition-duration-');
+
+function isSpring(value: FigmaValue): value is { bounce: number } {
+  return typeof value === 'object' && 'bounce' in value;
+}
+
+/** The curve CSS draws for a Figma spring, with the tokens in `resolve`. */
+function springFor(bounce: number, resolve: (name: string) => string) {
+  const duration = cssSeconds(resolve(springDuration));
+  return duration === null
+    ? null
+    : springCurve({ duration: duration * 1000, bounce });
+}
 
 const tolerance = 0.001;
 
@@ -144,6 +172,9 @@ function matches(
   css: string,
   resolve: (name: string) => string,
 ): boolean {
+  if (isSpring(figma)) {
+    return springFor(figma.bounce, resolve)?.easing === css;
+  }
   if (typeof figma === 'object' && !Array.isArray(figma)) {
     return css === `var(${figma.alias})`;
   }
@@ -169,6 +200,7 @@ function matches(
 
 function describe(value: FigmaValue): string {
   if (Array.isArray(value)) return `cubic-bezier(${value.join(', ')})`;
+  if (isSpring(value)) return `a spring with bounce ${value.bounce}`;
   if (typeof value === 'object') return `var(${value.alias})`;
   return String(value);
 }
@@ -184,6 +216,7 @@ export function compareWithFigma(
 ): string[] {
   const differences: string[] = [];
   const inFigma = new Set<string>();
+  const resolveBase = (name: string) => tokens.get(name)?.base ?? '';
 
   for (const collection of snapshot.collections) {
     for (const variable of collection.variables) {
@@ -203,6 +236,18 @@ export function compareWithFigma(
         if (!matches(variable, figma, css, resolve)) {
           differences.push(
             `${variable.css}, ${mode}: Figma has ${describe(figma)}, global.css has ${css}`,
+          );
+        }
+      }
+      const spring = Object.values(variable.values).find(isSpring);
+      if (spring) {
+        const runTime = runTimeOf(variable.css);
+        inFigma.add(runTime);
+        const curve = springFor(spring.bounce, resolveBase);
+        const css = resolveBase(runTime);
+        if (curve && css !== `${curve.duration}ms`) {
+          differences.push(
+            `${runTime}: global.css has ${css}, the spring’s curve runs ${curve.duration}ms`,
           );
         }
       }

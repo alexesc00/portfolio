@@ -255,6 +255,42 @@
           "css": "--text-reading--font-weight",
           "type": "FLOAT",
           "values": { "Desktop": 400, "Phone": 400 }
+        },
+        {
+          "name": "text/statement",
+          "css": "--text-statement",
+          "type": "FLOAT",
+          "values": { "Desktop": 28, "Phone": 24 }
+        },
+        {
+          "name": "text/statement-line-height",
+          "css": "--text-statement--line-height",
+          "type": "FLOAT",
+          "values": { "Desktop": 32, "Phone": 28 }
+        },
+        {
+          "name": "text/statement-letter-spacing",
+          "css": "--text-statement--letter-spacing",
+          "type": "FLOAT",
+          "values": { "Desktop": -1, "Phone": -0.5 }
+        },
+        {
+          "name": "text/statement-weight",
+          "css": "--text-statement--font-weight",
+          "type": "FLOAT",
+          "values": { "Desktop": 400, "Phone": 400 }
+        },
+        {
+          "name": "size/plate",
+          "css": "--spacing-plate",
+          "type": "FLOAT",
+          "values": { "Desktop": 900, "Phone": 844 }
+        },
+        {
+          "name": "spacing/travel",
+          "css": "--spacing-travel",
+          "type": "FLOAT",
+          "values": { "Desktop": 24, "Phone": 24 }
         }
       ]
     },

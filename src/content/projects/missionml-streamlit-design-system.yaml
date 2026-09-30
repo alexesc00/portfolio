@@ -16,19 +16,22 @@ writeUp:
     and added the components it lacks, each one Python call. I tagged every
     rule, so a page can switch the brand off and show the stock look. Across
     two federal projects, the team built about fifteen prototypes on it.
-images:
-  wide:
-    dark: ../../assets/works/missionml-streamlit/wide-dark.png
-    light: ../../assets/works/missionml-streamlit/wide-light.png
+# The box runs the app live: stock Streamlit and the MissionML look, split
+# by a seam. These stills show until it's running, and on phones.
+showcase:
+  app: /showcase/missionml/?view=sampler
+  stock:
+    large: ../../assets/works/missionml-streamlit/stock-large.png
+    medium: ../../assets/works/missionml-streamlit/stock-medium.png
+    phone: ../../assets/works/missionml-streamlit/stock-phone.png
     alt: >-
-      A Streamlit screen split down the middle. On the left, stock Streamlit: a
-      red Primary button, a red Week tab and a red progress bar. On the right,
-      the MissionML look: slate and black controls, an outlined Secondary button
-      cut in half by the split, and a green-edged Next steps panel.
-  phone:
-    dark: ../../assets/works/missionml-streamlit/phone-dark.png
-    light: ../../assets/works/missionml-streamlit/phone-light.png
+      A Streamlit screen in its stock look: a red Primary button, a red Week in
+      the period switch, a red Quality pill and a red progress bar.
+  brand:
+    large: ../../assets/works/missionml-streamlit/brand-large.png
+    medium: ../../assets/works/missionml-streamlit/brand-medium.png
+    phone: ../../assets/works/missionml-streamlit/brand-phone.png
     alt: >-
-      A Streamlit screen split down the middle: stock Streamlit on the left, with
-      a red Primary button and a red Week tab, and the MissionML look on the
-      right, with an outlined slate Secondary button.
+      The same screen in the MissionML look: a black rounded Primary button,
+      slate Week and Quality, labels in spaced capitals, a green progress bar
+      on a white card and a green-edged Next steps panel.

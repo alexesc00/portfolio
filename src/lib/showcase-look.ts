@@ -19,6 +19,15 @@ export function parseLook(value: string | null): Look {
 }
 
 /**
+ * The Python file the page's `view` URL flag asks for: the one-screen
+ * sampler the works table shows, or else the whole catalog. Only these
+ * two, so the flag can't point the app at any other file.
+ */
+export function parseEntrypoint(view: string | null) {
+  return view === 'sampler' ? 'sampler.py' : 'app.py';
+}
+
+/**
  * The parent page switches the look with `{ showcase: 'look', look }`.
  * Returns that look, or null for any other message.
  */

@@ -145,6 +145,35 @@ const tag = [
       <span class:list={[tag, 'right-3.5 z-10']} data-tag>
         MissionML
       </span>
+      {/*
+       * How far the live app has got starting up, over the stills. The
+       * strip's status already tells screen readers it's starting, so this
+       * stays out of their way.
+       */}
+      <div
+        class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-opacity duration-settle ease-settle data-shown:opacity-100 max-md:hidden"
+        aria-hidden="true"
+        data-progress
+      >
+        <div
+          class:list={[
+            onScreen,
+            'flex w-28 flex-col items-center gap-2.5 rounded-xl px-5 pt-3 pb-4',
+          ]}
+        >
+          <span class="text-reading tabular-nums" data-progress-label>
+            0%
+          </span>
+          <span class="h-1 w-full overflow-hidden rounded-full bg-current/22">
+            {/* Filled by scaling, not by width, so it never lays out again */}
+            <span
+              class="block h-full origin-left rounded-full bg-current transition-transform duration-settle ease-settle motion-reduce:transition-none"
+              style="transform: scaleX(0)"
+              data-progress-bar
+            ></span>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
   <div class="flex h-10 items-center justify-between max-md:hidden">
@@ -190,6 +219,7 @@ const tag = [
     type ShowcaseStatus,
   } from '../lib/showcase-compare';
   import { mirror } from '../lib/showcase-mirror';
+  import { parseProgressMessage } from '../lib/showcase-progress';
 
   type Look = 'stock' | 'brand';
 
@@ -209,8 +239,25 @@ const tag = [
     const lensCatcher = root.querySelector<HTMLElement>('[data-lens-catcher]');
     const run = root.querySelector<HTMLButtonElement>('[data-run]');
     const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
+    const progress = root.querySelector<HTMLElement>('[data-progress]');
+    const progressLabel = root.querySelector<HTMLElement>(
+      '[data-progress-label]',
+    );
+    const progressBar = root.querySelector<HTMLElement>('[data-progress-bar]');
     const app = root.dataset.app;
-    if (!screen || !seam || !lensCatcher || !run || !runLabel || !app) return;
+    if (
+      !screen ||
+      !seam ||
+      !lensCatcher ||
+      !run ||
+      !runLabel ||
+      !progress ||
+      !progressLabel ||
+      !progressBar ||
+      !app
+    ) {
+      return;
+    }
     const holders = {
       stock: screen.querySelector<HTMLElement>(
         '[data-layer=stock] [data-live]',
@@ -286,6 +333,13 @@ const tag = [
       run.dataset.status = next;
       run.disabled = next === 'starting' || next === 'live';
       runLabel.textContent = statusLabel[next];
+      progress?.toggleAttribute('data-shown', next === 'starting');
+    }
+
+    function showProgress(percent: number) {
+      if (!progressLabel || !progressBar) return;
+      progressLabel.textContent = `${Math.round(percent)}%`;
+      progressBar.style.transform = `scaleX(${percent / 100})`;
     }
 
     function fit() {
@@ -333,6 +387,9 @@ const tag = [
       const started = { stock: frameFor('stock'), brand: frameFor('brand') };
       frames = started;
       const waiting = new Set<Look>(['stock', 'brand']);
+      // Each copy's progress; the slower one is the one shown
+      const reached = { stock: 0, brand: 0 };
+      showProgress(0);
 
       const onMessage = (event: MessageEvent) => {
         if (event.origin !== location.origin) return;
@@ -340,6 +397,12 @@ const tag = [
           (candidate) => event.source === started[candidate].contentWindow,
         );
         if (!look) return;
+        const percent = parseProgressMessage(event.data);
+        if (percent !== null) {
+          reached[look] = Math.max(reached[look], percent);
+          showProgress(Math.min(reached.stock, reached.brand));
+          return;
+        }
         const { showcase } = (event.data ?? {}) as { showcase?: unknown };
         if (showcase === 'failed') fail();
         if (showcase !== 'ready') return;
@@ -368,6 +431,7 @@ const tag = [
       }
       mirror(stockPage, brandPage);
       mirror(brandPage, stockPage);
+      showProgress(100);
       for (const holder of Object.values(holders)) {
         holder?.setAttribute('data-shown', '');
       }

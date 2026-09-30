@@ -1,0 +1,46 @@
+---
+/*
+ * The live MissionML Streamlit showcase, alone on its page, for the works
+ * table to show in an iframe. It can't sit in the table directly: Streamlit's
+ * global CSS would restyle the rest of the site, and its layout breakpoints
+ * read the browser window, not the box it's in. So this page leaves out the
+ * site's layout and stylesheet.
+ */
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- A piece of the works table, not a page of its own -->
+    <meta name="robots" content="noindex" />
+    <title>MissionML design system, live</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  </head>
+  <body>
+    <div id="showcase"></div>
+    <script>
+      import app from '../../lib/missionml-showcase.json';
+      import { mountShowcase } from '../../lib/showcase-embed';
+
+      // Copied there by scripts/sync-showcase.mjs
+      const baseUrl = '/showcase/missionml/app/';
+
+      const container = document.getElementById('showcase');
+      if (container)
+        void mountShowcase(container, { baseUrl, files: app.files });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /* Streamlit sizes its app to fill the page */
+  html,
+  body,
+  #showcase {
+    height: 100%;
+    margin: 0;
+  }
+</style>

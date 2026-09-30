@@ -46,8 +46,6 @@ describe('the top bar', () => {
     expect(html.indexOf('<h1')).toBeLessThan(html.indexOf('<nav'));
     expect(html).toMatch(/<h1[^>]*>\s*Alex Escudero\s*<\/h1>/);
     expect(nav).toMatch(/<a[^>]* href="#work"[^>]*>\s*Work\s*<\/a>/);
-    expect(nav).toMatch(
-      /<a[^>]* href="mailto:hello@alexescudero\.design"[^>]*>\s*Contact\s*<\/a>/,
-    );
+    expect(nav).toMatch(/<a[^>]* href="#contact"[^>]*>\s*Contact\s*<\/a>/);
   });
 });

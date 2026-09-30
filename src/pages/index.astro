@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import ContactSection from '../components/ContactSection.astro';
 import Hero from '../components/Hero.astro';
 import WorksSection from '../components/WorksSection.astro';
 import PrinciplesSection from '../components/PrinciplesSection.astro';
@@ -16,5 +17,6 @@ const projects = (await getCollection('projects')).map(({ data }) => data);
   <main>
     <WorksSection projects={projects} />
     <PrinciplesSection />
+    <ContactSection />
   </main>
 </Layout>

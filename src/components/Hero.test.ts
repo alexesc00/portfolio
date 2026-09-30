@@ -26,6 +26,13 @@ function linkTexts() {
 }
 
 describe('the hero', () => {
+  // The closing plate's ↑ Top link brings the visitor and their focus
+  // back here.
+  it('is the top of the page, where focus can return', () => {
+    expect(html).toMatch(/^<header[^>]* id="top"/);
+    expect(html).toMatch(/^<header[^>]* tabindex="-1"/);
+  });
+
   // So on screens wider than 1440 the hero's corners stay on the same
   // edges as everything under them.
   it('keeps its corners in a frame that stops growing at 1440', () => {

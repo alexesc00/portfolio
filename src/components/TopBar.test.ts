@@ -33,11 +33,12 @@ describe('the top bar', () => {
     expect(barClasses()).not.toMatch(/\btransition-all\b/);
   });
 
-  it('arrives on the spring and leaves settling', () => {
-    expect(barClasses()).toMatch(/(^| )duration-spring\b/);
-    expect(barClasses()).toMatch(/(^| )ease-spring\b/);
-    expect(barClasses()).toMatch(/\bdata-hidden:duration-settle\b/);
-    expect(barClasses()).toMatch(/\bdata-hidden:ease-settle\b/);
+  // The Æ's bounce would swing the bar a third of its height past its
+  // place, so it settles both ways.
+  it('arrives and leaves settling, without a bounce', () => {
+    expect(barClasses()).toMatch(/(^| )duration-settle\b/);
+    expect(barClasses()).toMatch(/(^| )ease-settle\b/);
+    expect(barClasses()).not.toMatch(/-spring\b/);
   });
 
   it('holds the name, then Work and Contact', () => {

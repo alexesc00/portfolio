@@ -22,14 +22,67 @@ import TopBar from './TopBar.astro';
     {/*
      * The page stops growing at 1440, the width the design is drawn at,
      * and centers on wider screens. The dotted Æ stays outside the frame
-     * so it can use the whole screen.
+     * so it can use the whole screen. The line along its bottom rolls away
+     * once the visitor starts reading down and rolls back at the very top.
      */}
     <div
       class="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-1 items-end justify-between gap-page px-page"
       data-page-frame
+      data-bottom-line
     >
       <Colophon />
       <ThemeSwitch />
     </div>
   </div>
 </header>
+
+<script>
+  import { isBottomLineShown } from '../lib/hero-bottom-line';
+
+  const line = document.querySelector<HTMLElement>('[data-bottom-line]');
+  let isShown = true;
+
+  function update() {
+    const next = isBottomLineShown(isShown, scrollY);
+    if (next === isShown) return;
+    isShown = next;
+    line?.toggleAttribute('data-hidden', !isShown);
+  }
+
+  addEventListener('scroll', update, { passive: true });
+  update();
+</script>
+
+<style>
+  /*
+   * Each side rolls up and away, as if printed on a drum turning over its
+   * top edge: it lifts, tips back and fades. Leaving settles; coming back
+   * turns on the Æ spring, so it swings a touch past upright before it
+   * rests, while the fade settles both ways, since a spring's swing back
+   * would flicker it. The drum's axis sits just behind the text.
+   *
+   * Tabbing to either side brings the line back, so focus never lands on
+   * something out of sight, and screen readers find it either way.
+   */
+  [data-bottom-line] > :global(*) {
+    transform-origin: 50% 50% -1em;
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      transform var(--transition-duration-spring) var(--ease-spring);
+  }
+
+  [data-bottom-line][data-hidden]:not(:focus-within) > :global(*) {
+    opacity: 0;
+    pointer-events: none;
+    transform: perspective(40em) rotateX(90deg);
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      transform var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-bottom-line][data-hidden]:not(:focus-within) > :global(*) {
+      transform: none;
+    }
+  }
+</style>

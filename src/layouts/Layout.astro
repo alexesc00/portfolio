@@ -45,32 +45,20 @@ const previewImageAlt =
     <link rel="icon" href={publicFile('favicon.svg')} type="image/svg+xml" />
     <link rel="icon" href={publicFile('favicon-32.png')} sizes="32x32" />
     <link rel="apple-touch-icon" href={publicFile('apple-touch-icon.png')} />
-    {/* Without scripts, the browser bar follows the system setting. */}
-    <meta
-      name="theme-color"
-      content={themeColors.dark}
-      media="(prefers-color-scheme: dark)"
-    />
-    <meta
-      name="theme-color"
-      content={themeColors.light}
-      media="(prefers-color-scheme: light)"
-    />
+    {/* Dark until the visitor chooses light; the script below switches it. */}
+    <meta name="theme-color" content={themeColors.dark} />
     {/* Runs before anything is drawn, so the page never flashes the wrong theme. */}
     <script is:inline define:vars={{ themeStorageKey, themeColors }}>
+      // The site starts dark, whatever the system setting, until the
+      // visitor picks light with the theme switch.
       let theme = null;
       try {
         theme = localStorage.getItem(themeStorageKey);
       } catch {
-        // Storage is blocked; fall back to the system setting.
+        // Storage is blocked, so there's no saved choice to read.
       }
-      if (theme !== 'dark' && theme !== 'light') {
-        theme = matchMedia('(prefers-color-scheme: light)').matches
-          ? 'light'
-          : 'dark';
-      }
+      if (theme !== 'dark' && theme !== 'light') theme = 'dark';
       document.documentElement.dataset.theme = theme;
-      // Both tags, since the browser picks one by the system setting.
       for (const meta of document.querySelectorAll(
         'meta[name="theme-color"]',
       )) {

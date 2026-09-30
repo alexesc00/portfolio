@@ -22,26 +22,11 @@ export function oppositeTheme(theme: Theme): Theme {
   return theme === 'dark' ? 'light' : 'dark';
 }
 
-export function systemTheme(prefersLight: boolean): Theme {
-  return prefersLight ? 'light' : 'dark';
-}
-
 /*
  * Storage is passed in as a function because some browsers throw as soon
  * as a blocked localStorage is touched, so even reaching it has to happen
  * inside the try.
  */
-
-/** The theme the visitor chose last time, if storage has one. */
-export function readSavedTheme(
-  getStorage: () => Pick<Storage, 'getItem'>,
-): Theme | null {
-  try {
-    return parseTheme(getStorage().getItem(themeStorageKey));
-  } catch {
-    return null;
-  }
-}
 
 /** Remembers the visitor's choice for their next visit, where allowed. */
 export function saveTheme(

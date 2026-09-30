@@ -28,22 +28,18 @@ const iconClass = 'mr-1 inline-block size-[1em] align-[-0.175em]';
   import {
     oppositeTheme,
     parseTheme,
-    readSavedTheme,
     revealRadius,
     saveTheme,
-    systemTheme,
     themeColors,
     type Theme,
   } from '../lib/theme';
 
   const root = document.documentElement;
-  const systemPrefersLight = matchMedia('(prefers-color-scheme: light)');
   const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   /** Switches the page to `theme`, browser bar included. */
   function showTheme(theme: Theme) {
     root.dataset.theme = theme;
-    // Both tags, since the browser picks one by the system setting.
     for (const meta of document.querySelectorAll<HTMLMetaElement>(
       'meta[name="theme-color"]',
     )) {
@@ -87,13 +83,6 @@ const iconClass = 'mr-1 inline-block size-[1em] align-[-0.175em]';
     const next = oppositeTheme(parseTheme(root.dataset.theme) ?? 'dark');
     saveTheme(() => localStorage, next);
     revealTheme(next, button);
-  });
-
-  // Until the visitor chooses, keep following the system setting live.
-  systemPrefersLight.addEventListener('change', (event) => {
-    if (!readSavedTheme(() => localStorage)) {
-      showTheme(systemTheme(event.matches));
-    }
   });
 </script>
 

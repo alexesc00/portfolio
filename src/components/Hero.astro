@@ -2,40 +2,29 @@
 import Colophon from './Colophon.astro';
 import DotMark from './DotMark.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
-
-/*
- * Until the closing contact section is built, Contact opens an email
- * straight away.
- */
-const contactUrl = 'mailto:hello@alexescudero.design';
+import TopBar from './TopBar.astro';
 ---
 
-{/*
- * svh is the screen height with a phone's address bar showing, so the
- * bottom line is never hidden behind the bar and nothing jumps when it
- * hides.
- */}
-<div class="relative isolate flex min-h-svh flex-col py-inset">
-  <DotMark />
+<header>
+  <TopBar />
   {/*
-   * The page stops growing at 1440, the width the design is drawn at,
-   * and centers on wider screens. The dotted Æ stays outside the frame
-   * so it can use the whole screen.
+   * svh is the screen height with a phone's address bar showing, so the
+   * bottom line is never hidden behind the bar and nothing jumps when it
+   * hides.
    */}
-  <header
-    class="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-1 flex-col px-page"
-    data-page-frame
-  >
-    <div class="flex items-start justify-between gap-page">
-      <h1>Alex Escudero</h1>
-      <nav aria-label="Sections" class="flex gap-6">
-        <a href="#work">Work</a>
-        <a href={contactUrl}>Contact</a>
-      </nav>
-    </div>
-    <div class="flex flex-1 items-end justify-between gap-page">
+  <div class="relative isolate flex min-h-svh flex-col py-inset">
+    <DotMark />
+    {/*
+     * The page stops growing at 1440, the width the design is drawn at,
+     * and centers on wider screens. The dotted Æ stays outside the frame
+     * so it can use the whole screen.
+     */}
+    <div
+      class="mx-auto flex w-full max-w-(--breakpoint-2xl) flex-1 items-end justify-between gap-page px-page"
+      data-page-frame
+    >
       <Colophon />
       <ThemeSwitch />
     </div>
-  </header>
-</div>
+  </div>
+</header>

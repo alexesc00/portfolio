@@ -1,0 +1,74 @@
+---
+/*
+ * Until the closing contact section is built, Contact opens an email
+ * straight away.
+ */
+const contactUrl = 'mailto:hello@alexescudero.design';
+---
+
+{/*
+ * Fixed over the whole page, with the page's own background so nothing
+ * shows through as it passes under. It slides away as the visitor reads
+ * down and comes back as soon as they scroll up.
+ */}
+<div
+  class="fixed inset-x-0 top-0 z-30 bg-background py-inset duration-spring ease-spring motion-safe:transition-transform data-hidden:-translate-y-full data-hidden:duration-settle data-hidden:ease-settle"
+  data-top-bar
+>
+  <div class="mx-auto flex w-full max-w-(--breakpoint-2xl) items-start justify-between gap-page px-page">
+    <h1>Alex Escudero</h1>
+    <nav aria-label="Sections" class="flex gap-6">
+      <a href="#work">Work</a>
+      <a href={contactUrl}>Contact</a>
+    </nav>
+  </div>
+</div>
+
+<script>
+  import { landedTopBar, nextTopBar, topBarAtTop } from '../lib/top-bar';
+
+  const element = document.querySelector<HTMLElement>('[data-top-bar]');
+  let bar = topBarAtTop;
+  // Set between a click on a link to a section and the jump it makes.
+  let isJumping = false;
+
+  function show() {
+    element?.toggleAttribute('data-hidden', !bar.isShown);
+  }
+
+  addEventListener(
+    'scroll',
+    () => {
+      const maxScrollY = document.documentElement.scrollHeight - innerHeight;
+      bar = isJumping
+        ? landedTopBar(scrollY)
+        : nextTopBar(bar, scrollY, maxScrollY);
+      isJumping = false;
+      show();
+    },
+    { passive: true },
+  );
+
+  // A jump up the page would otherwise read as a scroll up, and the bar
+  // would come back over the top of the section the visitor asked for.
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element)) return;
+    if (!event.target.closest('a[href^="#"]')) return;
+    isJumping = true;
+    // A link to where the page already is makes no jump to wait for.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        isJumping = false;
+      }),
+    );
+  });
+
+  // Tabbing into the bar brings it back, so focus is never off screen.
+  element?.addEventListener('focusin', () => {
+    bar = { isShown: true, anchor: scrollY };
+    show();
+  });
+
+  bar = landedTopBar(scrollY);
+  show();
+</script>

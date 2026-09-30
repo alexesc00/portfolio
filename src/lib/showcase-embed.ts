@@ -8,6 +8,7 @@ import {
   themeMessage,
   type Look,
 } from './showcase-look';
+import { stepProgress } from './showcase-progress';
 
 /*
  * stlite runs Streamlit in the browser on Pyodide (Python compiled for the
@@ -31,6 +32,13 @@ const scriptStateAttribute = 'data-test-script-state';
 // Time for the theme to redraw the page before the parent looks
 const settleMs = 400;
 
+/*
+ * stlite names each start-up step in a notice it pops up in the page (with
+ * react-toastify, hence the class). mount() takes no callback for them, so
+ * they're read from there. Pinned with stlite above.
+ */
+const stepNoticeSelector = '.Toastify__toast';
+
 /** The parts of stlite's `mount` used here. */
 type Mount = (
   options: {
@@ -51,6 +59,7 @@ export interface ShowcaseApp {
 
 /**
  * Runs the app in `container` and tells the parent page, if there is one,
+ * `{ showcase: 'progress', percent }` as it starts, then
  * `{ showcase: 'ready' }` once it has drawn, or `{ showcase: 'failed' }`.
  * The parent switches the look with `{ showcase: 'look', look }`, and the
  * `look` URL flag sets the starting one. The `view` URL flag picks the
@@ -111,15 +120,26 @@ export async function mountShowcase(container: HTMLElement, app: ShowcaseApp) {
       window.postMessage(themeMessage(theme), location.origin);
     };
 
+    let progress = 0;
+    const reportProgress = () => {
+      for (const notice of container.querySelectorAll(stepNoticeSelector)) {
+        const percent = stepProgress(notice.textContent ?? '');
+        if (percent === null || percent <= progress) continue;
+        progress = percent;
+        tellParent({ showcase: 'progress', percent });
+      }
+    };
+
     // Style blocks keep arriving as the script runs and reruns. Streamlit
     // sets its own theme as the first run starts, so this one goes once
     // that run has finished.
     new MutationObserver(() => {
       applyBrandCss();
+      if (!isReady) reportProgress();
       if (isReady || !hasRunOnce()) return;
       isReady = true;
       applyTheme();
-      window.setTimeout(() => tellParent('ready'), settleMs);
+      window.setTimeout(() => tellParent({ showcase: 'ready' }), settleMs);
     }).observe(container, {
       childList: true,
       subtree: true,
@@ -138,7 +158,7 @@ export async function mountShowcase(container: HTMLElement, app: ShowcaseApp) {
     console.error(error);
     container.textContent =
       'The live app couldn’t start. Check the connection and reload the page.';
-    tellParent('failed');
+    tellParent({ showcase: 'failed' });
   }
 }
 
@@ -148,7 +168,11 @@ async function fetchText(url: string) {
   return response.text();
 }
 
-function tellParent(showcase: 'ready' | 'failed') {
+function tellParent(
+  message:
+    | { showcase: 'ready' | 'failed' }
+    | { showcase: 'progress'; percent: number },
+) {
   if (window.parent === window) return;
-  window.parent.postMessage({ showcase }, location.origin);
+  window.parent.postMessage(message, location.origin);
 }

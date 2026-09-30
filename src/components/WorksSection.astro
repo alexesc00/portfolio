@@ -12,10 +12,29 @@ const { projects } = Astro.props;
 <section
   id="work"
   aria-labelledby="work-heading"
-  class="mx-auto w-full max-w-(--breakpoint-2xl) px-page pt-8 pb-inset"
+  class="mx-auto w-full max-w-(--breakpoint-2xl) px-page pt-8 pb-inset md:pt-7"
 >
-  <h2 id="work-heading" class="text-reading">
-    Selected work
-  </h2>
+  {/*
+   * The heading comes first so screen readers meet the section's name
+   * before its first words. From 1024 up it's a running head at the top
+   * right; narrower, it moves under the statement to caption the table.
+   */}
+  <div class="flex flex-col lg:mb-30 lg:flex-row-reverse lg:items-baseline lg:justify-between lg:gap-page">
+    <h2
+      id="work-heading"
+      class="order-last mt-18 text-interface md:mt-24 md:text-reading lg:order-none lg:mt-0"
+    >
+      Selected work
+    </h2>
+    {/*
+     * Each clause gets its own line from 768 up. Narrower, hand-set breaks
+     * would only fit one phone's width, so the lines balance themselves.
+     */}
+    <p class="text-statement text-balance text-text-muted">
+      <span class="md:block">Designs change on the way to launch.</span>{' '}
+      <span class="md:block">I design products and build them in code,</span>{' '}
+      <span class="text-text md:block">so what ships is what was meant.</span>
+    </p>
+  </div>
   <WorksTable projects={projects} />
 </section>

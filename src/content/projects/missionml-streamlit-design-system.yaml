@@ -1,7 +1,34 @@
 order: 2
-# Client work under NDA, so the row can't be opened.
-locked: true
+locked: false
+name: MissionML design system
 category: Government AI
 solution: Branded design system for prototyping AI apps in Streamlit
 practices: [Design systems, Brand identity, Development]
 segment: Government
+writeUp:
+  - >-
+    The MissionML design system is a theme and a stylesheet that make Streamlit
+    apps look like MissionML. The company prototyped AI apps for federal
+    agencies in Streamlit, but every prototype came out in the framework’s
+    stock look.
+  - >-
+    I restyled Streamlit’s own widgets with one stylesheet of about 800 lines
+    and added the components it lacks, each one Python call. I tagged every
+    rule, so a page can switch the brand off and show the stock look. Across
+    two federal projects, the team built about fifteen prototypes on it.
+images:
+  wide:
+    dark: ../../assets/works/missionml-streamlit/wide-dark.png
+    light: ../../assets/works/missionml-streamlit/wide-light.png
+    alt: >-
+      A Streamlit screen split down the middle. On the left, stock Streamlit: a
+      red Primary button, a red Week tab and a red progress bar. On the right,
+      the MissionML look: slate and black controls, an outlined Secondary button
+      cut in half by the split, and a green-edged Next steps panel.
+  phone:
+    dark: ../../assets/works/missionml-streamlit/phone-dark.png
+    light: ../../assets/works/missionml-streamlit/phone-light.png
+    alt: >-
+      A Streamlit screen split down the middle: stock Streamlit on the left, with
+      a red Primary button and a red Week tab, and the MissionML look on the
+      right, with an outlined slate Secondary button.

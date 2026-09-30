@@ -150,6 +150,15 @@ function cssNumber(value: string): number | null {
   return number;
 }
 
+/*
+ * A size measured in screen heights, like a plate's 100svh. Figma has no
+ * screen to measure, so it draws the size at the height of the frame each
+ * mode is drawn in, and there is no number to compare.
+ */
+function isScreenHeight(value: string): boolean {
+  return /^[\d.]+(svh|lvh|dvh|vh)$/.test(value);
+}
+
 /** A duration as Figma holds it, in seconds. */
 function cssSeconds(value: string): number | null {
   const match = /^([\d.]+)(ms|s)$/.exec(value);
@@ -182,7 +191,7 @@ function matches(
     return figma.toLowerCase() === cssColor(css, resolve);
   }
   if (variable.type === 'FLOAT' && typeof figma === 'number') {
-    return isClose(figma, cssNumber(css));
+    return isScreenHeight(css) || isClose(figma, cssNumber(css));
   }
   if (variable.type === 'TIMING' && typeof figma === 'number') {
     return isClose(figma, cssSeconds(css));

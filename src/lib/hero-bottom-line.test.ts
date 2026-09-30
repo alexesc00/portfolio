@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  isBottomLineShown,
-  leavesAfter,
-  returnsWithin,
-} from './hero-bottom-line';
+import { isBottomLineShown, returnsWithin } from './hero-bottom-line';
+import { nextTopBar, scrollSlack, topBarAtTop } from './top-bar';
 
 /** Scrolls through `positions` in turn, starting at the top. */
 function scrollThrough(positions: number[]) {
@@ -18,17 +15,20 @@ describe('isBottomLineShown', () => {
     expect(scrollThrough([0])).toBe(true);
   });
 
-  it('keeps it for the first few pixels of a scroll', () => {
-    expect(scrollThrough([leavesAfter])).toBe(true);
+  it('keeps it through a nudge too small to move the top bar', () => {
+    expect(scrollThrough([scrollSlack - 1])).toBe(true);
   });
 
-  it('lets it go as the scroll gets going', () => {
-    expect(scrollThrough([leavesAfter + 1])).toBe(false);
+  it('lets it go on the same scroll that hides the top bar', () => {
+    const maxScrollY = 4200;
+    expect(nextTopBar(topBarAtTop, scrollSlack, maxScrollY).isShown).toBe(
+      false,
+    );
+    expect(scrollThrough([scrollSlack])).toBe(false);
   });
 
   it('keeps it away on the way back up until the very top', () => {
     expect(scrollThrough([400, returnsWithin + 1])).toBe(false);
-    expect(scrollThrough([400, leavesAfter])).toBe(false);
   });
 
   it('brings it back just before the top', () => {
@@ -40,6 +40,6 @@ describe('isBottomLineShown', () => {
   });
 
   it('comes back nearer the top than it leaves, so it can’t flicker', () => {
-    expect(returnsWithin).toBeLessThan(leavesAfter);
+    expect(returnsWithin).toBeLessThan(scrollSlack);
   });
 });

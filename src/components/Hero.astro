@@ -5,7 +5,12 @@ import ThemeSwitch from './ThemeSwitch.astro';
 import TopBar from './TopBar.astro';
 ---
 
-<header>
+{/*
+ * The top of the page. The closing plate's ↑ Top link moves focus here,
+ * as a starting point for the keyboard rather than a control, so it
+ * draws no focus ring.
+ */}
+<header id="top" tabindex="-1" class="outline-none">
   <TopBar />
   {/*
    * svh is the screen height with a phone's address bar showing, so the

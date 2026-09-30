@@ -62,7 +62,7 @@ describe('the closing plate', () => {
 
   it('breaks the address after the @ on phones only', () => {
     expect(html).toMatch(
-      /<span class="max-md:block">hello@<\/span>alexescudero\.design/,
+      /<span[^>]* class="max-md:block"[^>]*>hello@<\/span>alexescudero\.design/,
     );
   });
 
@@ -72,14 +72,14 @@ describe('the closing plate', () => {
       /href="https:\/\/www\.linkedin\.com\/in\/alexesc1111\/"/,
     );
     expect(linkedIn?.attributes).toMatch(/\btext-text-muted\b/);
-    expect(linkedIn?.inner).toMatch(/<span aria-hidden="true">↗<\/span>/);
+    expect(linkedIn?.inner).toMatch(/<span aria-hidden="true"[^>]*>↗<\/span>/);
   });
 
   it('ends with a way back to the top, at the bottom right', () => {
     const top = links().at(-1);
     expect(top?.attributes).toMatch(/href="#top"/);
     expect(top?.text).toBe('Back to Top');
-    expect(top?.inner).toMatch(/<span aria-hidden="true">↑<\/span>/);
+    expect(top?.inner).toMatch(/<span aria-hidden="true"[^>]*>↑<\/span>/);
     expect(top?.attributes).toMatch(/\bself-end\b/);
   });
 

@@ -1,0 +1,54 @@
+---
+const linkedInUrl = 'https://www.linkedin.com/in/alexesc1111/';
+---
+
+{/*
+ * The last screen: the contact at the top left, where the statement sits
+ * in the works section, and a way back up at the bottom right. At least
+ * one screen tall, so the page always ends on a whole screen. It isn't a
+ * footer: the name, colophon and theme switch stay in the hero.
+ */}
+<section
+  id="contact"
+  aria-labelledby="contact-heading"
+  class="mx-auto flex min-h-plate w-full max-w-(--breakpoint-2xl) flex-col px-page pt-inset pb-inset lg:pt-7"
+>
+  {/*
+   * The heading comes first so screen readers meet the section's name
+   * first. From 1024 up it's a running head at the top right, like
+   * "Selected work"; narrower, it's a caption above the address.
+   */}
+  <div class="flex flex-col gap-2 lg:flex-row-reverse lg:items-baseline lg:justify-between lg:gap-page">
+    <h2 id="contact-heading" class="text-interface md:text-reading">
+      Contact
+    </h2>
+    <div>
+      {/* On phones the address breaks after the @, not wherever it runs out. */}
+      <a href="mailto:hello@alexescudero.design" class="text-statement">
+        <span class="max-md:block">hello@</span>alexescudero.design
+      </a>
+      <p class="mt-4">
+        <a href={linkedInUrl} class="text-text-muted hover:text-text">
+          LinkedIn <span aria-hidden="true">↗</span>
+        </a>
+      </p>
+    </div>
+  </div>
+  <a href="#top" class="mt-auto self-end" data-back-to-top>
+    <span aria-hidden="true">↑</span> <span class="sr-only">Back to </span>Top
+  </a>
+</section>
+
+<script>
+  // Back to the top: a smooth scroll, or a jump with reduced motion on.
+  // Focus goes back to the top too, so the next Tab reaches the top bar.
+  const link = document.querySelector('[data-back-to-top]');
+  const top = document.getElementById('top');
+  link?.addEventListener('click', (event) => {
+    if (!top) return;
+    event.preventDefault();
+    const isReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollTo({ top: 0, behavior: isReduced ? 'instant' : 'smooth' });
+    top.focus({ preventScroll: true });
+  });
+</script>

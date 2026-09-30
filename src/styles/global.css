@@ -58,6 +58,12 @@
   );
 
   /*
+   * The one color that isn't the foreground, besides the Æ's: a dot
+   * saying something is running live. The same in both modes.
+   */
+  --color-live: #33b574;
+
+  /*
    * The dotted Æ's colors while it moves, and nothing else's. Heat, for
    * dark mode, runs from cold to hot along a ramp; where each color sits
    * on it is in src/lib/dot-colors.ts. Smear, for light mode, is a wheel

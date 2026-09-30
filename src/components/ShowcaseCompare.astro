@@ -150,12 +150,12 @@ const tag = [
   <div class="flex h-10 items-center justify-between max-md:hidden">
     <button
       type="button"
-      class="flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-surface px-4 text-interface disabled:cursor-default data-[status=failed]:text-text-muted"
+      class="group flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-surface px-4 text-interface disabled:cursor-default data-[status=failed]:text-text-muted"
       data-status="still"
       data-run
     >
       <span
-        class="showcase-status-dot size-2 rounded-full bg-text-muted"
+        class="showcase-status-dot size-2 rounded-full bg-text-muted group-data-[status=live]:bg-live"
         aria-hidden="true"
       ></span>
       <span aria-live="polite" data-run-label>
@@ -457,9 +457,6 @@ const tag = [
   [data-status='starting'] .showcase-status-dot {
     animation: showcase-breathe var(--transition-duration-spring)
       var(--ease-settle) infinite alternate;
-  }
-  [data-status='live'] .showcase-status-dot {
-    background: var(--color-text);
   }
   @media (prefers-reduced-motion: reduce) {
     [data-status='starting'] .showcase-status-dot {

@@ -15,6 +15,16 @@ function pageFrame() {
   return start === -1 ? '' : html.slice(start);
 }
 
+/** The links in the order a keyboard reaches them, by their text. */
+function linkTexts() {
+  return [...html.matchAll(/<a [^>]*>([\s\S]*?)<\/a>/g)].map(([, inner]) =>
+    inner
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+}
+
 describe('the hero', () => {
   // So on screens wider than 1440 the hero's corners stay on the same
   // edges as everything under them.
@@ -25,7 +35,6 @@ describe('the hero', () => {
       /^<header[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/,
     );
     expect(frame).toContain('Alex Escudero');
-    expect(frame).toContain('Product designer');
     expect(frame).toContain('data-theme-switch');
   });
 
@@ -43,15 +52,26 @@ describe('the hero', () => {
     expect(html).not.toContain('<main');
   });
 
-  it('links down to the work, the arrow kept from screen readers', () => {
-    expect(html).toMatch(
-      /<a[^>]* href="#work"[^>]*>\s*<span[^>]* aria-hidden="true"[^>]*>↓<\/span>\s*Work\s*<\/a>/,
+  it('puts Work and Contact in a nav beside the name', () => {
+    const nav = /<nav[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? '';
+
+    expect(html.indexOf('<nav')).toBeGreaterThan(html.indexOf('Alex Escudero'));
+    expect(nav).toMatch(/<a[^>]* href="#work"[^>]*>\s*Work\s*<\/a>/);
+    expect(nav).toMatch(
+      /<a[^>]* href="mailto:hello@alexescudero\.design"[^>]*>\s*Contact\s*<\/a>/,
     );
   });
 
-  it('puts the link in the corner across from the tagline', () => {
-    expect(html.indexOf('href="#work"')).toBeGreaterThan(
-      html.indexOf('Product designer'),
+  // The page says what Alex does without a label, and Work is in the bar.
+  it('drops the tagline and the link down to the work', () => {
+    expect(html).not.toContain('Product designer');
+    expect(html).not.toContain('↓');
+  });
+
+  it('is reached by keyboard from the top bar to the theme switch', () => {
+    expect(linkTexts()).toEqual(['Work', 'Contact', 'Figma ↗', 'GitHub ↗']);
+    expect(html.indexOf('data-theme-switch')).toBeGreaterThan(
+      html.lastIndexOf('</a>'),
     );
   });
 });

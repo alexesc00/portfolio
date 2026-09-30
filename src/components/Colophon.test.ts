@@ -29,4 +29,10 @@ describe('the colophon', () => {
 
     expect(classes(linkNamed('Figma'))).toBe(classes(linkNamed('GitHub')));
   });
+
+  // The theme switch has its own corner of the hero now.
+  it('ends at GitHub, without the theme switch', () => {
+    expect(html).not.toContain('shown in');
+    expect(html).not.toContain('data-theme-switch');
+  });
 });

@@ -25,9 +25,11 @@ const bodies = [
 
 /** The text of every element with the attribute, in page order. */
 const allWith = (attribute: string) =>
-  [...html.matchAll(new RegExp(`<(\\w+)[^>]* ${attribute}[^>]*>`, 'g'))].map(
-    (match) => html.slice(match.index),
-  );
+  [
+    ...html.matchAll(
+      new RegExp(`<(\\w+)[^>]* ${attribute}(?=[\\s>=])[^>]*>`, 'g'),
+    ),
+  ].map((match) => html.slice(match.index));
 
 describe('the principles section', () => {
   it('is a section named by its heading, at least one screen tall', () => {

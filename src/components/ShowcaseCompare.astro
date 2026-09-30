@@ -3,6 +3,7 @@ import type { ImageOutputFormat } from 'astro';
 import { Picture } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { statusLabel } from '../lib/showcase-compare';
+import { stepLabel } from '../lib/showcase-progress';
 
 type Showcase = Extract<
   CollectionEntry<'projects'>['data'],
@@ -52,127 +53,135 @@ const tag = [
  * works on them straight away.
  */}
 <div
-  class="flex flex-col gap-3 md:aspect-888/620"
+  class="group/showcase flex flex-col gap-3 md:aspect-888/620"
   style={`--seam: ${initialSeam}%`}
+  data-status="still"
   data-showcase
   data-app={showcase.app}
 >
   <div class="min-h-0 flex-1 rounded-2xl bg-surface p-2 ring-1 ring-border-strong ring-inset max-md:aspect-358/400">
     <div class="relative size-full overflow-hidden rounded-lg" data-screen>
-      {looks.map(({ look, stills }) => (
-        <div class="showcase-layer absolute inset-0" data-layer={look}>
-          <Picture
-            src={stills.phone}
-            alt={stills.alt}
-            {...stillSizes.phone}
-            formats={formats}
-            loading="lazy"
-            pictureAttributes={wrapper}
-            class:list={[still, 'md:hidden']}
-          />
-          <Picture
-            src={stills.medium}
-            alt={stills.alt}
-            {...stillSizes.medium}
-            formats={formats}
-            loading="lazy"
-            pictureAttributes={wrapper}
-            class:list={[still, 'max-md:hidden 2xl:hidden']}
-          />
-          <Picture
-            src={stills.large}
-            alt={stills.alt}
-            {...stillSizes.large}
-            formats={formats}
-            loading="lazy"
-            pictureAttributes={wrapper}
-            class:list={[still, 'hidden 2xl:block']}
-          />
-          {/* The live app, drawn at its own size and scaled to fit */}
-          <div
-            class="absolute top-0 left-0 origin-top-left opacity-0 transition-opacity duration-settle ease-settle data-shown:opacity-100 max-md:hidden"
-            data-live
-          />
-        </div>
-      ))}
-      <div
-        role="slider"
-        tabindex="0"
-        aria-label="Seam between stock Streamlit and the MissionML look"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow={Math.round(initialSeam)}
-        aria-valuetext="A third stock Streamlit"
-        class="showcase-seam absolute inset-y-0 left-(--seam) z-10 -ml-5 flex w-10 cursor-ew-resize touch-none justify-center"
-        data-seam
-      >
-        <span
-          class="h-full w-px bg-background light:bg-foreground"
-          aria-hidden="true"
-        ></span>
-        <span
-          class:list={[
-            onScreen,
-            'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full',
-          ]}
-          aria-hidden="true"
-        >
-          <svg
-            viewBox="0 0 36 36"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="size-9"
-          >
-            <path d="M16 14L12 18L16 22M20 14L24 18L20 22" />
-          </svg>
-        </span>
-      </div>
-      {/* In lens mode, catches the pointer that moves the lens */}
-      <div
-        class="showcase-lens-catcher absolute inset-0 z-20 hidden cursor-none touch-none"
-        data-lens-catcher
-      ></div>
-      <span
-        class="showcase-lens-ring pointer-events-none absolute z-20 hidden rounded-full ring-1 ring-background light:ring-foreground"
-        aria-hidden="true"
-      ></span>
-      <span class:list={[tag, 'left-3.5 z-10']} data-tag>
-        Stock Streamlit
-      </span>
-      <span class:list={[tag, 'right-3.5 z-10']} data-tag>
-        MissionML
-      </span>
       {/*
-       * How far the live app has got starting up, over the stills. The
-       * strip's status already tells screen readers it's starting, so this
-       * stays out of their way.
+       * The compare view: both looks, the seam and the tags. While Python
+       * starts it all sits out of focus, and only the percentage over it
+       * moves; sharp means ready. It's scaled up a little meanwhile so the
+       * blur's soft edges fall outside the screen.
        */}
       <div
-        class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-opacity duration-settle ease-settle data-shown:opacity-100 max-md:hidden"
-        aria-hidden="true"
-        data-progress
+        class="absolute inset-0 transition-[filter,scale] duration-settle ease-settle group-data-[status=starting]/showcase:scale-110 group-data-[status=starting]/showcase:blur-xl motion-reduce:transition-none"
+        data-view
       >
+        {looks.map(({ look, stills }) => (
+          <div class="showcase-layer absolute inset-0" data-layer={look}>
+            <Picture
+              src={stills.phone}
+              alt={stills.alt}
+              {...stillSizes.phone}
+              formats={formats}
+              loading="lazy"
+              pictureAttributes={wrapper}
+              class:list={[still, 'md:hidden']}
+            />
+            <Picture
+              src={stills.medium}
+              alt={stills.alt}
+              {...stillSizes.medium}
+              formats={formats}
+              loading="lazy"
+              pictureAttributes={wrapper}
+              class:list={[still, 'max-md:hidden 2xl:hidden']}
+            />
+            <Picture
+              src={stills.large}
+              alt={stills.alt}
+              {...stillSizes.large}
+              formats={formats}
+              loading="lazy"
+              pictureAttributes={wrapper}
+              class:list={[still, 'hidden 2xl:block']}
+            />
+            {/* The live app, drawn at its own size and scaled to fit */}
+            <div
+              class="absolute top-0 left-0 origin-top-left opacity-0 transition-opacity duration-settle ease-settle data-shown:opacity-100 max-md:hidden"
+              data-live
+            />
+          </div>
+        ))}
         <div
-          class:list={[
-            onScreen,
-            'flex w-28 flex-col items-center gap-2.5 rounded-xl px-5 pt-3 pb-4',
-          ]}
+          role="slider"
+          tabindex="0"
+          aria-label="Seam between stock Streamlit and the MissionML look"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={Math.round(initialSeam)}
+          aria-valuetext="A third stock Streamlit"
+          class="showcase-seam absolute inset-y-0 left-(--seam) z-10 -ml-5 flex w-10 cursor-ew-resize touch-none justify-center"
+          data-seam
         >
-          <span class="text-reading tabular-nums" data-progress-label>
-            0%
-          </span>
-          <span class="h-1 w-full overflow-hidden rounded-full bg-current/22">
-            {/* Filled by scaling, not by width, so it never lays out again */}
-            <span
-              class="block h-full origin-left rounded-full bg-current transition-transform duration-settle ease-settle motion-reduce:transition-none"
-              style="transform: scaleX(0)"
-              data-progress-bar
-            ></span>
+          <span
+            class="h-full w-px bg-background light:bg-foreground"
+            aria-hidden="true"
+          ></span>
+          <span
+            class:list={[
+              onScreen,
+              'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full',
+            ]}
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 36 36"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-9"
+            >
+              <path d="M16 14L12 18L16 22M20 14L24 18L20 22" />
+            </svg>
           </span>
         </div>
+        {/* In lens mode, catches the pointer that moves the lens */}
+        <div
+          class="showcase-lens-catcher absolute inset-0 z-20 hidden cursor-none touch-none"
+          data-lens-catcher
+        ></div>
+        <span
+          class="showcase-lens-ring pointer-events-none absolute z-20 hidden rounded-full ring-1 ring-background light:ring-foreground"
+          aria-hidden="true"
+        ></span>
+        <span class:list={[tag, 'left-3.5 z-10']} data-tag>
+          Stock Streamlit
+        </span>
+        <span class:list={[tag, 'right-3.5 z-10']} data-tag>
+          MissionML
+        </span>
+      </div>
+      {/*
+       * How far the live app has got starting up, over the blurred view.
+       * The strip's status already tells screen readers it's starting, so
+       * this stays out of their way.
+       */}
+      <div
+        class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-text opacity-0 transition-opacity duration-settle ease-settle group-data-[status=starting]/showcase:opacity-100 max-md:hidden motion-reduce:transition-none light:text-background"
+        aria-hidden="true"
+      >
+        <span class="absolute inset-0 bg-background opacity-60 light:bg-foreground"></span>
+        <span class="relative text-reading tabular-nums" data-progress-label>
+          0%
+        </span>
+        <span class="relative h-1 w-40 overflow-hidden rounded-full bg-current/22">
+          {/* Filled by scaling, not by width, so it never lays out again */}
+          <span
+            class="block h-full origin-left rounded-full bg-current transition-transform duration-settle ease-settle motion-reduce:transition-none"
+            style="transform: scaleX(0)"
+            data-progress-bar
+          ></span>
+        </span>
+        <span class="relative text-interface opacity-60" data-progress-step>
+          {stepLabel(0)}
+        </span>
       </div>
     </div>
   </div>
@@ -219,7 +228,7 @@ const tag = [
     type ShowcaseStatus,
   } from '../lib/showcase-compare';
   import { mirror } from '../lib/showcase-mirror';
-  import { parseProgressMessage } from '../lib/showcase-progress';
+  import { parseProgressMessage, stepLabel } from '../lib/showcase-progress';
 
   type Look = 'stock' | 'brand';
 
@@ -239,7 +248,10 @@ const tag = [
     const lensCatcher = root.querySelector<HTMLElement>('[data-lens-catcher]');
     const run = root.querySelector<HTMLButtonElement>('[data-run]');
     const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
-    const progress = root.querySelector<HTMLElement>('[data-progress]');
+    const view = root.querySelector<HTMLElement>('[data-view]');
+    const progressStep = root.querySelector<HTMLElement>(
+      '[data-progress-step]',
+    );
     const progressLabel = root.querySelector<HTMLElement>(
       '[data-progress-label]',
     );
@@ -251,7 +263,8 @@ const tag = [
       !lensCatcher ||
       !run ||
       !runLabel ||
-      !progress ||
+      !view ||
+      !progressStep ||
       !progressLabel ||
       !progressBar ||
       !app
@@ -333,12 +346,15 @@ const tag = [
       run.dataset.status = next;
       run.disabled = next === 'starting' || next === 'live';
       runLabel.textContent = statusLabel[next];
-      progress?.toggleAttribute('data-shown', next === 'starting');
+      root.dataset.status = next;
+      // Out of focus while starting, so nothing in it can be reached yet
+      if (view) view.inert = next === 'starting';
     }
 
     function showProgress(percent: number) {
-      if (!progressLabel || !progressBar) return;
+      if (!progressLabel || !progressBar || !progressStep) return;
       progressLabel.textContent = `${Math.round(percent)}%`;
+      progressStep.textContent = stepLabel(percent);
       progressBar.style.transform = `scaleX(${percent / 100})`;
     }
 

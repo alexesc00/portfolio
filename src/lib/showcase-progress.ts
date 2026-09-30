@@ -33,3 +33,19 @@ export function parseProgressMessage(data: unknown) {
   if (showcase !== 'progress' || typeof percent !== 'number') return null;
   return percent >= 0 && percent <= 100 ? percent : null;
 }
+
+// What the row calls each stretch of the start, from the percentage where
+// it begins. stlite's own step names are written for developers.
+const stepLabels: [from: number, label: string][] = [
+  [100, 'Ready'],
+  [88, 'Starting Streamlit'],
+  [80, 'Loading Streamlit'],
+  [47, 'Installing packages'],
+  [40, 'Unpacking files'],
+  [0, 'Loading Python'],
+];
+
+/** A plain name for what's happening at `percent` of the start. */
+export function stepLabel(percent: number) {
+  return stepLabels.find(([from]) => percent >= from)?.[1] ?? 'Loading Python';
+}

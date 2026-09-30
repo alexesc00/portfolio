@@ -11,7 +11,7 @@ beforeAll(async () => {
 
 /** The page frame's opening tag and everything inside it. */
 function pageFrame() {
-  const start = html.search(/<header[^>]* data-page-frame/);
+  const start = html.search(/<div[^>]* data-page-frame/);
   return start === -1 ? '' : html.slice(start);
 }
 
@@ -31,10 +31,8 @@ describe('the hero', () => {
   it('keeps its corners in a frame that stops growing at 1440', () => {
     const frame = pageFrame();
 
-    expect(frame).toMatch(
-      /^<header[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/,
-    );
-    expect(frame).toContain('Alex Escudero');
+    expect(frame).toMatch(/^<div[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/);
+    expect(frame).toContain('Designed in');
     expect(frame).toContain('data-theme-switch');
   });
 
@@ -42,7 +40,7 @@ describe('the hero', () => {
     const markStart = html.indexOf('text-mark');
 
     expect(markStart).toBeGreaterThan(-1);
-    expect(markStart).toBeLessThan(html.search(/<header[^>]* data-page-frame/));
+    expect(markStart).toBeLessThan(html.search(/<div[^>]* data-page-frame/));
   });
 
   // The works section below is the page's main content, so the hero is
@@ -52,13 +50,21 @@ describe('the hero', () => {
     expect(html).not.toContain('<main');
   });
 
-  it('puts Work and Contact in a nav beside the name', () => {
-    const nav = /<nav[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1] ?? '';
+  it('opens with the top bar', () => {
+    expect(html.indexOf('data-top-bar')).toBeGreaterThan(-1);
+    expect(html.indexOf('data-top-bar')).toBeLessThan(
+      html.indexOf('text-mark'),
+    );
+  });
 
-    expect(html.indexOf('<nav')).toBeGreaterThan(html.indexOf('Alex Escudero'));
-    expect(nav).toMatch(/<a[^>]* href="#work"[^>]*>\s*Work\s*<\/a>/);
-    expect(nav).toMatch(
-      /<a[^>]* href="mailto:hello@alexescudero\.design"[^>]*>\s*Contact\s*<\/a>/,
+  // The hero is its own layer, so the Æ can sit behind its text. A fixed
+  // bar inside that layer could never rise above the sections after it.
+  it('keeps the top bar outside the hero’s layer', () => {
+    expect(html.search(/class="[^"]*\bisolate\b/)).toBeGreaterThan(
+      html.indexOf('data-top-bar'),
+    );
+    expect(html.indexOf('</nav>')).toBeLessThan(
+      html.search(/class="[^"]*\bisolate\b/),
     );
   });
 

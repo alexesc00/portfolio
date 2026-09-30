@@ -1,6 +1,13 @@
 ---
 import Colophon from './Colophon.astro';
 import DotMark from './DotMark.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
+
+/*
+ * Until the closing contact section is built, Contact opens an email
+ * straight away.
+ */
+const contactUrl = 'mailto:hello@alexescudero.design';
 ---
 
 {/*
@@ -21,13 +28,14 @@ import DotMark from './DotMark.astro';
   >
     <div class="flex items-start justify-between gap-page">
       <h1>Alex Escudero</h1>
-      <Colophon />
+      <nav aria-label="Sections" class="flex gap-6">
+        <a href="#work">Work</a>
+        <a href={contactUrl}>Contact</a>
+      </nav>
     </div>
     <div class="flex flex-1 items-end justify-between gap-page">
-      <p class="text-text-muted">Product designer</p>
-      <a href="#work">
-        <span aria-hidden="true">↓</span> Work
-      </a>
+      <Colophon />
+      <ThemeSwitch />
     </div>
   </header>
 </div>

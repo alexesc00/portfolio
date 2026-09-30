@@ -1,0 +1,471 @@
+---
+import type { ImageOutputFormat } from 'astro';
+import { Picture } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { statusLabel } from '../lib/showcase-compare';
+
+type Showcase = Extract<
+  CollectionEntry<'projects'>['data'],
+  { showcase: unknown }
+>['showcase'];
+
+interface Props {
+  showcase: Showcase;
+}
+
+const { showcase } = Astro.props;
+const looks = [
+  { look: 'stock', stills: showcase.stock },
+  { look: 'brand', stills: showcase.brand },
+] as const;
+
+// Each still is captured at twice the size the box draws it.
+const formats: ImageOutputFormat[] = ['avif', 'webp'];
+const stillSizes = {
+  large: { widths: [872, 1744], sizes: '872px' },
+  medium: { widths: [766, 1532], sizes: '(min-width: 1024px) 60vw, 100vw' },
+  phone: { widths: [342, 684], sizes: '100vw' },
+};
+const still = 'size-full object-cover object-top-left';
+// Out of the layout, so a still fills its layer rather than the <picture>
+const wrapper = { class: 'contents' };
+
+const initialSeam = 100 / 3;
+
+/*
+ * The screen shows a light app in both of the site's themes, so what sits
+ * on it keeps the dark mode's colors in light mode too: dark, with light
+ * text.
+ */
+const onScreen =
+  'bg-background text-text light:bg-foreground light:text-background';
+const tag = [
+  onScreen,
+  'pointer-events-none absolute bottom-3.5 flex h-7 items-center rounded-full px-3 text-interface transition-opacity duration-settle ease-settle',
+];
+---
+
+{/*
+ * The live app's box: a device frame with a strip under it, together as
+ * big as the other rows' images. On phones it's the frame alone, with
+ * stills and nothing to run. Stills of both looks show first; the seam
+ * works on them straight away.
+ */}
+<div
+  class="flex flex-col gap-3 md:aspect-888/620"
+  style={`--seam: ${initialSeam}%`}
+  data-showcase
+  data-app={showcase.app}
+>
+  <div class="min-h-0 flex-1 rounded-2xl bg-surface p-2 ring-1 ring-border-strong ring-inset max-md:aspect-358/400">
+    <div class="relative size-full overflow-hidden rounded-lg" data-screen>
+      {looks.map(({ look, stills }) => (
+        <div class="showcase-layer absolute inset-0" data-layer={look}>
+          <Picture
+            src={stills.phone}
+            alt={stills.alt}
+            {...stillSizes.phone}
+            formats={formats}
+            loading="lazy"
+            pictureAttributes={wrapper}
+            class:list={[still, 'md:hidden']}
+          />
+          <Picture
+            src={stills.medium}
+            alt={stills.alt}
+            {...stillSizes.medium}
+            formats={formats}
+            loading="lazy"
+            pictureAttributes={wrapper}
+            class:list={[still, 'max-md:hidden 2xl:hidden']}
+          />
+          <Picture
+            src={stills.large}
+            alt={stills.alt}
+            {...stillSizes.large}
+            formats={formats}
+            loading="lazy"
+            pictureAttributes={wrapper}
+            class:list={[still, 'hidden 2xl:block']}
+          />
+          {/* The live app, drawn at its own size and scaled to fit */}
+          <div
+            class="absolute top-0 left-0 origin-top-left opacity-0 transition-opacity duration-settle ease-settle data-shown:opacity-100 max-md:hidden"
+            data-live
+          />
+        </div>
+      ))}
+      <div
+        role="slider"
+        tabindex="0"
+        aria-label="Seam between stock Streamlit and the MissionML look"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={Math.round(initialSeam)}
+        aria-valuetext="A third stock Streamlit"
+        class="showcase-seam absolute inset-y-0 left-(--seam) z-10 -ml-5 flex w-10 cursor-ew-resize touch-none justify-center"
+        data-seam
+      >
+        <span
+          class="h-full w-px bg-background light:bg-foreground"
+          aria-hidden="true"
+        ></span>
+        <span
+          class:list={[
+            onScreen,
+            'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full',
+          ]}
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 36 36"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="size-9"
+          >
+            <path d="M16 14L12 18L16 22M20 14L24 18L20 22" />
+          </svg>
+        </span>
+      </div>
+      {/* In lens mode, catches the pointer that moves the lens */}
+      <div
+        class="showcase-lens-catcher absolute inset-0 z-20 hidden cursor-none touch-none"
+        data-lens-catcher
+      ></div>
+      <span
+        class="showcase-lens-ring pointer-events-none absolute z-20 hidden rounded-full ring-1 ring-background light:ring-foreground"
+        aria-hidden="true"
+      ></span>
+      <span class:list={[tag, 'left-3.5 z-10']} data-tag>
+        Stock Streamlit
+      </span>
+      <span class:list={[tag, 'right-3.5 z-10']} data-tag>
+        MissionML
+      </span>
+    </div>
+  </div>
+  <div class="flex h-10 items-center justify-between max-md:hidden">
+    <button
+      type="button"
+      class="group flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-surface px-4 text-interface disabled:cursor-default data-[status=failed]:text-text-muted"
+      data-status="still"
+      data-run
+    >
+      <span
+        class="showcase-status-dot size-2 rounded-full bg-text-muted group-data-[status=live]:bg-live"
+        aria-hidden="true"
+      ></span>
+      <span aria-live="polite" data-run-label>
+        {statusLabel.still}
+      </span>
+    </button>
+    <div
+      role="group"
+      aria-label="Compare with"
+      class="flex rounded-xl bg-surface p-1"
+    >
+      {['Seam', 'Lens'].map((mode, index) => (
+        <button
+          type="button"
+          aria-pressed={index === 0 ? 'true' : 'false'}
+          class="h-8 cursor-pointer rounded-lg px-3.5 text-interface text-text-muted aria-pressed:bg-background aria-pressed:text-text"
+          data-mode={mode.toLowerCase()}
+        >
+          {mode}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    clampSeam,
+    fitApp,
+    seamAfterKey,
+    statusLabel,
+    type ShowcaseStatus,
+  } from '../lib/showcase-compare';
+  import { mirror } from '../lib/showcase-mirror';
+
+  type Look = 'stock' | 'brand';
+
+  const wide = matchMedia('(min-width: 64rem)');
+  // Two Pythons downloading on a slow connection can take this long
+  const startTimeoutMs = 90_000;
+
+  for (const root of document.querySelectorAll<HTMLElement>(
+    '[data-showcase]',
+  )) {
+    setUp(root);
+  }
+
+  function setUp(root: HTMLElement) {
+    const screen = root.querySelector<HTMLElement>('[data-screen]');
+    const seam = root.querySelector<HTMLElement>('[data-seam]');
+    const lensCatcher = root.querySelector<HTMLElement>('[data-lens-catcher]');
+    const run = root.querySelector<HTMLButtonElement>('[data-run]');
+    const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
+    const app = root.dataset.app;
+    if (!screen || !seam || !lensCatcher || !run || !runLabel || !app) return;
+    const holders = {
+      stock: screen.querySelector<HTMLElement>(
+        '[data-layer=stock] [data-live]',
+      ),
+      brand: screen.querySelector<HTMLElement>(
+        '[data-layer=brand] [data-live]',
+      ),
+    };
+
+    // The seam
+    let seamAt = Number(seam.getAttribute('aria-valuenow'));
+    function setSeam(percent: number) {
+      seamAt = clampSeam(percent);
+      root.style.setProperty('--seam', `${seamAt}%`);
+      seam?.setAttribute('aria-valuenow', String(Math.round(seamAt)));
+      seam?.setAttribute(
+        'aria-valuetext',
+        `${Math.round(seamAt)}% stock Streamlit`,
+      );
+    }
+    const percentAt = (event: PointerEvent) => {
+      const box = screen.getBoundingClientRect();
+      return ((event.clientX - box.left) / box.width) * 100;
+    };
+    seam.addEventListener('pointerdown', (event) => {
+      seam.setPointerCapture(event.pointerId);
+      const move = (moveEvent: PointerEvent) => setSeam(percentAt(moveEvent));
+      seam.addEventListener('pointermove', move);
+      seam.addEventListener(
+        'lostpointercapture',
+        () => seam.removeEventListener('pointermove', move),
+        { once: true },
+      );
+    });
+    seam.addEventListener('keydown', (event) => {
+      const next = seamAfterKey(seamAt, event.key, event.shiftKey);
+      if (next === null) return;
+      event.preventDefault();
+      setSeam(next);
+    });
+
+    // The lens: stock Streamlit in a circle under the pointer
+    const placeLens = (event: PointerEvent) => {
+      const box = screen.getBoundingClientRect();
+      root.style.setProperty('--lens-x', `${event.clientX - box.left}px`);
+      root.style.setProperty('--lens-y', `${event.clientY - box.top}px`);
+      root.style.setProperty('--lens-scale', '1');
+    };
+    lensCatcher.addEventListener('pointermove', placeLens);
+    lensCatcher.addEventListener('pointerdown', placeLens);
+    lensCatcher.addEventListener('pointerleave', () =>
+      root.style.setProperty('--lens-scale', '0'),
+    );
+    for (const button of root.querySelectorAll<HTMLButtonElement>(
+      '[data-mode]',
+    )) {
+      button.addEventListener('click', () => {
+        for (const other of root.querySelectorAll('[data-mode]')) {
+          other.setAttribute('aria-pressed', String(other === button));
+        }
+        root.toggleAttribute('data-lens', button.dataset.mode === 'lens');
+      });
+    }
+
+    // The live app: two copies, one in each look, kept in step
+    let status: ShowcaseStatus = 'still';
+    let frames: Record<Look, HTMLIFrameElement> | null = null;
+    let stopWaiting = () => {};
+
+    function showStatus(next: ShowcaseStatus) {
+      status = next;
+      if (!run || !runLabel) return;
+      run.dataset.status = next;
+      run.disabled = next === 'starting' || next === 'live';
+      runLabel.textContent = statusLabel[next];
+    }
+
+    function fit() {
+      const size = fitApp(screen?.clientWidth ?? 0, screen?.clientHeight ?? 0);
+      for (const holder of Object.values(holders)) {
+        if (!holder) continue;
+        holder.style.width = `${size.width}px`;
+        holder.style.height = `${size.height}px`;
+        holder.style.transform = `scale(${size.scale})`;
+      }
+    }
+    new ResizeObserver(fit).observe(screen);
+
+    function frameFor(look: Look) {
+      const url = new URL(app ?? '', location.href);
+      if (look === 'stock') url.searchParams.set('look', 'stock');
+      const frame = document.createElement('iframe');
+      frame.src = url.href;
+      frame.className = 'block size-full border-0';
+      if (look === 'brand') {
+        frame.title = 'The MissionML design system, running live';
+      } else {
+        // The same app without the brand. The brand copy is the one to
+        // tab into; this one follows along.
+        frame.title = 'The same app in stock Streamlit';
+        frame.tabIndex = -1;
+        frame.setAttribute('aria-hidden', 'true');
+      }
+      return frame;
+    }
+
+    function stop() {
+      stopWaiting();
+      for (const frame of Object.values(frames ?? {})) frame.remove();
+      frames = null;
+      for (const holder of Object.values(holders)) {
+        holder?.removeAttribute('data-shown');
+      }
+    }
+
+    function start() {
+      if (status === 'starting' || status === 'live') return;
+      stop();
+      showStatus('starting');
+      const started = { stock: frameFor('stock'), brand: frameFor('brand') };
+      frames = started;
+      const waiting = new Set<Look>(['stock', 'brand']);
+
+      const onMessage = (event: MessageEvent) => {
+        if (event.origin !== location.origin) return;
+        const look = (['stock', 'brand'] as const).find(
+          (candidate) => event.source === started[candidate].contentWindow,
+        );
+        if (!look) return;
+        const { showcase } = (event.data ?? {}) as { showcase?: unknown };
+        if (showcase === 'failed') fail();
+        if (showcase !== 'ready') return;
+        waiting.delete(look);
+        if (waiting.size === 0) becomeLive(started);
+      };
+      const timeout = window.setTimeout(fail, startTimeoutMs);
+      stopWaiting = () => {
+        window.removeEventListener('message', onMessage);
+        clearTimeout(timeout);
+      };
+      window.addEventListener('message', onMessage);
+
+      fit();
+      holders.stock?.append(started.stock);
+      holders.brand?.append(started.brand);
+    }
+
+    function becomeLive(started: Record<Look, HTMLIFrameElement>) {
+      stopWaiting();
+      const stockPage = started.stock.contentDocument;
+      const brandPage = started.brand.contentDocument;
+      if (!stockPage || !brandPage) {
+        fail();
+        return;
+      }
+      mirror(stockPage, brandPage);
+      mirror(brandPage, stockPage);
+      for (const holder of Object.values(holders)) {
+        holder?.setAttribute('data-shown', '');
+      }
+      showStatus('live');
+    }
+
+    function fail() {
+      stop();
+      showStatus('failed');
+    }
+
+    run.addEventListener('click', start);
+
+    // From 1024 wide up, the app starts as soon as its row opens
+    const row = root.closest('tr');
+    if (row) {
+      new MutationObserver(() => {
+        if (!row.hidden && wide.matches) start();
+      }).observe(row, { attributes: true, attributeFilter: ['hidden'] });
+    }
+  }
+</script>
+
+<style>
+  /* The brand copy covers the stock one to the right of the seam */
+  [data-showcase] [data-layer='brand'] {
+    clip-path: inset(0 0 0 var(--seam));
+  }
+
+  /*
+   * Lens mode: stock Streamlit shows in a circle under the pointer instead,
+   * over the brand, and the pointer moves the lens rather than using the
+   * app. The circle grows on the Æ's spring as it arrives and settles as
+   * it leaves. Its edge is a clip-path, which repaints but never lays the
+   * page out again.
+   */
+  @property --lens-scale {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+  [data-showcase] {
+    --lens-x: 50%;
+    --lens-y: 50%;
+    --lens-radius: 130px;
+    transition: --lens-scale var(--transition-duration-settle)
+      var(--ease-settle);
+  }
+  [data-showcase][data-lens] {
+    transition-duration: var(--transition-duration-spring);
+    transition-timing-function: var(--ease-spring);
+  }
+  [data-showcase][data-lens] [data-layer='stock'] {
+    z-index: 1;
+    clip-path: circle(
+      calc(var(--lens-scale) * var(--lens-radius)) at var(--lens-x)
+        var(--lens-y)
+    );
+  }
+  [data-showcase][data-lens] [data-layer='brand'] {
+    clip-path: none;
+  }
+  [data-showcase][data-lens] .showcase-seam,
+  [data-showcase][data-lens] [data-tag] {
+    visibility: hidden;
+  }
+  [data-showcase][data-lens] .showcase-lens-catcher,
+  [data-showcase][data-lens] .showcase-lens-ring {
+    display: block;
+  }
+  .showcase-lens-ring {
+    top: 0;
+    left: 0;
+    width: calc(var(--lens-radius) * 2);
+    height: calc(var(--lens-radius) * 2);
+    translate: calc(var(--lens-x) - var(--lens-radius))
+      calc(var(--lens-y) - var(--lens-radius));
+    scale: var(--lens-scale);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-showcase] {
+      transition: none;
+    }
+  }
+
+  /* While Python starts, the status dot breathes */
+  [data-status='starting'] .showcase-status-dot {
+    animation: showcase-breathe var(--transition-duration-spring)
+      var(--ease-settle) infinite alternate;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-status='starting'] .showcase-status-dot {
+      animation: none;
+    }
+  }
+  @keyframes showcase-breathe {
+    to {
+      opacity: 0.3;
+    }
+  }
+</style>

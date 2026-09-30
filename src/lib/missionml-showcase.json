@@ -1,6 +1,6 @@
 {
   "repository": "alexesc00/mml-hacked-streamlit-showcase",
-  "commit": "60d7966aa8b8132001ffc27d3e788fbb70c0f416",
+  "commit": "b600db847ae402409acb35cd7a6b6ee03b4b254e",
   "files": [
     ".streamlit/config.toml",
     "app.py",
@@ -24,6 +24,7 @@
     "polydelta_streamlit_helpers/css.py",
     "polydelta_streamlit_helpers/run_page.py",
     "polydelta_streamlit_helpers/style.py",
-    "polydelta_streamlit_helpers/utils.py"
+    "polydelta_streamlit_helpers/utils.py",
+    "sampler.py"
   ]
 }

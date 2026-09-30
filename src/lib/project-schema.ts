@@ -42,25 +42,51 @@ export function projectSchema({ image }: SchemaContext) {
     segment: z.enum(['Consumer', 'Business', 'Government']),
   };
 
-  return z.discriminatedUnion('locked', [
+  // Screenshots of a live app in one look, one for each size it's shown.
+  const stills = z.object({
+    // Drawn 872 wide: the box from 1440 wide up.
+    large: image(),
+    // Drawn 766 wide: the box below 1440, scaled down to fit.
+    medium: image(),
+    // A crop of the large one, for phones.
+    phone: image(),
+    alt: text,
+  });
+
+  const opened = {
+    ...row,
+    locked: z.literal(false),
+    // Shown as the write-up's heading and in the button's name.
+    name: text,
+    writeUp: z.tuple([
+      text.max(maxLength.firstParagraph),
+      text.max(maxLength.secondParagraph),
+    ]),
+    // The page adds a ↗ after the text.
+    link: z.object({ url: z.url({ protocol: /^https$/ }), text }).optional(),
+  };
+
+  // Strict, so a project can't have both images and a showcase.
+  return z.union([
     // Under NDA: the row shows its columns and can't be opened.
     z.object({ ...row, locked: z.literal(true) }),
-    z.object({
-      ...row,
-      locked: z.literal(false),
-      // Shown as the write-up's heading and in the button's name.
-      name: text,
-      writeUp: z.tuple([
-        text.max(maxLength.firstParagraph),
-        text.max(maxLength.secondParagraph),
-      ]),
+    z.strictObject({
+      ...opened,
       images: z.object({
         // From 768 wide up, scaled to fit the image box.
         wide: themedImage,
         phone: themedImage,
       }),
-      // The page adds a ↗ after the text.
-      link: z.object({ url: z.url({ protocol: /^https$/ }), text }).optional(),
+    }),
+    // The box runs the project's app live, comparing two looks of it.
+    z.strictObject({
+      ...opened,
+      showcase: z.object({
+        // A page on this site that runs the app alone, for an iframe.
+        app: z.string().regex(/^\/(?!\/)/),
+        stock: stills,
+        brand: stills,
+      }),
     }),
   ]);
 }

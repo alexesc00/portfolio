@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  parseEntrypoint,
   parseLook,
   parseLookMessage,
   parseStreamlitTheme,
@@ -17,6 +18,18 @@ describe('parseLook', () => {
     expect(parseLook('raw')).toBe('brand');
     expect(parseLook('')).toBe('brand');
     expect(parseLook(null)).toBe('brand');
+  });
+});
+
+describe('parseEntrypoint', () => {
+  it('runs the one-screen sampler for view=sampler', () => {
+    expect(parseEntrypoint('sampler')).toBe('sampler.py');
+  });
+
+  it('runs the whole catalog otherwise', () => {
+    expect(parseEntrypoint(null)).toBe('app.py');
+    expect(parseEntrypoint('')).toBe('app.py');
+    expect(parseEntrypoint('../secrets')).toBe('app.py');
   });
 });
 

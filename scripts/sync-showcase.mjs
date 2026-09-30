@@ -28,6 +28,7 @@ const manifestPath = 'src/lib/missionml-showcase.json';
 // Only what the app reads at runtime; its tooling and docs stay behind
 const appPaths = [
   'app.py',
+  'sampler.py',
   'params.yaml',
   '.streamlit/config.toml',
   'assets',

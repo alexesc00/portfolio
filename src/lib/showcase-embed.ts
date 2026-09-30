@@ -1,5 +1,6 @@
 import {
   brandStyleSelector,
+  parseEntrypoint,
   parseLook,
   parseLookMessage,
   parseStreamlitTheme,
@@ -20,6 +21,15 @@ const stliteUrl = 'https://cdn.jsdelivr.net/npm/@stlite/browser@0.81.6/build';
 
 // Python packages the app imports beyond what Streamlit already brings
 const requirements = ['pyyaml'];
+
+/*
+ * Streamlit marks its root element with the script's state: "initial"
+ * until the first run, then "running" and "notRunning". Pinned with
+ * stlite above, so the attribute can't change under it.
+ */
+const scriptStateAttribute = 'data-test-script-state';
+// Time for the theme to redraw the page before the parent looks
+const settleMs = 400;
 
 /** The parts of stlite's `mount` used here. */
 type Mount = (
@@ -43,10 +53,12 @@ export interface ShowcaseApp {
  * Runs the app in `container` and tells the parent page, if there is one,
  * `{ showcase: 'ready' }` once it has drawn, or `{ showcase: 'failed' }`.
  * The parent switches the look with `{ showcase: 'look', look }`, and the
- * `look` URL flag sets the starting one.
+ * `look` URL flag sets the starting one. The `view` URL flag picks the
+ * one-screen sampler over the whole catalog.
  */
 export async function mountShowcase(container: HTMLElement, app: ShowcaseApp) {
-  let look = parseLook(new URLSearchParams(location.search).get('look'));
+  const flags = new URLSearchParams(location.search);
+  let look = parseLook(flags.get('look'));
   const appUrl = (path: string) =>
     new URL(path, new URL(app.baseUrl, location.href)).href;
 
@@ -66,7 +78,7 @@ export async function mountShowcase(container: HTMLElement, app: ShowcaseApp) {
 
     mount(
       {
-        entrypoint: 'app.py',
+        entrypoint: parseEntrypoint(flags.get('view')),
         requirements,
         files: Object.fromEntries(
           app.files.map((path) => [path, { url: appUrl(path) }]),
@@ -81,6 +93,10 @@ export async function mountShowcase(container: HTMLElement, app: ShowcaseApp) {
     );
 
     let isReady = false;
+    const hasRunOnce = () =>
+      container
+        .querySelector('[data-testid="stApp"]')
+        ?.getAttribute(scriptStateAttribute) === 'notRunning';
     const applyBrandCss = () => {
       for (const style of container.querySelectorAll<HTMLStyleElement>(
         brandStyleSelector,
@@ -95,15 +111,20 @@ export async function mountShowcase(container: HTMLElement, app: ShowcaseApp) {
       window.postMessage(themeMessage(theme), location.origin);
     };
 
-    // Style blocks keep arriving as the script runs and reruns
+    // Style blocks keep arriving as the script runs and reruns. Streamlit
+    // sets its own theme as the first run starts, so this one goes once
+    // that run has finished.
     new MutationObserver(() => {
       applyBrandCss();
-      if (!isReady && container.querySelector('h1')) {
-        isReady = true;
-        applyTheme();
-        tellParent('ready');
-      }
-    }).observe(container, { childList: true, subtree: true });
+      if (isReady || !hasRunOnce()) return;
+      isReady = true;
+      applyTheme();
+      window.setTimeout(() => tellParent('ready'), settleMs);
+    }).observe(container, {
+      childList: true,
+      subtree: true,
+      attributeFilter: [scriptStateAttribute],
+    });
 
     window.addEventListener('message', (event) => {
       if (event.origin !== location.origin) return;

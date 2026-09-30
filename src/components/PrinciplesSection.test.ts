@@ -33,7 +33,7 @@ const allWith = (attribute: string) =>
 
 describe('the principles section', () => {
   it('is a section named by its heading, at least one screen tall', () => {
-    const section = /^<section[^>]*>/.exec(html)?.[0] ?? '';
+    const section = /<section[^>]*>/.exec(html)?.[0] ?? '';
     const labelledBy = /aria-labelledby="([^"]+)"/.exec(section)?.[1];
     expect(labelledBy).toBeTruthy();
     expect(html).toMatch(
@@ -43,7 +43,7 @@ describe('the principles section', () => {
   });
 
   it('sits in the 1440 page frame', () => {
-    const section = /^<section[^>]*>/.exec(html)?.[0] ?? '';
+    const section = /<section[^>]*>/.exec(html)?.[0] ?? '';
     expect(section).toMatch(/\bmax-w-\(--breakpoint-2xl\)/);
     expect(section).toMatch(/\bpx-page\b/);
   });
@@ -168,13 +168,47 @@ describe('the principles section', () => {
   });
 
   it('stacks the principles until the stage is on', () => {
-    const section = /^<section[^>]*>/.exec(html)?.[0] ?? '';
-    expect(section).toMatch(/\bgroup\b/);
-    expect(section).not.toMatch(/ data-staged/);
+    const wrapper = /^<div[^>]*>/.exec(html)?.[0] ?? '';
+    expect(wrapper).toMatch(/\bgroup\b/);
+    expect(wrapper).toMatch(/ data-principles(?=[\s>])/);
+    expect(wrapper).not.toMatch(/ data-staged/);
     for (const principle of allWith('data-principle')) {
       const tag = /^<[^>]*>/.exec(principle)?.[0] ?? '';
       expect(tag).toMatch(/\bgroup-data-staged:row-start-1\b/);
-      expect(tag).toMatch(/\bgroup-data-staged:not-data-current:invisible\b/);
+    }
+  });
+
+  it('pins the section to the top of the screen while staged', () => {
+    const section = /<section[^>]*>/.exec(html)?.[0] ?? '';
+    expect(section).toMatch(/\bgroup-data-staged:sticky\b/);
+    expect(section).toMatch(/\bgroup-data-staged:top-0\b/);
+    expect(section).toMatch(/\bgroup-data-staged:h-plate\b/);
+  });
+
+  it('holds still for one screen of scrolling per principle', () => {
+    const steps = allWith('data-principles-step');
+    expect(steps).toHaveLength(3);
+    for (const step of steps) {
+      const tag = /^<[^>]*>/.exec(step)?.[0] ?? '';
+      expect(tag).toMatch(/ aria-hidden="true"/);
+      expect(tag).toMatch(/\bhidden\b/);
+      expect(tag).toMatch(/\bgroup-data-staged:block\b/);
+      expect(tag).toMatch(/\bh-plate\b/);
+    }
+  });
+
+  it('keeps every principle readable by screen readers while staged', () => {
+    for (const principle of allWith('data-principle')) {
+      const tag = /^<[^>]*>/.exec(principle)?.[0] ?? '';
+      expect(tag).not.toMatch(/\binvisible\b|\bhidden\b|aria-hidden/);
+    }
+  });
+
+  it('marks each body so it can fade in after its claim lands', () => {
+    for (const body of bodies) {
+      expect(html).toMatch(
+        new RegExp(`<p[^>]* data-principle-body[^>]*>${body}</p>`),
+      );
     }
   });
 });

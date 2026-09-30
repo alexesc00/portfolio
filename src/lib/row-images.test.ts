@@ -2,18 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { imagesThatWillShow } from './row-images';
 
 /** A stand-in element: hidden by its own styles or not, inside a parent. */
-function element(isHidden: boolean, parentElement: FakeElement | null) {
+interface FakeElement {
+  isHidden: boolean;
+  parentElement: FakeElement | null;
+}
+
+function element(
+  isHidden: boolean,
+  parentElement: FakeElement | null,
+): FakeElement {
   return { isHidden, parentElement };
 }
-type FakeElement = ReturnType<typeof element>;
 
 function rowWith(build: (row: FakeElement) => FakeElement[]) {
-  const row = element(true, null);
+  const row = Object.assign(element(true, null), {
+    querySelectorAll: () => images,
+  });
   const images = build(row);
-  return {
-    row: { ...row, querySelectorAll: () => images },
-    images,
-  };
+  return { row, images };
 }
 
 const isHidden = (candidate: FakeElement) => candidate.isHidden;

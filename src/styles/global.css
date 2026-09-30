@@ -1,19 +1,11 @@
 @import 'tailwindcss';
 
 /*
- * A script in the page's head sets data-theme before anything is drawn.
- * Without scripts there's no attribute, so the system setting decides.
+ * The site is dark until the visitor picks light with the theme switch.
+ * A script in the page's head sets data-theme before anything is drawn;
+ * without scripts there's no attribute, and the page stays dark.
  */
-@custom-variant light {
-  &:where([data-theme='light'], [data-theme='light'] *) {
-    @slot;
-  }
-  @media (prefers-color-scheme: light) {
-    &:where(:root:not([data-theme]), :root:not([data-theme]) *) {
-      @slot;
-    }
-  }
-}
+@custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
 
 @theme inline {
   --font-sans: var(--font-overused-grotesk);

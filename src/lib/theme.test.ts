@@ -3,10 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   oppositeTheme,
   parseTheme,
-  readSavedTheme,
   revealRadius,
   saveTheme,
-  systemTheme,
   themeColors,
   themeStorageKey,
 } from './theme';
@@ -43,35 +41,6 @@ describe('oppositeTheme', () => {
   it('switches dark to light and back', () => {
     expect(oppositeTheme('dark')).toBe('light');
     expect(oppositeTheme('light')).toBe('dark');
-  });
-});
-
-describe('systemTheme', () => {
-  it('follows whether the system prefers light', () => {
-    expect(systemTheme(true)).toBe('light');
-    expect(systemTheme(false)).toBe('dark');
-  });
-});
-
-describe('readSavedTheme', () => {
-  it('returns the theme the visitor chose', () => {
-    const storage = memoryStorage({ [themeStorageKey]: 'light' });
-
-    expect(readSavedTheme(() => storage)).toBe('light');
-  });
-
-  it('returns nothing when no choice is saved', () => {
-    expect(readSavedTheme(() => memoryStorage())).toBeNull();
-  });
-
-  it('ignores a saved value that is not a theme', () => {
-    const storage = memoryStorage({ [themeStorageKey]: 'purple' });
-
-    expect(readSavedTheme(() => storage)).toBeNull();
-  });
-
-  it('returns nothing when storage is blocked', () => {
-    expect(readSavedTheme(blockedStorage)).toBeNull();
   });
 });
 

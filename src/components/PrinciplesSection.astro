@@ -24,81 +24,232 @@ const principleId = (label: string) =>
 ---
 
 {/*
- * One screen, like the hero. The principles stack in order until a
- * script sets data-staged on the section, which turns it into a stage:
- * one principle at a time, the one marked data-current, with a counter
- * and an index that fills as the visitor goes through. Every principle
- * stays in the page either way, for screen readers and search engines.
+ * One screen, like the hero. The principles stack in order until the
+ * script below sets data-staged, which turns the section into a stage:
+ * it holds still at the top of the screen for one screen of scrolling
+ * per principle, and shows one principle at a time, the one marked
+ * data-current, with a counter and an index that fills as the visitor
+ * goes through. With reduced motion on, the principles stay stacked.
+ * Every principle stays in the page either way, for screen readers and
+ * search engines.
  */}
-<section
-  aria-labelledby="principles-heading"
-  class="group mx-auto flex min-h-plate w-full max-w-(--breakpoint-2xl) flex-col px-page pt-inset"
->
-  {/*
-   * The heading comes first so screen readers meet the section's name
-   * first. From 1024 up it's a running head at the top right, like
-   * "Selected work"; narrower, it's a caption at the top left.
-   */}
-  <div class="flex items-start justify-between gap-page lg:flex-row-reverse">
-    <h2 id="principles-heading" class="text-interface md:text-reading">
-      Principles
-    </h2>
-    {/* The index already says where the visitor is, so this is for sight only. */}
-    <p
-      aria-hidden="true"
-      class="hidden text-text-muted group-data-staged:block"
-      data-principles-counter
-    >
-      1 / 3
-    </p>
-  </div>
-
-  <div class:list={[worksGrid, 'flex-1 content-center gap-y-12 py-12']}>
-    {principles.map(({ label, claim, body }) => (
-      <article
-        id={principleId(label)}
-        aria-labelledby={`${principleId(label)}-label`}
-        class="col-span-6 col-start-1 grid grid-cols-subgrid content-start group-data-staged:row-start-1 group-data-staged:not-data-current:invisible md:col-span-5 md:col-start-2 lg:col-span-8 lg:col-start-5"
-        data-principle
+<div class="group" data-principles>
+  <section
+    aria-labelledby="principles-heading"
+    class="mx-auto flex min-h-plate w-full max-w-(--breakpoint-2xl) flex-col px-page pt-inset group-data-staged:sticky group-data-staged:top-0 group-data-staged:h-plate"
+  >
+    {/*
+     * The heading comes first so screen readers meet the section's name
+     * first. From 1024 up it's a running head at the top right, like
+     * "Selected work"; narrower, it's a caption at the top left.
+     */}
+    <div class="flex items-start justify-between gap-page lg:flex-row-reverse">
+      <h2 id="principles-heading" class="text-interface md:text-reading">
+        Principles
+      </h2>
+      {/* The index already says where the visitor is, so this is for sight only. */}
+      <p
+        aria-hidden="true"
+        class="hidden text-text-muted group-data-staged:block"
+        data-principles-counter
       >
-        {/* On the stage the index names the principle from 768 up. */}
-        <h3
-          id={`${principleId(label)}-label`}
-          class="col-span-full text-text-muted md:group-data-staged:sr-only"
-        >
-          {label}
-        </h3>
-        <p class="col-span-full mt-2 text-statement">{claim}</p>
-        <p class="col-span-full mt-4 text-reading text-text-muted md:col-span-4">
-          {body}
-        </p>
-      </article>
-    ))}
-  </div>
+        1 / 3
+      </p>
+    </div>
 
-  <nav aria-label="Principles">
-    <ol class={worksGrid}>
-      {principles.map(({ label }, i) => (
-        <li class="col-span-2 lg:col-span-4">
-          {/*
-           * The line is the link's top border, and the fill runs along
-           * it as far as --progress says, from 0 to 1. The link reaches
-           * down to the screen's bottom edge, a tap area of at least 44.
-           */}
-          <a
-            href={`#${principleId(label)}`}
-            class="relative flex gap-2 border-t border-border pt-4 pb-6 text-text-muted transition-colors duration-settle ease-settle hover:text-text data-current:text-text md:pb-12"
-            style="--progress: 0"
+    <div class:list={[worksGrid, 'flex-1 content-center gap-y-12 py-12']}>
+      {principles.map(({ label, claim, body }) => (
+        <article
+          id={principleId(label)}
+          aria-labelledby={`${principleId(label)}-label`}
+          class="col-span-6 col-start-1 grid grid-cols-subgrid content-start group-data-staged:row-start-1 md:col-span-5 md:col-start-2 lg:col-span-8 lg:col-start-5"
+          data-principle
+        >
+          {/* On the stage the index names the principle from 768 up. */}
+          <h3
+            id={`${principleId(label)}-label`}
+            class="col-span-full text-text-muted md:group-data-staged:sr-only"
           >
-            <span
-              aria-hidden="true"
-              class="absolute inset-x-0 -top-px h-px origin-left scale-x-(--progress) bg-foreground"
-            />
-            <span>{i + 1}</span>
-            <span class="max-md:sr-only">{label}</span>
-          </a>
-        </li>
+            {label}
+          </h3>
+          <p class="col-span-full mt-2 text-statement">{claim}</p>
+          <p
+            class="col-span-full mt-4 text-reading text-text-muted md:col-span-4"
+            data-principle-body
+          >
+            {body}
+          </p>
+        </article>
       ))}
-    </ol>
-  </nav>
-</section>
+    </div>
+
+    <nav aria-label="Principles">
+      <ol class={worksGrid}>
+        {principles.map(({ label }, i) => (
+          <li class="col-span-2 lg:col-span-4">
+            {/*
+             * The line is the link's top border, and the fill runs along
+             * it as far as --progress says, from 0 to 1. The link reaches
+             * down to the screen's bottom edge, a tap area of at least 44.
+             */}
+            <a
+              href={`#${principleId(label)}`}
+              class="relative flex gap-2 border-t border-border pt-4 pb-6 text-text-muted transition-colors duration-settle ease-settle hover:text-text data-current:text-text md:pb-12"
+              style="--progress: 0"
+            >
+              <span
+                aria-hidden="true"
+                class="absolute inset-x-0 -top-px h-px origin-left scale-x-(--progress) bg-foreground"
+              />
+              <span>{i + 1}</span>
+              <span class="max-md:sr-only">{label}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </section>
+  {/* The scrolling the stage holds still for, one screen per principle. */}
+  {principles.map(() => (
+    <div
+      aria-hidden="true"
+      class="hidden h-plate group-data-staged:block"
+      data-principles-step
+    />
+  ))}
+</div>
+
+<style>
+  /*
+   * The hand-off. The outgoing principle rises by the travel distance and
+   * fades, settling without a bounce. The incoming one arrives from the
+   * same distance below on the spring, and its body fades in once the
+   * claim has landed. Scrolling back up plays it in reverse. Principles
+   * off the stage are only transparent, so screen readers still read all
+   * three.
+   */
+  [data-staged] [data-principle] {
+    transition:
+      transform var(--transition-duration-settle) var(--ease-settle),
+      opacity var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  [data-staged] [data-principle]:not([data-current]) {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(var(--spacing-travel));
+  }
+
+  [data-staged] [data-principle][data-passed] {
+    transform: translateY(calc(-1 * var(--spacing-travel)));
+  }
+
+  [data-staged] [data-principle][data-current] {
+    transition:
+      transform var(--transition-duration-spring) var(--ease-spring),
+      opacity var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  [data-staged] [data-principle-body] {
+    transition: opacity var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  [data-staged] [data-principle]:not([data-current]) [data-principle-body] {
+    opacity: 0;
+  }
+
+  [data-staged] [data-current] [data-principle-body] {
+    transition-delay: var(--spring-duration);
+  }
+</style>
+
+<script>
+  import { principlesStage, stepStart } from '../lib/principles-stage';
+
+  function setUpStage(wrapper: HTMLElement, section: HTMLElement) {
+    const principles = [
+      ...wrapper.querySelectorAll<HTMLElement>('[data-principle]'),
+    ];
+    const links = [...wrapper.querySelectorAll<HTMLAnchorElement>('nav a')];
+    const counter = wrapper.querySelector('[data-principles-counter]');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+
+    const isStaged = () => wrapper.hasAttribute('data-staged');
+
+    function draw() {
+      frame = 0;
+      if (!isStaged()) return;
+      const { current, progress } = principlesStage(
+        -wrapper.getBoundingClientRect().top,
+        section.offsetHeight,
+        principles.length,
+      );
+      principles.forEach((principle, i) => {
+        principle.toggleAttribute('data-current', i === current);
+        principle.toggleAttribute('data-passed', i < current);
+      });
+      links.forEach((link, i) => {
+        link.toggleAttribute('data-current', i === current);
+        link.style.setProperty('--progress', String(progress[i]));
+      });
+      if (counter)
+        counter.textContent = `${current + 1} / ${principles.length}`;
+    }
+
+    function requestDraw() {
+      frame ||= requestAnimationFrame(draw);
+    }
+
+    function stage() {
+      wrapper.toggleAttribute('data-staged', !reducedMotion.matches);
+      if (isStaged()) return draw();
+      for (const element of [...principles, ...links]) {
+        element.removeAttribute('data-current');
+        element.removeAttribute('data-passed');
+      }
+      for (const link of links) link.style.setProperty('--progress', '0');
+    }
+
+    // Where the page scrolls to for a principle's step: a pixel into it,
+    // because the browser rounds scroll positions and could land short.
+    function scrollTopOf(principle: HTMLElement) {
+      const step = stepStart(
+        principles.indexOf(principle),
+        section.offsetHeight,
+      );
+      return scrollY + wrapper.getBoundingClientRect().top + step + 1;
+    }
+
+    // On the stage the principles share one spot, so a link to one
+    // scrolls to its step instead, and the hand-off plays.
+    for (const link of links) {
+      link.addEventListener('click', (event) => {
+        const principle = principles.find(({ id }) => `#${id}` === link.hash);
+        if (!isStaged() || !principle) return;
+        event.preventDefault();
+        scrollTo({ top: scrollTopOf(principle), behavior: 'instant' });
+      });
+    }
+
+    addEventListener('scroll', requestDraw, { passive: true });
+    addEventListener('resize', requestDraw);
+    reducedMotion.addEventListener('change', stage);
+    stage();
+
+    // A link from elsewhere straight to a principle lands on its step.
+    // The browser makes its own jump to the link's target as the page
+    // loads, so this waits until that's done.
+    function landOnLinkedPrinciple() {
+      const linked = principles.find(({ id }) => `#${id}` === location.hash);
+      if (!linked || !isStaged()) return;
+      scrollTo({ top: scrollTopOf(linked), behavior: 'instant' });
+    }
+    if (document.readyState === 'complete') landOnLinkedPrinciple();
+    else addEventListener('load', landOnLinkedPrinciple, { once: true });
+  }
+
+  const wrapper = document.querySelector<HTMLElement>('[data-principles]');
+  const section = wrapper?.querySelector('section');
+  if (wrapper && section) setUpStage(wrapper, section);
+</script>

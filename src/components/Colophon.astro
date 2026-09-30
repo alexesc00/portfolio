@@ -1,13 +1,11 @@
 ---
-import ThemeSwitch from './ThemeSwitch.astro';
-
 const designFileUrl =
   'https://www.figma.com/design/esBGpA3T7eNNwb5iqeb23G/Portfolio-DS';
 const repositoryUrl = 'https://github.com/alexesc00/portfolio';
 ---
 
 {/* One line on wide screens; on phones each clause breaks onto its own line. */}
-<p class="text-right text-text-muted">
+<p class="text-text-muted">
   <span class="block md:inline">
     Designed in{' '}
     <a href={designFileUrl} class="text-text">
@@ -20,9 +18,5 @@ const repositoryUrl = 'https://github.com/alexesc00/portfolio';
     <a href={repositoryUrl} class="text-text">
       <span class="underline">GitHub</span> <span aria-hidden="true">↗</span>
     </a>
-    ,
-  </span>{' '}
-  <span class="block md:inline">
-    shown in <ThemeSwitch />
   </span>
 </p>

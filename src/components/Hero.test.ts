@@ -11,8 +11,18 @@ beforeAll(async () => {
 
 /** The page frame's opening tag and everything inside it. */
 function pageFrame() {
-  const start = html.search(/<header[^>]* data-page-frame/);
+  const start = html.search(/<div[^>]* data-page-frame/);
   return start === -1 ? '' : html.slice(start);
+}
+
+/** The links in the order a keyboard reaches them, by their text. */
+function linkTexts() {
+  return [...html.matchAll(/<a [^>]*>([\s\S]*?)<\/a>/g)].map(([, inner]) =>
+    inner
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
 }
 
 describe('the hero', () => {
@@ -21,11 +31,8 @@ describe('the hero', () => {
   it('keeps its corners in a frame that stops growing at 1440', () => {
     const frame = pageFrame();
 
-    expect(frame).toMatch(
-      /^<header[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/,
-    );
-    expect(frame).toContain('Alex Escudero');
-    expect(frame).toContain('Product designer');
+    expect(frame).toMatch(/^<div[^>]* class="[^"]*max-w-\(--breakpoint-2xl\)/);
+    expect(frame).toContain('Designed in');
     expect(frame).toContain('data-theme-switch');
   });
 
@@ -33,7 +40,7 @@ describe('the hero', () => {
     const markStart = html.indexOf('text-mark');
 
     expect(markStart).toBeGreaterThan(-1);
-    expect(markStart).toBeLessThan(html.search(/<header[^>]* data-page-frame/));
+    expect(markStart).toBeLessThan(html.search(/<div[^>]* data-page-frame/));
   });
 
   // The works section below is the page's main content, so the hero is
@@ -43,15 +50,34 @@ describe('the hero', () => {
     expect(html).not.toContain('<main');
   });
 
-  it('links down to the work, the arrow kept from screen readers', () => {
-    expect(html).toMatch(
-      /<a[^>]* href="#work"[^>]*>\s*<span[^>]* aria-hidden="true"[^>]*>↓<\/span>\s*Work\s*<\/a>/,
+  it('opens with the top bar', () => {
+    expect(html.indexOf('data-top-bar')).toBeGreaterThan(-1);
+    expect(html.indexOf('data-top-bar')).toBeLessThan(
+      html.indexOf('text-mark'),
     );
   });
 
-  it('puts the link in the corner across from the tagline', () => {
-    expect(html.indexOf('href="#work"')).toBeGreaterThan(
-      html.indexOf('Product designer'),
+  // The hero is its own layer, so the Æ can sit behind its text. A fixed
+  // bar inside that layer could never rise above the sections after it.
+  it('keeps the top bar outside the hero’s layer', () => {
+    expect(html.search(/class="[^"]*\bisolate\b/)).toBeGreaterThan(
+      html.indexOf('data-top-bar'),
+    );
+    expect(html.indexOf('</nav>')).toBeLessThan(
+      html.search(/class="[^"]*\bisolate\b/),
+    );
+  });
+
+  // The page says what Alex does without a label, and Work is in the bar.
+  it('drops the tagline and the link down to the work', () => {
+    expect(html).not.toContain('Product designer');
+    expect(html).not.toContain('↓');
+  });
+
+  it('is reached by keyboard from the top bar to the theme switch', () => {
+    expect(linkTexts()).toEqual(['Work', 'Contact', 'Figma ↗', 'GitHub ↗']);
+    expect(html.indexOf('data-theme-switch')).toBeGreaterThan(
+      html.lastIndexOf('</a>'),
     );
   });
 });

@@ -101,6 +101,15 @@
   --text-reading--font-weight: 400;
 
   /*
+   * The few lines said in Alex's own voice: the self-statement and the
+   * principles' claims. Phone values; the md breakpoint enlarges them.
+   */
+  --text-statement: 1.5rem;
+  --text-statement--line-height: 1.75rem;
+  --text-statement--letter-spacing: -0.005em;
+  --text-statement--font-weight: 400;
+
+  /*
    * The dotted Æ in the middle of the hero: 60% of the screen height, or
    * on narrow screens as big as keeps it to 85% of the width. The Æ
    * itself is 0.869 of its font size wide, so that's 97.8vw.
@@ -123,6 +132,15 @@
   /* Phone values; the md breakpoint widens them below. */
   --spacing-page: 1rem;
   --spacing-inset: 1.5rem;
+
+  /*
+   * One screen: the height of a section composed to be seen whole, like
+   * the hero or the closing contact. The small screen height, so it
+   * doesn't jump when a phone's address bar shows and hides.
+   */
+  --spacing-plate: 100svh;
+  /* How far a principle rises as it leaves, or arrives from as it enters. */
+  --spacing-travel: 1.5rem;
 
   /*
    * Every motion is drawn from one spring, the one the Æ's dots move on.
@@ -263,6 +281,9 @@
     @variant md {
       --spacing-page: 3rem;
       --spacing-inset: 2rem;
+      --text-statement: 1.75rem;
+      --text-statement--line-height: 2rem;
+      --text-statement--letter-spacing: -0.01em;
     }
 
     @variant light {

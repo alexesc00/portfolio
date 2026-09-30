@@ -302,6 +302,31 @@ describe('compareWithFigma', () => {
     );
   });
 
+  // Figma has no screen to measure, so it draws a size like 100svh at the
+  // height of the frame each mode is drawn in.
+  it('accepts a size measured in screen heights, which Figma draws at its frame’s height', () => {
+    const changed = new Map(tokens);
+    changed.set('--spacing-plate', { base: '100svh' });
+    const snapshot = matchingSnapshot();
+    snapshot.collections[1].variables.push({
+      name: 'size/plate',
+      css: '--spacing-plate',
+      type: 'FLOAT',
+      values: { Desktop: 900, Phone: 844 },
+    });
+
+    expect(compareWithFigma(changed, snapshot)).toEqual([]);
+  });
+
+  it('still reports a screen-height size that Figma doesn’t have', () => {
+    const changed = new Map(tokens);
+    changed.set('--spacing-plate', { base: '100svh' });
+
+    expect(compareWithFigma(changed, matchingSnapshot())).toEqual([
+      '--spacing-plate is in global.css but not in Figma',
+    ]);
+  });
+
   it('doesn’t expect Figma to hold the breakpoints', () => {
     const differences = compareWithFigma(tokens, matchingSnapshot());
 

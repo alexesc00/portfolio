@@ -43,8 +43,35 @@ const withLink: Project = {
   },
 };
 
+/** Screenshots of the app in one look, at each size the box shows it. */
+function stills(look: string) {
+  return {
+    large: picture(`${look}-large`, 1104),
+    medium: picture(`${look}-medium`, 956),
+    phone: picture(`${look}-phone`, 768),
+    alt: `The sampler, ${look}.`,
+  };
+}
+
+const showcaseProject: Project = {
+  order: 2,
+  locked: false,
+  name: 'MissionML design system',
+  category: 'Government AI',
+  solution: 'Branded design system for prototyping AI apps in Streamlit',
+  practices: ['Design systems', 'Development'],
+  segment: 'Government',
+  writeUp: project.writeUp,
+  showcase: {
+    app: '/showcase/missionml/?view=sampler',
+    stock: stills('stock'),
+    brand: stills('brand'),
+  },
+};
+
 let html = '';
 let htmlWithLink = '';
+let htmlWithShowcase = '';
 
 beforeAll(async () => {
   const container = await AstroContainer.create();
@@ -54,6 +81,7 @@ beforeAll(async () => {
     });
   html = await render(project);
   htmlWithLink = await render(withLink);
+  htmlWithShowcase = await render(showcaseProject);
 });
 
 function textOf(markup = '') {
@@ -119,5 +147,52 @@ describe('the opened row', () => {
     expect(
       textOf(link.replace(/<span[^>]* aria-hidden="true"[^>]*>↗<\/span>/, '')),
     ).toBe('On the App Store');
+  });
+});
+
+describe('the opened row with a live showcase', () => {
+  it('shows the stills of both looks, at every size, in place of images', () => {
+    const images = htmlWithShowcase.match(/<img[^>]*>/g) ?? [];
+
+    expect(images).toHaveLength(6);
+    for (const look of ['stock', 'brand']) {
+      expect(
+        images.filter((image) => image.includes(`alt="The sampler, ${look}."`)),
+      ).toHaveLength(3);
+    }
+    for (const image of images) expect(image).toContain('loading="lazy"');
+  });
+
+  it('points at the app it runs, but starts nothing until asked', () => {
+    expect(htmlWithShowcase).toContain(
+      'data-app="/showcase/missionml/?view=sampler"',
+    );
+    expect(htmlWithShowcase).not.toContain('<iframe');
+  });
+
+  it('has a seam a keyboard can move', () => {
+    const seam = /<[^>]* role="slider"[^>]*>/.exec(htmlWithShowcase)?.[0] ?? '';
+
+    expect(seam).toContain('tabindex="0"');
+    expect(seam).toContain('aria-valuenow="33"');
+    expect(seam).toMatch(/aria-label="[^"]+"/);
+  });
+
+  it('labels each side', () => {
+    const text = textOf(htmlWithShowcase);
+
+    expect(text).toContain('Stock Streamlit');
+    expect(text).toContain('MissionML');
+  });
+
+  it('offers to run the app, and a choice of seam or lens', () => {
+    const buttons = (
+      htmlWithShowcase.match(/<button[\s\S]*?<\/button>/g) ?? []
+    ).map(textOf);
+
+    expect(buttons).toEqual(['Run live', 'Seam', 'Lens']);
+    expect(htmlWithShowcase).toMatch(
+      /<button[^>]* aria-pressed="true"[^>]*>\s*Seam/,
+    );
   });
 });

@@ -64,6 +64,28 @@ function openProject(): Record<string, unknown> {
   };
 }
 
+/** Screenshots of the app in one look, at each size the box shows it. */
+function stills(look: string) {
+  return {
+    large: picture(`${look}-large`),
+    medium: picture(`${look}-medium`),
+    phone: picture(`${look}-phone`),
+    alt: `The app in the ${look} look.`,
+  };
+}
+
+/** A project whose box runs its app live instead of showing images. */
+function showcaseProject(): Record<string, unknown> {
+  return {
+    ...without(openProject(), 'images'),
+    showcase: {
+      app: '/showcase/missionml/?view=sampler',
+      stock: stills('stock'),
+      brand: stills('brand'),
+    },
+  };
+}
+
 /** A project under NDA: row text only, and no name, which never shows. */
 function lockedProject(): Record<string, unknown> {
   return {
@@ -102,6 +124,42 @@ describe('projectSchema', () => {
       );
     },
   );
+
+  it('accepts a live showcase in place of images', () => {
+    expect(schema.safeParse(showcaseProject()).success).toBe(true);
+  });
+
+  it('rejects a project with both images and a live showcase', () => {
+    const project = { ...showcaseProject(), images: openProject().images };
+
+    expect(schema.safeParse(project).success).toBe(false);
+  });
+
+  it('rejects a showcase missing a still or its alt text', () => {
+    const project = showcaseProject();
+    const noPhone = without(stills('stock'), 'phone');
+    const noAlt = without(stills('stock'), 'alt');
+    const showcase = project.showcase as Record<string, unknown>;
+
+    for (const stock of [noPhone, noAlt]) {
+      expect(
+        schema.safeParse({ ...project, showcase: { ...showcase, stock } })
+          .success,
+      ).toBe(false);
+    }
+  });
+
+  it('rejects a showcase app that isn’t a page on this site', () => {
+    const project = showcaseProject();
+    const showcase = project.showcase as Record<string, unknown>;
+
+    expect(
+      schema.safeParse({
+        ...project,
+        showcase: { ...showcase, app: 'https://example.com/app' },
+      }).success,
+    ).toBe(false);
+  });
 
   it('rejects an image with no alt text', () => {
     const project = openProject();

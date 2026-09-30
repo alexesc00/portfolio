@@ -33,8 +33,7 @@ describe('the top bar', () => {
     expect(barClasses()).not.toMatch(/\btransition-all\b/);
   });
 
-  // The Æ's bounce would swing the bar a third of its height past its
-  // place, so it settles both ways.
+  // The bar is part of the page's structure, and structure doesn't bounce.
   it('arrives and leaves settling, without a bounce', () => {
     expect(barClasses()).toMatch(/(^| )duration-settle\b/);
     expect(barClasses()).toMatch(/(^| )ease-settle\b/);

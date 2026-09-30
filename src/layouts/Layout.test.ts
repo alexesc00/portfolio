@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -131,27 +131,20 @@ describe('the page head', () => {
     }
   });
 
-  it('colors the browser bar to match each theme, even without scripts', () => {
+  it('colors the browser bar dark, even without scripts', () => {
     const barColors = tags('meta').filter(
       (meta) => meta.name === 'theme-color',
     );
 
-    expect(barColors).toContainEqual({
-      name: 'theme-color',
-      content: themeColors.dark,
-      media: '(prefers-color-scheme: dark)',
-    });
-    expect(barColors).toContainEqual({
-      name: 'theme-color',
-      content: themeColors.light,
-      media: '(prefers-color-scheme: light)',
-    });
+    expect(barColors).toEqual([
+      { name: 'theme-color', content: themeColors.dark },
+    ]);
   });
 });
 
 /**
  * Runs the head script and returns the theme it set on the page, and the
- * colors it left on the browser bar's two tags.
+ * color it left on the browser bar.
  */
 function pickTheme({
   saved,
@@ -163,10 +156,7 @@ function pickTheme({
   isStorageBlocked?: boolean;
 }) {
   const dataset: Record<string, string> = {};
-  const barColors = [
-    { content: themeColors.dark },
-    { content: themeColors.light },
-  ];
+  const barColors = [{ content: themeColors.dark }];
   const browser = {
     document: {
       documentElement: { dataset },
@@ -201,9 +191,9 @@ describe('the theme picked before first paint', () => {
     );
   });
 
-  it('follows the system setting when nothing is saved', () => {
+  it('starts dark when nothing is saved, whatever the system setting', () => {
     expect(pickTheme({ saved: null, systemPrefersLight: true }).theme).toBe(
-      'light',
+      'dark',
     );
     expect(pickTheme({ saved: null, systemPrefersLight: false }).theme).toBe(
       'dark',
@@ -212,27 +202,37 @@ describe('the theme picked before first paint', () => {
 
   it('ignores a saved value that is not a theme', () => {
     expect(pickTheme({ saved: 'purple', systemPrefersLight: true }).theme).toBe(
-      'light',
+      'dark',
     );
   });
 
-  it('follows the system setting when storage is blocked', () => {
+  it('starts dark when storage is blocked', () => {
     expect(
       pickTheme({
         saved: 'dark',
         systemPrefersLight: true,
         isStorageBlocked: true,
       }).theme,
-    ).toBe('light');
+    ).toBe('dark');
   });
 
-  it('colors the browser bar for a theme chosen against the system', () => {
-    // Both tags, since the browser picks one by the system setting.
+  it('colors the browser bar for the theme the visitor chose', () => {
     const { barColors } = pickTheme({
-      saved: 'dark',
-      systemPrefersLight: true,
+      saved: 'light',
+      systemPrefersLight: false,
     });
 
-    expect(barColors).toEqual([themeColors.dark, themeColors.dark]);
+    expect(barColors).toEqual([themeColors.light]);
+  });
+});
+
+describe('the page without scripts', () => {
+  it('stays dark, whatever the system setting', () => {
+    const styles = readFileSync(
+      new URL('../styles/global.css', import.meta.url),
+      'utf8',
+    );
+
+    expect(styles).not.toContain('prefers-color-scheme');
   });
 });

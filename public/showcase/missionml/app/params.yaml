@@ -1,0 +1,7 @@
+page_config:
+  # Appears at the top of browser
+  page_title: "Style catalog"
+  # Options: "expanded" , or "auto"
+  initial_sidebar_state: "expanded"
+  # Options: 1 - 100
+  page_width: 75

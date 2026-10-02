@@ -62,6 +62,15 @@ describe('the theme switch', () => {
     expect(sun).toContain('aria-hidden="true"');
   });
 
+  // The hero's bottom line tips back in 3D as the page scrolls, and Safari
+  // loses SVG masks and clip paths inside a 3D transform, filling the
+  // icon's whole box instead.
+  it('draws the icons without masks or clip paths, which Safari drops', () => {
+    for (const icon of [moon, sun]) {
+      expect(icon).not.toMatch(/<mask|<clipPath|mask=|clip-path=/);
+    }
+  });
+
   it('is named by the visible word first, for voice control', () => {
     expect(spoken(darkLabel)).toBe('dark, switch to light mode');
     expect(spoken(lightLabel)).toBe('light, switch to dark mode');

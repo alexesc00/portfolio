@@ -13,9 +13,7 @@ import streamlit as st
 from polydelta_streamlit_helpers.css import inject_css
 from polydelta_streamlit_helpers.style import generic_page_config
 
-st.set_page_config(
-    page_title="Style sampler", initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="Style sampler")
 with open("assets/style_light.css") as f:
     inject_css(f.read())
 generic_page_config(page_width=75)
@@ -39,12 +37,18 @@ st.html(
         max-width: none !important;
     }
     [data-testid="stHeader"] { display: none; }
+    [data-testid="stLogo"] { visibility: hidden; }
     </style>"""
 )
-
-with st.sidebar:
-    st.markdown("### Quarterly review")
-    st.radio("Section", ["Overview", "Checks", "Teams"], key="nav")
+# The logo is part of the brand: hidden above, shown again by this tagged
+# block, so it goes when the portfolio switches the brand off. Hidden rather
+# than removed, so both copies keep the same layout. There's no sidebar for
+# the same reason: its open button sits beside the logo, and opening it
+# knocks the two copies out of step.
+inject_css(
+    '[data-testid="stSidebarCollapsedControl"] [data-testid="stLogo"]'
+    " { visibility: visible; }"
+)
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:

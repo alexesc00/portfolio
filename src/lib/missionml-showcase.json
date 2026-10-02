@@ -1,6 +1,6 @@
 {
   "repository": "alexesc00/mml-hacked-streamlit-showcase",
-  "commit": "b600db847ae402409acb35cd7a6b6ee03b4b254e",
+  "commit": "3badb3f5a7f92e4525d7f54bb531af425e4ffbfb",
   "files": [
     ".streamlit/config.toml",
     "app.py",

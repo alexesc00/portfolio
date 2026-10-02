@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { coverOffset, opennessAt, planDrawer } from './row-drawer';
+import { coverOffset, opennessAt, planDrawer, revealClip } from './row-drawer';
 
 describe('planDrawer', () => {
   it('opens a closed row all the way from shut', () => {
@@ -47,5 +47,15 @@ describe('coverOffset', () => {
     expect(coverOffset(0, 500)).toBe(-500);
     expect(coverOffset(0.25, 500)).toBe(-375);
     expect(coverOffset(1, 500)).toBe(0);
+  });
+});
+
+describe('revealClip', () => {
+  // The rows under a drawer can be shorter than its write-up, so the
+  // write-up shows only down to their top edge, never past them.
+  it('clips the write-up to the part the rows have uncovered', () => {
+    expect(revealClip(0, 500)).toBe('inset(0 0 500px)');
+    expect(revealClip(0.25, 500)).toBe('inset(0 0 375px)');
+    expect(revealClip(1, 500)).toBe('inset(0 0 0px)');
   });
 });

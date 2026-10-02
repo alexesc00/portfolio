@@ -4,15 +4,18 @@ import { z } from 'astro/zod';
 /*
  * Character limits measured in Figma with the real fonts. Each column's
  * text fits on one line at the narrowest screen that shows the column,
- * and the two paragraphs fit beside the image box at 1280 wide, the
- * tightest width for them.
+ * and the write-up fits beside the image box at 1280 wide, the tightest
+ * width for it. The approach and the outcome share the room the second
+ * paragraph had before the write-up was split into chapters.
  */
 const maxLength = {
   category: 22,
   solution: 60,
   whatIDid: 56,
-  firstParagraph: 270,
-  secondParagraph: 310,
+  problem: 270,
+  approach: 290,
+  outcome: 90,
+  approachAndOutcome: 310,
 };
 
 /** The fields of one project in the works table, top row first by `order`. */
@@ -58,10 +61,19 @@ export function projectSchema({ image }: SchemaContext) {
     locked: z.literal(false),
     // Shown as the write-up's heading and in the button's name.
     name: text,
-    writeUp: z.tuple([
-      text.max(maxLength.firstParagraph),
-      text.max(maxLength.secondParagraph),
-    ]),
+    // Each chapter shows under its label. Not every project has a result
+    // to report, so the outcome can be left out.
+    writeUp: z
+      .object({
+        problem: text.max(maxLength.problem),
+        approach: text.max(maxLength.approach),
+        outcome: text.max(maxLength.outcome).optional(),
+      })
+      .refine(
+        ({ approach, outcome = '' }) =>
+          approach.length + outcome.length <= maxLength.approachAndOutcome,
+        `The approach and outcome are longer than ${maxLength.approachAndOutcome} characters together`,
+      ),
     // The page adds a ↗ after the text.
     link: z.object({ url: z.url({ protocol: /^https$/ }), text }).optional(),
   };

@@ -6,12 +6,11 @@ solution: Transit app that pairs students with a riding buddy
 practices: [App design, Web design]
 segment: Consumer
 writeUp:
-  - >-
+  problem: >-
     Tango is a phone app for big-city students that pairs up transit riders
-    going the same way. Lone riders need company against harassment, but
-    testers worried about finding a buddy in a busy station with no way to
-    reach them.
-  - >-
+    going the same way. Lone riders need company against harassment, but testers
+    worried about finding a buddy in a busy station with no way to reach them.
+  approach: >-
     I matched riders on similar routes and gave each pair an in-app chat for
     meeting at the station, along with a way to ask for a new match. I designed
     every screen, from matching to rating a buddy at the end, and built the

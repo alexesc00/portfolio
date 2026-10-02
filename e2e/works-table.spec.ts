@@ -51,3 +51,42 @@ test('a write-up shows only as far as the rows over it have slid', async ({
   expect(gaps.length).toBeGreaterThan(10);
   for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
 });
+
+// The rest of the page slides with the rows instead of jumping: what
+// comes after the table keeps the same distance from the table's last
+// row the whole way, opening and closing.
+test('the page below the table slides with the rows', async ({ page }) => {
+  const group = await closedRow(page).elementHandle();
+  const gaps = await page.evaluate(async (group) => {
+    const button = group?.querySelector<HTMLElement>('[data-row-toggle]');
+    const table = group?.closest('table');
+    const lastRow = table?.querySelector('tbody:last-child');
+    const section = table?.closest('section');
+    const below = section?.nextElementSibling;
+    if (!button || !lastRow || !below) throw new Error('No page to slide');
+    lastRow.scrollIntoView({ block: 'end' });
+
+    const gap = () =>
+      below.getBoundingClientRect().top -
+      lastRow.getBoundingClientRect().bottom;
+    const atRest = gap();
+    const frame = () => new Promise(requestAnimationFrame);
+    const gaps: number[] = [];
+    async function watch(milliseconds: number) {
+      const start = performance.now();
+      while (performance.now() - start < milliseconds) {
+        await frame();
+        gaps.push(gap() - atRest);
+      }
+    }
+
+    button.click();
+    await watch(800);
+    button.click();
+    await watch(800);
+    return gaps;
+  }, group);
+
+  expect(gaps.length).toBeGreaterThan(10);
+  for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
+});

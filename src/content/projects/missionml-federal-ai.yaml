@@ -17,7 +17,7 @@ writeUp:
     answer fits on one screen. Only the roles someone opens become tabs.
   outcome: >-
     Production kept the coverage chart, result cards and evidence tables.
-tools: [Cursor]
+tools: [Figma, Claude]
 # Under NDA until the systems launch: the write-up goes no further than the
 # résumé, and the box says the images are withheld.
 isUnderNda: true

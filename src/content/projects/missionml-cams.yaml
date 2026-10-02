@@ -17,7 +17,7 @@ writeUp:
     the platform as a workbench where schools build their documents in the app.
   outcome: >-
     Production’s AI business rules are built on those prototypes.
-tools: [Cursor]
+tools: [Figma, Claude]
 # Under NDA until the systems launch: the write-up goes no further than the
 # résumé, and the box says the images are withheld.
 isUnderNda: true

@@ -6,6 +6,7 @@ import {
   settleSpring,
   springCurve,
   springProgress,
+  landedProgress,
   stepConstants,
 } from './spring';
 
@@ -85,6 +86,29 @@ describe('springCurve’s ending', () => {
       );
       // ...and the last step is under half a pixel on that drawer.
       expect(ending.at(-1)).toBeLessThan(0.0007);
+    }
+  });
+});
+
+describe('landedProgress', () => {
+  const { duration } = springCurve(settleSpring);
+
+  it('follows the same curve CSS draws, landed on rest', () => {
+    expect(landedProgress(settleSpring, 0)).toBe(0);
+    expect(landedProgress(settleSpring, 100)).toBeCloseTo(
+      springProgress(settleSpring, 100),
+      3,
+    );
+    expect(landedProgress(settleSpring, duration)).toBe(1);
+    expect(landedProgress(settleSpring, duration + 500)).toBe(1);
+  });
+
+  it('only ever moves forward with no bounce', () => {
+    let last = 0;
+    for (let time = 0; time <= duration; time += 1) {
+      const progress = landedProgress(settleSpring, time);
+      expect(progress).toBeGreaterThanOrEqual(last);
+      last = progress;
     }
   });
 });

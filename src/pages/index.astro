@@ -4,6 +4,7 @@ import ContactSection from '../components/ContactSection.astro';
 import Hero from '../components/Hero.astro';
 import WorksSection from '../components/WorksSection.astro';
 import PrinciplesSection from '../components/PrinciplesSection.astro';
+import StatementSection from '../components/StatementSection.astro';
 import Layout from '../layouts/Layout.astro';
 
 const projects = (await getCollection('projects')).map(({ data }) => data);
@@ -15,6 +16,7 @@ const projects = (await getCollection('projects')).map(({ data }) => data);
 >
   <Hero />
   <main>
+    <StatementSection />
     <WorksSection projects={projects} />
     <PrinciplesSection />
     <ContactSection />

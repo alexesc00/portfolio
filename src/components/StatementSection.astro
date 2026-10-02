@@ -1,0 +1,112 @@
+{/*
+ * The self-statement, on a screen of its own right after the hero. It
+ * sits in the middle, clear of the top bar when that slides back, and
+ * holds still for half a screen of scrolling before the works section
+ * comes up, so it gets read however fast the visitor scrolls. The track
+ * around it is that extra half screen. With reduced motion on there's no
+ * extra scrolling and no rise: it's simply one screen.
+ */}
+<div class="motion-safe:h-[calc(var(--spacing-plate)*1.5)]" data-statement>
+  <div
+    class="sticky top-0 mx-auto flex h-plate w-full max-w-(--breakpoint-2xl) items-center px-page"
+    data-statement-screen
+  >
+    {/*
+     * Each clause gets its own line from 768 up. Narrower, hand-set breaks
+     * would only fit one phone's width, so the lines balance themselves.
+     */}
+    <p class="text-display text-balance text-text-muted" data-statement-text>
+      <span class="md:block" data-clause>
+        Designs change on the way to launch.
+      </span>{' '}
+      <span class="md:block" data-clause>
+        I design products and build them in code,
+      </span>{' '}
+      <span class="text-text md:block" data-clause>
+        so what ships is what was meant.
+      </span>
+    </p>
+  </div>
+</div>
+
+<script is:inline>
+  // Before the first paint, so the clauses never show and then vanish.
+  // Without scripts this never runs and the statement is simply there.
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.currentScript?.previousElementSibling?.setAttribute(
+      'data-waiting',
+      '',
+    );
+  }
+</script>
+
+<style>
+  /*
+   * The rise: each clause comes up the travel distance as it fades in,
+   * one after another, on the settle curve, the site's spring without its
+   * bounce. Each starts when the one before is about a third of the way
+   * in. On phones the clauses wrap together, so the statement rises whole.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-statement-text],
+    [data-clause] {
+      transition:
+        transform var(--transition-duration-settle) var(--ease-settle),
+        opacity var(--transition-duration-settle) var(--ease-settle);
+    }
+
+    [data-waiting] [data-statement-text] {
+      opacity: 0;
+      transform: translateY(var(--spacing-travel));
+    }
+
+    /* 768 up, where each clause has its own line. */
+    @media (width >= 48rem) {
+      [data-waiting] [data-statement-text] {
+        opacity: 1;
+        transform: none;
+      }
+
+      [data-waiting] [data-clause] {
+        opacity: 0;
+        transform: translateY(var(--spacing-travel));
+      }
+
+      [data-clause]:nth-child(2) {
+        transition-delay: calc(var(--transition-duration-settle) * 0.3);
+      }
+
+      [data-clause]:nth-child(3) {
+        transition-delay: calc(var(--transition-duration-settle) * 0.6);
+      }
+    }
+  }
+</style>
+
+<script>
+  import { hasArrived } from '../lib/statement-arrival';
+
+  const statement = document.querySelector<HTMLElement>('[data-statement]');
+  const screen = statement?.querySelector('[data-statement-screen]');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (statement && screen && !reducedMotion.matches) {
+    let isArrived = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isArrived = hasArrived(isArrived, entry.intersectionRatio);
+        statement.toggleAttribute('data-waiting', !isArrived);
+      },
+      // Every tenth, so leaving and arriving are both seen at any speed.
+      { threshold: Array.from({ length: 11 }, (_, i) => i / 10) },
+    );
+    observer.observe(screen);
+
+    // Turning reduced motion on mid-visit shows the statement for good.
+    reducedMotion.addEventListener('change', () => {
+      if (!reducedMotion.matches) return;
+      observer.disconnect();
+      statement.removeAttribute('data-waiting');
+    });
+  }
+</script>

@@ -45,10 +45,11 @@ function openProject(): Record<string, unknown> {
     solution: 'Payouts page that shows event hosts when money arrives',
     practices: ['Product design', 'Strategy'],
     segment: 'Consumer',
-    writeUp: [
-      'Plots is a phone app for finding events and buying tickets.',
-      'I designed a Payouts page for all of a host’s events.',
-    ],
+    writeUp: {
+      problem: 'Plots is a phone app for finding events and buying tickets.',
+      approach: 'I designed a Payouts page for all of a host’s events.',
+      outcome: 'The page shipped with those APIs.',
+    },
     images: {
       wide: {
         dark: picture('plots-wide-dark'),
@@ -171,12 +172,29 @@ describe('projectSchema', () => {
     expect(schema.safeParse(project).success).toBe(false);
   });
 
-  it('rejects a write-up that isn’t two paragraphs', () => {
+  // Not every project has a result to report, and none is made up.
+  it('accepts a write-up with no outcome', () => {
     const project = openProject();
-    project.writeUp = ['One paragraph only.'];
+    project.writeUp = without(
+      project.writeUp as Record<string, unknown>,
+      'outcome',
+    );
 
-    expect(schema.safeParse(project).success).toBe(false);
+    expect(schema.safeParse(project).success).toBe(true);
   });
+
+  it.each(['problem', 'approach'])(
+    'rejects a write-up with no %s',
+    (chapter) => {
+      const project = openProject();
+      project.writeUp = without(
+        project.writeUp as Record<string, unknown>,
+        chapter,
+      );
+
+      expect(schema.safeParse(project).success).toBe(false);
+    },
+  );
 
   it('takes two or three practices', () => {
     const one = { ...lockedProject(), practices: ['Product design'] };
@@ -202,8 +220,16 @@ describe('projectSchema', () => {
     ['solution', 'x'.repeat(61)],
     ['practices', ['x'.repeat(30), 'x'.repeat(25)]],
     ['segment', 'x'.repeat(21)],
-    ['writeUp', ['x'.repeat(271), 'Short.']],
-    ['writeUp', ['Short.', 'x'.repeat(311)]],
+    ['writeUp', { problem: 'x'.repeat(271), approach: 'Short.' }],
+    ['writeUp', { problem: 'Short.', approach: 'x'.repeat(291) }],
+    [
+      'writeUp',
+      { problem: 'Short.', approach: 'Short.', outcome: 'x'.repeat(91) },
+    ],
+    [
+      'writeUp',
+      { problem: 'Short.', approach: 'x'.repeat(250), outcome: 'x'.repeat(61) },
+    ],
   ])('rejects a %s longer than it has room for', (field, value) => {
     const project = { ...openProject(), [field]: value };
 

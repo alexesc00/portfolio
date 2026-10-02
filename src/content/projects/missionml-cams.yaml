@@ -1,6 +1,6 @@
 order: 2
 locked: false
-name: CAMS
+name: Cyber Academic Management System
 category: Government AI
 solution: AI workbench for reviewing schools’ cybersecurity programs
 practices: [Product strategy, Product design, Development]

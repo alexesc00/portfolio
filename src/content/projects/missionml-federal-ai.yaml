@@ -1,14 +1,14 @@
 order: 1
 locked: false
-name: CAT
+name: Curriculum Alignment Tool
 category: Government AI
 solution: AI tool that checks courses against 74 cyber work roles
 practices: [Product design, Development]
 segment: Government
 writeUp:
   problem: >-
-    Every CAT analysis ran 74 AI checks, one per Defense Department cyber work
-    role, and each returned about two screens of output. It all had to fit in
+    Every analysis ran 74 AI checks, one per Defense Department cyber work role,
+    and each returned about two screens of output. It all had to fit in
     Streamlit, MissionML’s stack at the time, for a program lead who wanted it
     flashy, modern and sleek.
   approach: >-

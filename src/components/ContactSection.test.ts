@@ -52,12 +52,12 @@ describe('the closing plate', () => {
     );
   });
 
-  it('sets the address as a statement that emails it', () => {
+  it('sets the address in Lead and emails it', () => {
     const address = links().find(({ attributes }) =>
       attributes.includes('href="mailto:hello@alexescudero.design"'),
     );
     expect(address?.text).toBe('hello@alexescudero.design');
-    expect(address?.attributes).toMatch(/\btext-statement\b/);
+    expect(address?.attributes).toMatch(/\btext-lead\b/);
   });
 
   it('breaks the address after the @ on phones only', () => {

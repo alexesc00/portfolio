@@ -257,26 +257,26 @@
           "values": { "Desktop": 400, "Phone": 400 }
         },
         {
-          "name": "text/statement",
-          "css": "--text-statement",
+          "name": "text/lead",
+          "css": "--text-lead",
           "type": "FLOAT",
           "values": { "Desktop": 28, "Phone": 24 }
         },
         {
-          "name": "text/statement-line-height",
-          "css": "--text-statement--line-height",
+          "name": "text/lead-line-height",
+          "css": "--text-lead--line-height",
           "type": "FLOAT",
           "values": { "Desktop": 32, "Phone": 28 }
         },
         {
-          "name": "text/statement-letter-spacing",
-          "css": "--text-statement--letter-spacing",
+          "name": "text/lead-letter-spacing",
+          "css": "--text-lead--letter-spacing",
           "type": "FLOAT",
           "values": { "Desktop": -1, "Phone": -0.5 }
         },
         {
-          "name": "text/statement-weight",
-          "css": "--text-statement--font-weight",
+          "name": "text/lead-weight",
+          "css": "--text-lead--font-weight",
           "type": "FLOAT",
           "values": { "Desktop": 400, "Phone": 400 }
         },
@@ -321,6 +321,30 @@
           "css": "--text-reading--letter-spacing",
           "type": "FLOAT",
           "values": { "Desktop": 0, "Phone": 0 }
+        },
+        {
+          "name": "text/display",
+          "css": "--text-display",
+          "type": "FLOAT",
+          "values": { "Desktop": 40, "Phone": 32 }
+        },
+        {
+          "name": "text/display-line-height",
+          "css": "--text-display--line-height",
+          "type": "FLOAT",
+          "values": { "Desktop": 44, "Phone": 36 }
+        },
+        {
+          "name": "text/display-letter-spacing",
+          "css": "--text-display--letter-spacing",
+          "type": "FLOAT",
+          "values": { "Desktop": -2, "Phone": -2 }
+        },
+        {
+          "name": "text/display-weight",
+          "css": "--text-display--font-weight",
+          "type": "FLOAT",
+          "values": { "Desktop": 400, "Phone": 400 }
         }
       ]
     },

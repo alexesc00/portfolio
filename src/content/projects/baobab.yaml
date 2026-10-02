@@ -17,6 +17,8 @@ writeUp:
   outcome: >-
     The interface is now used to track sustainability on residential
     construction projects.
+isLive: true
+tools: [Figma]
 images:
   wide:
     dark: ../../assets/works/baobab/wide-dark.png

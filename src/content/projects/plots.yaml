@@ -16,6 +16,8 @@ writeUp:
     the engineers to pull the Stripe data into the app.
   outcome: >-
     The page shipped with those APIs.
+isLive: true
+tools: [Figma]
 images:
   wide:
     dark: ../../assets/works/plots/wide-dark.png

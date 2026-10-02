@@ -17,6 +17,8 @@ writeUp:
     rule, so a page can switch the brand off and show the stock look.
   outcome: >-
     Across two federal projects, the team built about fifteen prototypes on it.
+isLive: true
+tools: [Figma, Cursor]
 # The box runs the app live: stock Streamlit and the MissionML look, split
 # by a seam. These stills show until it's running, and on phones.
 showcase:

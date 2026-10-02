@@ -50,8 +50,9 @@
   );
 
   /*
-   * The one color that isn't the foreground, besides the Æ's: a dot
-   * saying something is running live. The same in both modes.
+   * The one color that isn't the foreground, besides the Æ's: the dot in
+   * the Live pill, saying a project shipped and is in use. The same in
+   * both modes.
    */
   --color-live: #33b574;
 

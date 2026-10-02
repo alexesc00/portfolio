@@ -18,6 +18,8 @@ writeUp:
     emergencies.
   outcome: >-
     MiSunshine shipped to the app store with this short list of tools.
+isLive: true
+tools: [Figma]
 images:
   wide:
     dark: ../../assets/works/misunshine/wide-dark.png

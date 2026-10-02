@@ -16,6 +16,7 @@ writeUp:
     first, then dining and transport, with events gathered at the bottom. I
     added defaults to the trip planner, which starts from the rider’s current
     location and will not confirm a trip without a destination.
+tools: [Figma]
 images:
   wide:
     dark: ../../assets/works/stanford-mobile/wide-dark.png

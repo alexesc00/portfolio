@@ -15,6 +15,7 @@ writeUp:
     meeting at the station, along with a way to ask for a new match. I designed
     every screen, from matching to rating a buddy at the end, and built the
     landing page myself.
+tools: [Figma]
 images:
   wide:
     dark: ../../assets/works/tango/wide-dark.png

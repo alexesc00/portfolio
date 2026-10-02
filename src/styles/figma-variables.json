@@ -309,6 +309,18 @@
           "css": "--text-title--font-weight",
           "type": "FLOAT",
           "values": { "Desktop": 400, "Phone": 400 }
+        },
+        {
+          "name": "text/title-letter-spacing",
+          "css": "--text-title--letter-spacing",
+          "type": "FLOAT",
+          "values": { "Desktop": 0, "Phone": 0 }
+        },
+        {
+          "name": "text/reading-letter-spacing",
+          "css": "--text-reading--letter-spacing",
+          "type": "FLOAT",
+          "values": { "Desktop": 0, "Phone": 0 }
         }
       ]
     },

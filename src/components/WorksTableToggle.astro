@@ -38,6 +38,7 @@ const { projectName, controls } = Astro.props;
 </button>
 
 <script>
+  import { millisecondsOf } from '../lib/css-duration';
   import {
     coverOffset,
     opennessAt,
@@ -49,7 +50,7 @@ const { projectName, controls } = Astro.props;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const tokens = getComputedStyle(document.documentElement);
   const settle = {
-    duration: parseFloat(
+    duration: millisecondsOf(
       tokens.getPropertyValue('--transition-duration-settle'),
     ),
     easing: tokens.getPropertyValue('--ease-settle').trim(),

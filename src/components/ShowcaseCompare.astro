@@ -385,17 +385,40 @@ const tag = [
       showStatus('still', 'The live app couldn’t start; the stills stay');
     }
 
-    // From 1024 wide up, the app starts as soon as its row opens. Closing
-    // the row stops it: two Python runtimes left running out of sight cost
-    // the visitor CPU and memory, so reopening starts them afresh.
     const row = root.closest('tr');
+
+    // From 1024 wide up, the app starts once its row has finished opening:
+    // starting two Pythons mid-slide would stall the slide, and a visitor
+    // flicking the row open and shut would start one each time. A row
+    // turned round mid-slide gets new slides, so this waits for those.
+    function startOnceOpen() {
+      if (!row || row.hidden || !wide.matches) return;
+      const slides = row.getAnimations();
+      if (slides.length === 0) {
+        start();
+        return;
+      }
+      Promise.all(slides.map((slide) => slide.finished)).then(
+        startOnceOpen,
+        startOnceOpen,
+      );
+    }
+
+    // A row left closed stops the app: two Python runtimes running out of
+    // sight cost the visitor CPU and memory, so reopening starts them
+    // afresh. Reopening within a few seconds keeps the one running.
+    const stopDelayMs = 5_000;
+    let stopTimer = 0;
     if (row) {
       new MutationObserver(() => {
+        clearTimeout(stopTimer);
         if (!row.hidden) {
-          if (wide.matches) start();
+          startOnceOpen();
         } else if (status !== 'still') {
-          stop();
-          showStatus('still', '');
+          stopTimer = window.setTimeout(() => {
+            stop();
+            showStatus('still', '');
+          }, stopDelayMs);
         }
       }).observe(row, { attributes: true, attributeFilter: ['hidden'] });
     }

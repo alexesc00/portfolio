@@ -8,7 +8,7 @@ test('closing the showcase row stops the live app', async ({
   page,
 }, testInfo) => {
   test.skip(
-    testInfo.project.name === 'phone',
+    testInfo.project.name.startsWith('phone'),
     'Phones only ever show the stills',
   );
   // Starting Python in the browser takes a while, and it starts twice here

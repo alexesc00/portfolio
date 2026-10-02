@@ -36,6 +36,7 @@
 </style>
 
 <script>
+  import { millisecondsOf } from '../lib/css-duration';
   import {
     createTrails,
     heatColorCount,
@@ -87,8 +88,7 @@
 
   /** A duration token, like `--transition-duration-afterglow-heat`, in ms. */
   function tokenInMilliseconds(name: string): number {
-    const value = token(name);
-    return value.endsWith('ms') ? parseFloat(value) : parseFloat(value) * 1000;
+    return millisecondsOf(token(name));
   }
 
   /** The theme showing now. The head script always sets one. */

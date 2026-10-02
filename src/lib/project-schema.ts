@@ -18,6 +18,9 @@ const maxLength = {
   approachAndOutcome: 310,
 };
 
+/** The tools a project can list under Built with, each with a logo. */
+export const toolNames = ['Figma', 'Cursor', 'Claude'] as const;
+
 /** The fields of one project in the works table, top row first by `order`. */
 export function projectSchema({ image }: SchemaContext) {
   const text = z.string().trim().min(1);
@@ -74,6 +77,11 @@ export function projectSchema({ image }: SchemaContext) {
           approach.length + outcome.length <= maxLength.approachAndOutcome,
         `The approach and outcome are longer than ${maxLength.approachAndOutcome} characters together`,
       ),
+    // Shipped and in use. The strip under the image says Live; on the
+    // other rows that end of the strip stays empty.
+    isLive: z.boolean().default(false),
+    // The logos after Built with, in this order.
+    tools: z.array(z.enum(toolNames)).min(1),
     // The page adds a ↗ after the text.
     link: z.object({ url: z.url({ protocol: /^https$/ }), text }).optional(),
   };

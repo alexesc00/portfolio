@@ -4,7 +4,6 @@ import {
   fitApp,
   narrowestAppWidth,
   seamAfterKey,
-  statusLabel,
 } from './showcase-compare';
 
 describe('fitApp', () => {
@@ -59,16 +58,5 @@ describe('seamAfterKey', () => {
   it('ignores other keys', () => {
     expect(seamAfterKey(50, 'Enter', false)).toBeNull();
     expect(seamAfterKey(50, 'ArrowUp', false)).toBeNull();
-  });
-});
-
-describe('statusLabel', () => {
-  it('says what the live app is doing', () => {
-    expect(statusLabel).toEqual({
-      still: 'Run live',
-      starting: 'Starting Python…',
-      live: 'Live',
-      failed: 'Couldn’t start · Try again',
-    });
   });
 });

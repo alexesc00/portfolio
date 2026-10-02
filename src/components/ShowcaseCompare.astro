@@ -2,7 +2,6 @@
 import type { ImageOutputFormat } from 'astro';
 import { Picture } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import { statusLabel } from '../lib/showcase-compare';
 import { stepLabel } from '../lib/showcase-progress';
 
 type Showcase = Extract<
@@ -47,19 +46,20 @@ const tag = [
 ---
 
 {/*
- * The live app's box: a device frame with a strip under it, together as
- * big as the other rows' images. On phones it's the frame alone, with
- * stills and nothing to run. Stills of both looks show first; the seam
- * works on them straight away.
+ * The live app's box: a device frame, the opened row's strip under it.
+ * Stills of both looks show first, and the seam works on them straight
+ * away. From 1024 wide up the app starts as the row opens and runs in
+ * their place; if it can't start, the stills stay. Narrower, the stills
+ * are all there is.
  */}
 <div
-  class="group/showcase flex flex-col gap-3 md:aspect-888/620"
+  class="group/showcase"
   style={`--seam: ${initialSeam}%`}
   data-status="still"
   data-showcase
   data-app={showcase.app}
 >
-  <div class="min-h-0 flex-1 rounded-2xl bg-surface p-2 ring-1 ring-border-strong ring-inset max-md:aspect-358/400">
+  <div class="rounded-2xl bg-surface p-2 ring-1 ring-border-strong ring-inset max-md:aspect-358/400 md:aspect-888/568">
     <div class="relative size-full overflow-hidden rounded-lg" data-screen>
       {/*
        * The compare view: both looks, the seam and the tags. While Python
@@ -142,26 +142,13 @@ const tag = [
             </svg>
           </span>
         </div>
-        {/* In lens mode, catches the pointer that moves the lens */}
-        <div
-          class="showcase-lens-catcher absolute inset-0 z-20 hidden cursor-none touch-none"
-          data-lens-catcher
-        ></div>
-        <span
-          class="showcase-lens-ring pointer-events-none absolute z-20 hidden rounded-full ring-1 ring-background light:ring-foreground"
-          aria-hidden="true"
-        ></span>
-        <span class:list={[tag, 'left-3.5 z-10']} data-tag>
-          Stock Streamlit
-        </span>
-        <span class:list={[tag, 'right-3.5 z-10']} data-tag>
-          MissionML
-        </span>
+        <span class:list={[tag, 'left-3.5 z-10']}>Stock Streamlit</span>
+        <span class:list={[tag, 'right-3.5 z-10']}>MissionML</span>
       </div>
       {/*
-       * How far the live app has got starting up, over the blurred view.
-       * The strip's status already tells screen readers it's starting, so
-       * this stays out of their way.
+       * How far the live app has got starting up, over the blurred view:
+       * the only sign that it's starting. Screen readers hear it from the
+       * announcement below instead.
        */}
       <div
         class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-text opacity-0 transition-opacity duration-settle ease-settle group-data-[status=starting]/showcase:opacity-100 max-md:hidden motion-reduce:transition-none light:text-background"
@@ -185,38 +172,7 @@ const tag = [
       </div>
     </div>
   </div>
-  <div class="flex h-10 items-center justify-between max-md:hidden">
-    <button
-      type="button"
-      class="group flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-surface px-4 text-interface disabled:cursor-default data-[status=failed]:text-text-muted"
-      data-status="still"
-      data-run
-    >
-      <span
-        class="showcase-status-dot size-2 rounded-full bg-text-muted group-data-[status=live]:bg-live"
-        aria-hidden="true"
-      ></span>
-      <span aria-live="polite" data-run-label>
-        {statusLabel.still}
-      </span>
-    </button>
-    <div
-      role="group"
-      aria-label="Compare with"
-      class="flex rounded-xl bg-surface p-1"
-    >
-      {['Seam', 'Lens'].map((mode, index) => (
-        <button
-          type="button"
-          aria-pressed={index === 0 ? 'true' : 'false'}
-          class="h-8 cursor-pointer rounded-lg px-3.5 text-interface text-text-muted aria-pressed:bg-background aria-pressed:text-text"
-          data-mode={mode.toLowerCase()}
-        >
-          {mode}
-        </button>
-      ))}
-    </div>
-  </div>
+  <span class="sr-only" aria-live="polite" data-announce></span>
 </div>
 
 <script>
@@ -224,7 +180,6 @@ const tag = [
     clampSeam,
     fitApp,
     seamAfterKey,
-    statusLabel,
     type ShowcaseStatus,
   } from '../lib/showcase-compare';
   import { mirror } from '../lib/showcase-mirror';
@@ -245,9 +200,7 @@ const tag = [
   function setUp(root: HTMLElement) {
     const screen = root.querySelector<HTMLElement>('[data-screen]');
     const seam = root.querySelector<HTMLElement>('[data-seam]');
-    const lensCatcher = root.querySelector<HTMLElement>('[data-lens-catcher]');
-    const run = root.querySelector<HTMLButtonElement>('[data-run]');
-    const runLabel = root.querySelector<HTMLElement>('[data-run-label]');
+    const announce = root.querySelector<HTMLElement>('[data-announce]');
     const view = root.querySelector<HTMLElement>('[data-view]');
     const progressStep = root.querySelector<HTMLElement>(
       '[data-progress-step]',
@@ -260,9 +213,7 @@ const tag = [
     if (
       !screen ||
       !seam ||
-      !lensCatcher ||
-      !run ||
-      !runLabel ||
+      !announce ||
       !view ||
       !progressStep ||
       !progressLabel ||
@@ -312,41 +263,15 @@ const tag = [
       setSeam(next);
     });
 
-    // The lens: stock Streamlit in a circle under the pointer
-    const placeLens = (event: PointerEvent) => {
-      const box = screen.getBoundingClientRect();
-      root.style.setProperty('--lens-x', `${event.clientX - box.left}px`);
-      root.style.setProperty('--lens-y', `${event.clientY - box.top}px`);
-      root.style.setProperty('--lens-scale', '1');
-    };
-    lensCatcher.addEventListener('pointermove', placeLens);
-    lensCatcher.addEventListener('pointerdown', placeLens);
-    lensCatcher.addEventListener('pointerleave', () =>
-      root.style.setProperty('--lens-scale', '0'),
-    );
-    for (const button of root.querySelectorAll<HTMLButtonElement>(
-      '[data-mode]',
-    )) {
-      button.addEventListener('click', () => {
-        for (const other of root.querySelectorAll('[data-mode]')) {
-          other.setAttribute('aria-pressed', String(other === button));
-        }
-        root.toggleAttribute('data-lens', button.dataset.mode === 'lens');
-      });
-    }
-
     // The live app: two copies, one in each look, kept in step
     let status: ShowcaseStatus = 'still';
     let frames: Record<Look, HTMLIFrameElement> | null = null;
     let stopWaiting = () => {};
 
-    function showStatus(next: ShowcaseStatus) {
+    function showStatus(next: ShowcaseStatus, announcement: string) {
       status = next;
-      if (!run || !runLabel) return;
-      run.dataset.status = next;
-      run.disabled = next === 'starting' || next === 'live';
-      runLabel.textContent = statusLabel[next];
       root.dataset.status = next;
+      if (announce) announce.textContent = announcement;
       // Out of focus while starting, so nothing in it can be reached yet
       if (view) view.inert = next === 'starting';
     }
@@ -399,7 +324,7 @@ const tag = [
     function start() {
       if (status === 'starting' || status === 'live') return;
       stop();
-      showStatus('starting');
+      showStatus('starting', 'Starting the live app');
       const started = { stock: frameFor('stock'), brand: frameFor('brand') };
       frames = started;
       const waiting = new Set<Look>(['stock', 'brand']);
@@ -451,15 +376,14 @@ const tag = [
       for (const holder of Object.values(holders)) {
         holder?.setAttribute('data-shown', '');
       }
-      showStatus('live');
+      showStatus('live', 'The live app is running');
     }
 
+    // The stills are the same screen, so a failed start just leaves them
     function fail() {
       stop();
-      showStatus('failed');
+      showStatus('still', 'The live app couldn’t start; the stills stay');
     }
-
-    run.addEventListener('click', start);
 
     // From 1024 wide up, the app starts as soon as its row opens
     const row = root.closest('tr');
@@ -475,77 +399,5 @@ const tag = [
   /* The brand copy covers the stock one to the right of the seam */
   [data-showcase] [data-layer='brand'] {
     clip-path: inset(0 0 0 var(--seam));
-  }
-
-  /*
-   * Lens mode: stock Streamlit shows in a circle under the pointer instead,
-   * over the brand, and the pointer moves the lens rather than using the
-   * app. The circle grows on the Æ's spring as it arrives and settles as
-   * it leaves. Its edge is a clip-path, which repaints but never lays the
-   * page out again.
-   */
-  @property --lens-scale {
-    syntax: '<number>';
-    inherits: true;
-    initial-value: 0;
-  }
-  [data-showcase] {
-    --lens-x: 50%;
-    --lens-y: 50%;
-    --lens-radius: 130px;
-    transition: --lens-scale var(--transition-duration-settle)
-      var(--ease-settle);
-  }
-  [data-showcase][data-lens] {
-    transition-duration: var(--transition-duration-spring);
-    transition-timing-function: var(--ease-spring);
-  }
-  [data-showcase][data-lens] [data-layer='stock'] {
-    z-index: 1;
-    clip-path: circle(
-      calc(var(--lens-scale) * var(--lens-radius)) at var(--lens-x)
-        var(--lens-y)
-    );
-  }
-  [data-showcase][data-lens] [data-layer='brand'] {
-    clip-path: none;
-  }
-  [data-showcase][data-lens] .showcase-seam,
-  [data-showcase][data-lens] [data-tag] {
-    visibility: hidden;
-  }
-  [data-showcase][data-lens] .showcase-lens-catcher,
-  [data-showcase][data-lens] .showcase-lens-ring {
-    display: block;
-  }
-  .showcase-lens-ring {
-    top: 0;
-    left: 0;
-    width: calc(var(--lens-radius) * 2);
-    height: calc(var(--lens-radius) * 2);
-    translate: calc(var(--lens-x) - var(--lens-radius))
-      calc(var(--lens-y) - var(--lens-radius));
-    scale: var(--lens-scale);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    [data-showcase] {
-      transition: none;
-    }
-  }
-
-  /* While Python starts, the status dot breathes */
-  [data-status='starting'] .showcase-status-dot {
-    animation: showcase-breathe var(--transition-duration-spring)
-      var(--ease-settle) infinite alternate;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    [data-status='starting'] .showcase-status-dot {
-      animation: none;
-    }
-  }
-  @keyframes showcase-breathe {
-    to {
-      opacity: 0.3;
-    }
   }
 </style>

@@ -1,0 +1,40 @@
+---
+import type { toolNames } from '../lib/project-schema';
+import ToolLogo from './ToolLogo.astro';
+
+interface Props {
+  isLive: boolean;
+  tools: readonly (typeof toolNames)[number][];
+}
+
+const { isLive, tools } = Astro.props;
+---
+
+{/*
+ * The strip under an opened row's image or showcase. On the left, Live
+ * for a project that shipped and is in use; other projects leave that
+ * end empty. On the right, the tools it was built with.
+ *
+ * Live keeps the pill and fill the table's controls use, on purpose: it's
+ * the shape visitors read as a status. So it's only ever text: no hover,
+ * no pointer, never focusable.
+ */}
+<div class="flex h-10 items-center gap-4 text-interface" data-strip>
+  {isLive && (
+    <span class="flex h-10 items-center gap-2 rounded-xl bg-surface px-4">
+      <span class="size-2 rounded-full bg-live" aria-hidden="true"></span>
+      Live
+    </span>
+  )}
+  <div class="ml-auto flex items-center gap-3">
+    <span class="text-text-muted">Built with</span>
+    <ul class="flex items-center gap-3">
+      {tools.map((tool) => (
+        <li class="flex">
+          <ToolLogo tool={tool} />
+          <span class="sr-only">{tool}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>

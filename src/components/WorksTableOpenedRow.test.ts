@@ -22,6 +22,8 @@ const project: Project = {
     approach: 'I designed a Payouts page for all of a host’s events.',
     outcome: 'The page shipped with those APIs.',
   },
+  isLive: true,
+  tools: ['Figma'],
   images: {
     wide: {
       dark: picture('wide-dark', 1240),
@@ -63,12 +65,16 @@ const showcaseProject: Project = {
   practices: ['Design systems', 'Development'],
   segment: 'Government',
   writeUp: project.writeUp,
+  isLive: true,
+  tools: ['Figma', 'Cursor'],
   showcase: {
     app: '/showcase/missionml/?view=sampler',
     stock: stills('stock'),
     brand: stills('brand'),
   },
 };
+
+const notLive: Project = { ...project, isLive: false };
 
 const withoutOutcome: Project = {
   ...project,
@@ -82,6 +88,7 @@ let html = '';
 let htmlWithoutOutcome = '';
 let htmlWithLink = '';
 let htmlWithShowcase = '';
+let htmlNotLive = '';
 
 beforeAll(async () => {
   const container = await AstroContainer.create();
@@ -93,6 +100,7 @@ beforeAll(async () => {
   htmlWithoutOutcome = await render(withoutOutcome);
   htmlWithLink = await render(withLink);
   htmlWithShowcase = await render(showcaseProject);
+  htmlNotLive = await render(notLive);
 });
 
 function textOf(markup = '') {
@@ -220,6 +228,52 @@ describe('the opened row', () => {
   });
 });
 
+/** The strip under the image or showcase. */
+function stripOf(markup: string) {
+  const start = markup.indexOf('data-strip');
+  const open = markup.lastIndexOf('<div', start);
+  const ask = markup.indexOf('href="#contact"');
+  return markup.slice(open, markup.lastIndexOf('<a', ask));
+}
+
+describe('the strip under the image', () => {
+  it('sits between the image and the ask', () => {
+    const lastImage = html.lastIndexOf('<img');
+    const strip = html.indexOf('data-strip');
+    const ask = html.indexOf('href="#contact"');
+
+    expect(strip).toBeGreaterThan(lastImage);
+    expect(ask).toBeGreaterThan(strip);
+  });
+
+  it('says Live on a project that shipped', () => {
+    expect(textOf(stripOf(html))).toMatch(/^Live /);
+  });
+
+  // It looks like the pill the table uses for controls, but only says
+  // something, so a keyboard never stops on it.
+  it('makes Live a label, not a control', () => {
+    const strip = stripOf(html);
+
+    expect(strip).not.toMatch(/<(button|a)\b/);
+    expect(strip).not.toContain('tabindex');
+  });
+
+  it('leaves Live out on a project that didn’t ship', () => {
+    expect(textOf(stripOf(htmlNotLive))).toBe('Built with Figma');
+  });
+
+  it('names each tool for screen readers, its logo kept from them', () => {
+    const strip = stripOf(html);
+
+    expect(textOf(strip)).toMatch(/Built with Figma$/);
+    for (const logo of strip.match(/<svg[^>]*>/g) ?? []) {
+      expect(logo).toContain('aria-hidden="true"');
+    }
+    expect(strip.match(/<svg/g)).toHaveLength(1);
+  });
+});
+
 describe('the opened row with a live showcase', () => {
   it('shows the stills of both looks, at every size, in place of images', () => {
     const images = htmlWithShowcase.match(/<img[^>]*>/g) ?? [];
@@ -255,14 +309,20 @@ describe('the opened row with a live showcase', () => {
     expect(text).toContain('MissionML');
   });
 
-  it('offers to run the app, and a choice of seam or lens', () => {
-    const buttons = (
-      htmlWithShowcase.match(/<button[\s\S]*?<\/button>/g) ?? []
-    ).map(textOf);
+  // The seam is the only control: no run button, no second way to compare.
+  it('has no buttons of its own', () => {
+    expect(htmlWithShowcase).not.toMatch(/<button/);
+    expect(textOf(htmlWithShowcase)).not.toMatch(/Run live|Lens/);
+  });
 
-    expect(buttons).toEqual(['Run live', 'Seam', 'Lens']);
-    expect(htmlWithShowcase).toMatch(
-      /<button[^>]* aria-pressed="true"[^>]*>\s*Seam/,
+  it('ends on the same strip as every row, under the showcase', () => {
+    const seam = htmlWithShowcase.indexOf('role="slider"');
+    const strip = htmlWithShowcase.indexOf('data-strip');
+
+    expect(seam).toBeGreaterThan(-1);
+    expect(strip).toBeGreaterThan(seam);
+    expect(textOf(stripOf(htmlWithShowcase))).toBe(
+      'Live Built with Figma Cursor',
     );
   });
 });

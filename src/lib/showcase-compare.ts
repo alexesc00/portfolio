@@ -45,12 +45,4 @@ export function seamAfterKey(percent: number, key: string, isBigStep: boolean) {
   }
 }
 
-export type ShowcaseStatus = 'still' | 'starting' | 'live' | 'failed';
-
-/** What the strip under the box says for each status. */
-export const statusLabel: Record<ShowcaseStatus, string> = {
-  still: 'Run live',
-  starting: 'Starting Python…',
-  live: 'Live',
-  failed: 'Couldn’t start · Try again',
-};
+export type ShowcaseStatus = 'still' | 'starting' | 'live';

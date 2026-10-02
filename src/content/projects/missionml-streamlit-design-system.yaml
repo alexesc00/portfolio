@@ -1,4 +1,4 @@
-order: 3
+order: 1
 locked: false
 name: MissionML design system
 category: Government AI
@@ -17,6 +17,7 @@ writeUp:
   outcome: >-
     Across two federal projects, the team built about fifteen prototypes on it.
 isLive: true
+isOpenByDefault: true
 tools: [Figma, Cursor]
 # The box runs the app live: stock Streamlit and the MissionML look, split
 # by a seam. These stills show until it's running, and on phones.

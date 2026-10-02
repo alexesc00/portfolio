@@ -31,6 +31,7 @@ function openProject(order: number, solution: string): Project {
     segment: 'Consumer',
     writeUp: { problem: 'The problem.', approach: 'The approach.' },
     isLive: false,
+    isOpenByDefault: false,
     tools: ['Figma'],
     images: { wide: images, phone: images },
   };
@@ -53,10 +54,22 @@ const projects = [
 ];
 
 let html = '';
+let htmlWithOneOpen = '';
 
 beforeAll(async () => {
   const container = await AstroContainer.create();
   html = await container.renderToString(WorksTable, { props: { projects } });
+  htmlWithOneOpen = await container.renderToString(WorksTable, {
+    props: {
+      projects: [
+        {
+          ...openProject(1, 'Design system for prototypes'),
+          isOpenByDefault: true,
+        },
+        openProject(2, 'Carbon tracking for builders'),
+      ],
+    },
+  });
 });
 
 /** The text a screen reader would read in `markup`, tags removed. */
@@ -208,5 +221,24 @@ describe('the works table', () => {
       expect(/^<td[^>]*>/.exec(cell)?.[0]).not.toMatch(/\bp[xytblr]?-/);
       expect(cell).toMatch(/^<td[^>]*>\s*<[^>]* class="[^"]*\bpy-3\.5/);
     }
+  });
+});
+
+describe('a row that starts open', () => {
+  const groups = () => elements(htmlWithOneOpen, 'tbody');
+
+  it('is open in the page as it arrives, its button saying so', () => {
+    const [button] = elements(groups()[0], 'button');
+
+    expect(button).toContain('aria-expanded="true"');
+    expect(textOf(button)).toBe('Close Project 1');
+    expect(elements(groups()[0], 'tr')[1]).not.toMatch(/^<tr[^>]* hidden/);
+  });
+
+  it('leaves every other row closed', () => {
+    const [button] = elements(groups()[1], 'button');
+
+    expect(button).toContain('aria-expanded="false"');
+    expect(elements(groups()[1], 'tr')[1]).toMatch(/^<tr[^>]* hidden/);
   });
 });

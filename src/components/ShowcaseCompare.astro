@@ -392,6 +392,17 @@ const tag = [
         if (!row.hidden && wide.matches) start();
       }).observe(row, { attributes: true, attributeFilter: ['hidden'] });
     }
+
+    // A row that's open as the page loads starts its app only once it's
+    // on screen, so a visitor who never scrolls to it doesn't download it
+    if (row && !row.hidden) {
+      const onScreen = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        onScreen.disconnect();
+        if (!row.hidden && wide.matches) start();
+      });
+      onScreen.observe(root);
+    }
   }
 </script>
 

@@ -23,6 +23,7 @@ const project: Project = {
     outcome: 'The page shipped with those APIs.',
   },
   isLive: true,
+  isOpenByDefault: false,
   tools: ['Figma'],
   images: {
     wide: {
@@ -66,6 +67,7 @@ const showcaseProject: Project = {
   segment: 'Government',
   writeUp: project.writeUp,
   isLive: true,
+  isOpenByDefault: false,
   tools: ['Figma', 'Cursor'],
   showcase: {
     app: '/showcase/missionml/?view=sampler',
@@ -84,6 +86,7 @@ const ndaProject: Project = {
   segment: 'Government',
   writeUp: project.writeUp,
   isLive: false,
+  isOpenByDefault: false,
   tools: ['Cursor'],
   isUnderNda: true,
 };

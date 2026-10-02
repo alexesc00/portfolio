@@ -3,6 +3,10 @@ node_modules/
 dist/
 .astro/
 
+# Browser test output
+test-results/
+playwright-report/
+
 # Environment variables
 .env
 .env.*

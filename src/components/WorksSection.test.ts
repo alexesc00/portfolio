@@ -44,37 +44,9 @@ describe('the works section', () => {
     );
   });
 
-  it('opens with the self-statement, the last clause at full strength', () => {
-    const statement = /<p[^>]* class="([^"]*)"[^>]*>([\s\S]*?)<\/p>/.exec(html);
-    const text = statement?.[2].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ');
-
-    expect(text?.trim()).toBe(
-      'Designs change on the way to launch. I design products and build them in code, so what ships is what was meant.',
-    );
-    expect(statement?.[1]).toMatch(/\btext-lead\b/);
-    expect(statement?.[1]).toMatch(/\btext-text-muted\b/);
-    expect(statement?.[2]).toMatch(
-      /<span[^>]* class="[^"]*\btext-text\b[^"]*"[^>]*>so what ships is what was meant\.<\/span>/,
-    );
-  });
-
-  // Hand-set line breaks only fit one phone width. From 768 up each
-  // clause gets its own line; narrower, the lines balance themselves.
-  it('breaks the statement by clause from 768 up, and balances it below', () => {
-    const statement = /<p[^>]* class="([^"]*)"[^>]*>([\s\S]*?)<\/p>/.exec(html);
-    const clauses = [
-      ...(statement?.[2] ?? '').matchAll(/<span[^>]* class="([^"]*)"/g),
-    ];
-
-    expect(statement?.[1]).toMatch(/\btext-balance\b/);
-    expect(clauses).toHaveLength(3);
-    for (const [, classes] of clauses) expect(classes).toMatch(/\bmd:block\b/);
-  });
-
-  // Screen readers meet the section's name before its first words, even
-  // where the name sits to the right of them.
-  it('puts the heading before the statement in reading order', () => {
-    expect(html.indexOf('<h2')).toBeLessThan(html.indexOf('Designs change'));
+  // The statement has its own screen before this section now.
+  it('leaves the self-statement to its own section', () => {
+    expect(html).not.toContain('Designs change');
   });
 
   it('shows the works table under the heading', () => {

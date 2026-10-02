@@ -1,7 +1,23 @@
 order: 1
-# Client work under NDA, so the row can't be opened.
-locked: true
+locked: false
+name: CAT
 category: Government AI
-solution: AI application for a federal workforce program
+solution: AI tool that checks courses against 74 cyber work roles
 practices: [Product design, Development]
 segment: Government
+writeUp:
+  problem: >-
+    Every CAT analysis ran 74 AI checks, one per Defense Department cyber work
+    role, and each returned about two screens of output. It all had to fit in
+    Streamlit, MissionML’s stack at the time, for a program lead who wanted it
+    flashy, modern and sleek.
+  approach: >-
+    I pushed Streamlit’s components and state past what they were made for. A
+    grid of 74 squares fills in green or gray as each check finishes, so the
+    answer fits on one screen. Only the roles someone opens become tabs.
+  outcome: >-
+    Production kept the coverage chart, result cards and evidence tables.
+tools: [Cursor]
+# Under NDA until the systems launch: the write-up goes no further than the
+# résumé, and the box says the images are withheld.
+isUnderNda: true

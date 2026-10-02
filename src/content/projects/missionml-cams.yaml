@@ -1,0 +1,23 @@
+order: 2
+locked: false
+name: CAMS
+category: Government AI
+solution: AI workbench for reviewing schools’ cybersecurity programs
+practices: [Product strategy, Product design, Development]
+segment: Government
+writeUp:
+  problem: >-
+    Schools apply to have their cybersecurity programs designated as meeting
+    national standards, and the manual work piled up in peer review. The
+    question was which review steps AI could take over while staying within the
+    policy.
+  approach: >-
+    I owned discovery, then built and deployed prototypes of the extraction and
+    alignment engines for the two review steps AI would take over. I designed
+    the platform as a workbench where schools build their documents in the app.
+  outcome: >-
+    Production’s AI business rules are built on those prototypes.
+tools: [Cursor]
+# Under NDA until the systems launch: the write-up goes no further than the
+# résumé, and the box says the images are withheld.
+isUnderNda: true

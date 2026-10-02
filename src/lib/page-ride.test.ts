@@ -28,6 +28,7 @@ describe('ridePosition', () => {
   it('starts where the ride starts and lands on the section', () => {
     expect(ridePosition(4100, 5000, 0)).toBe(4100);
     expect(ridePosition(4100, 5000, rideDuration)).toBe(5000);
+    expect(ridePosition(4100, 5000, -5)).toBe(4100);
   });
 
   it('never rides past the section', () => {

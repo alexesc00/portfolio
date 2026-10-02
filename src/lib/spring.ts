@@ -83,6 +83,7 @@ export function landedProgress(spring: Spring, time: number) {
   const points = landedPoints(spring);
   const end = points.length - 1;
   const duration = Math.round(end * frame);
+  if (time <= 0) return 0;
   if (time >= duration) return 1;
   const place = (time / duration) * end;
   const step = Math.floor(place);

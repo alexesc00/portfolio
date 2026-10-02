@@ -103,6 +103,12 @@ describe('landedProgress', () => {
     expect(landedProgress(settleSpring, duration + 500)).toBe(1);
   });
 
+  // A frame's timestamp is when the frame began, which can be a moment
+  // before the click that started the motion.
+  it('holds at the start for a time just before the start', () => {
+    expect(landedProgress(settleSpring, -5)).toBe(0);
+  });
+
   it('only ever moves forward with no bounce', () => {
     let last = 0;
     for (let time = 0; time <= duration; time += 1) {

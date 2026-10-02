@@ -242,13 +242,13 @@
           "name": "text/reading",
           "css": "--text-reading",
           "type": "FLOAT",
-          "values": { "Desktop": 20, "Phone": 20 }
+          "values": { "Desktop": 16, "Phone": 16 }
         },
         {
           "name": "text/reading-line-height",
           "css": "--text-reading--line-height",
           "type": "FLOAT",
-          "values": { "Desktop": 28, "Phone": 28 }
+          "values": { "Desktop": 24, "Phone": 24 }
         },
         {
           "name": "text/reading-weight",
@@ -291,6 +291,24 @@
           "css": "--spacing-travel",
           "type": "FLOAT",
           "values": { "Desktop": 24, "Phone": 24 }
+        },
+        {
+          "name": "text/title",
+          "css": "--text-title",
+          "type": "FLOAT",
+          "values": { "Desktop": 20, "Phone": 20 }
+        },
+        {
+          "name": "text/title-line-height",
+          "css": "--text-title--line-height",
+          "type": "FLOAT",
+          "values": { "Desktop": 28, "Phone": 28 }
+        },
+        {
+          "name": "text/title-weight",
+          "css": "--text-title--font-weight",
+          "type": "FLOAT",
+          "values": { "Desktop": 400, "Phone": 400 }
         }
       ]
     },

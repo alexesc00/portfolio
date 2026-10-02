@@ -6,9 +6,10 @@ interface Props {
   projectName: string;
   /** The id of the row this button opens. */
   controls: string;
+  isOpen?: boolean;
 }
 
-const { projectName, controls } = Astro.props;
+const { projectName, controls, isOpen = false } = Astro.props;
 ---
 
 {/*
@@ -22,7 +23,7 @@ const { projectName, controls } = Astro.props;
  */}
 <button
   type="button"
-  aria-expanded="false"
+  aria-expanded={isOpen ? 'true' : 'false'}
   aria-controls={controls}
   class="group/toggle flex h-12 cursor-pointer items-center gap-2.5 rounded-xl bg-surface px-3.75 after:absolute after:inset-0 after:z-10 hover:pr-4 focus-visible:pr-4"
   data-row-toggle
@@ -32,7 +33,7 @@ const { projectName, controls } = Astro.props;
     class="sr-only group-hover/toggle:not-sr-only group-focus-visible/toggle:not-sr-only"
     data-toggle-word
   >
-    {toggleWord.closed}
+    {isOpen ? toggleWord.open : toggleWord.closed}
   </span>
   <span class="sr-only">{` ${projectName}`}</span>
 </button>

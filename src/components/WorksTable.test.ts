@@ -31,6 +31,7 @@ function openProject(order: number, solution: string): Project {
     segment: 'Consumer',
     writeUp: { problem: 'The problem.', approach: 'The approach.' },
     isLive: false,
+    isOpenByDefault: false,
     tools: ['Figma'],
     images: { wide: images, phone: images },
   };

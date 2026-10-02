@@ -67,7 +67,12 @@ const phoneImage = {
  * close it. Its top padding is Figma's 40px plus the 1px the row's own
  * line used to take.
  */}
-<tr id={id} hidden class="block pt-10.25 pb-5.75" data-opened-row>
+<tr
+  id={id}
+  hidden={!project.isOpenByDefault}
+  class="block pt-10.25 pb-5.75"
+  data-opened-row
+>
   <td colspan="5" class:list={[worksGrid, 'gap-y-10']}>
     <div class="col-span-6 max-w-110 lg:col-span-12 xl:col-span-4 xl:row-start-1 xl:max-w-none xl:pr-6">
       <h3 class="text-title">{project.name}</h3>

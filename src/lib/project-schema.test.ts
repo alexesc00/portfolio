@@ -50,6 +50,8 @@ function openProject(): Record<string, unknown> {
       approach: 'I designed a Payouts page for all of a host’s events.',
       outcome: 'The page shipped with those APIs.',
     },
+    isLive: true,
+    tools: ['Figma'],
     images: {
       wide: {
         dark: picture('plots-wide-dark'),
@@ -117,7 +119,7 @@ describe('projectSchema', () => {
     expect(schema.safeParse(lockedProject()).success).toBe(true);
   });
 
-  it.each(['name', 'writeUp', 'images'])(
+  it.each(['name', 'writeUp', 'images', 'tools'])(
     'rejects a project that can be opened but has no %s',
     (field) => {
       expect(schema.safeParse(without(openProject(), field)).success).toBe(
@@ -170,6 +172,31 @@ describe('projectSchema', () => {
     };
 
     expect(schema.safeParse(project).success).toBe(false);
+  });
+
+  // Live means it shipped and people use it; most rows say nothing.
+  it('takes a project that isn’t live', () => {
+    const project = without(openProject(), 'isLive');
+    const parsed = schema.safeParse(project);
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.data).toMatchObject({ isLive: false });
+  });
+
+  it('takes the tools a project was built with, at least one', () => {
+    const project = openProject();
+
+    expect(
+      schema.safeParse({ ...project, tools: ['Figma', 'Cursor', 'Claude'] })
+        .success,
+    ).toBe(true);
+    expect(schema.safeParse({ ...project, tools: [] }).success).toBe(false);
+  });
+
+  it('rejects a tool the strip has no logo for', () => {
+    expect(
+      schema.safeParse({ ...openProject(), tools: ['Sketch'] }).success,
+    ).toBe(false);
   });
 
   // Not every project has a result to report, and none is made up.

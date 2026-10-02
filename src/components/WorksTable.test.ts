@@ -30,6 +30,8 @@ function openProject(order: number, solution: string): Project {
     practices: ['Product design', 'Strategy'],
     segment: 'Consumer',
     writeUp: { problem: 'The problem.', approach: 'The approach.' },
+    isLive: false,
+    tools: ['Figma'],
     images: { wide: images, phone: images },
   };
 }

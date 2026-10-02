@@ -6,14 +6,25 @@ test.beforeEach(async ({ page }) => {
 });
 
 /**
- * How far, in pixels, things that slide together may drift apart. WebKit
- * runs some of a drawer's animations on its graphics thread and the rest
- * on the main thread, and the main thread trails by a few milliseconds:
- * a few pixels at the fastest point of a slide, more on a phone, where
- * the slide covers more of the screen. Not enough to see, but a real
- * jump is far bigger.
+ * Checks that things meant to slide together stayed within a pixel of
+ * each other on every frame. WebKit can take each position at a slightly
+ * different moment, so a frame of its readings can be off by a pixel or
+ * two either way even when the drawing isn't. There, the drift has to
+ * average under half a pixel, which a real lag one way wouldn't, and no
+ * frame can be off by as much as a jump would be.
  */
-const slack = (browserName: string) => (browserName === 'webkit' ? 12 : 1);
+function expectTogether(gaps: number[], browserName: string) {
+  // Headless browsers can draw slower than 60 frames a second.
+  expect(gaps.length).toBeGreaterThan(10);
+  const sizes = gaps.map(Math.abs);
+  if (browserName !== 'webkit') {
+    for (const size of sizes) expect(size).toBeLessThanOrEqual(1);
+    return;
+  }
+  const average = sizes.reduce((sum, size) => sum + size) / sizes.length;
+  expect(average).toBeLessThanOrEqual(0.5);
+  for (const size of sizes) expect(size).toBeLessThanOrEqual(6);
+}
 
 // A row opens like a drawer: the rows under it slide down to uncover its
 // write-up. The write-up should never show past the top of those rows,
@@ -58,10 +69,7 @@ test('a write-up shows only as far as the rows over it have slid', async ({
     return gaps;
   }, group);
 
-  // Headless browsers can draw slower than 60 frames a second.
-  expect(gaps.length).toBeGreaterThan(10);
-  for (const gap of gaps)
-    expect(Math.abs(gap)).toBeLessThanOrEqual(slack(browserName));
+  expectTogether(gaps, browserName);
 });
 
 // The rest of the page slides with the rows instead of jumping: what
@@ -102,9 +110,7 @@ test('the page below the table slides with the rows', async ({
     return gaps;
   }, group);
 
-  expect(gaps.length).toBeGreaterThan(10);
-  for (const gap of gaps)
-    expect(Math.abs(gap)).toBeLessThanOrEqual(slack(browserName));
+  expectTogether(gaps, browserName);
 });
 
 // The last row has no rows under it, but the page below slides over its

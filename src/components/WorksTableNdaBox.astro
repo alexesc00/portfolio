@@ -1,0 +1,21 @@
+---
+import LockIcon from './LockIcon.astro';
+---
+
+{/*
+ * Stands in for a project's images when the work is under NDA: an empty
+ * box the size of the image box, so the row looks like every other row
+ * with its images held back. The dotted edge is the one line drawn inside
+ * an opened row, kept faint so the box reads as a gap left on purpose.
+ * The aspect ratios match the wide images (1776 × 1240); phones get a
+ * shorter box, since there's nothing in it to show.
+ */}
+<div
+  role="img"
+  aria-label="Images withheld under NDA"
+  class="flex aspect-358/224 w-full items-center justify-center gap-2 rounded-2xl border border-dotted border-border-strong text-interface text-text-muted md:aspect-1776/1240"
+  data-nda-box
+>
+  <LockIcon class="size-4.5" />
+  <span>NDA</span>
+</div>

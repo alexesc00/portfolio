@@ -29,7 +29,7 @@ function openProject(order: number, solution: string): Project {
     solution,
     practices: ['Product design', 'Strategy'],
     segment: 'Consumer',
-    writeUp: ['First paragraph.', 'Second paragraph.'],
+    writeUp: { problem: 'The problem.', approach: 'The approach.' },
     images: { wide: images, phone: images },
   };
 }

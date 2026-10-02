@@ -6,17 +6,18 @@ solution: Phone app for caregivers of family with mental illness
 practices: [Product design, Strategy]
 segment: Consumer
 writeUp:
-  - >-
-    MiSunshine is a phone app for caregivers in the Bay Area’s Chinese
-    community who look after a family member with a mental illness. An app can
-    do little for them, so every feature had to help without pretending to fix
-    the illness.
-  - >-
+  problem: >-
+    MiSunshine is a phone app for caregivers in the Bay Area’s Chinese community
+    who look after a family member with a mental illness. An app can do little
+    for them, so every feature had to help without pretending to fix the
+    illness.
+  approach: >-
     I kept the app small: a medication log with reminders, and notes that track
     the person’s progress over time. I added community events that go into the
     phone’s calendar, and tools for the caregiver’s own care and for
-    emergencies. MiSunshine shipped to the app store with this short list of
-    tools.
+    emergencies.
+  outcome: >-
+    MiSunshine shipped to the app store with this short list of tools.
 images:
   wide:
     dark: ../../assets/works/misunshine/wide-dark.png

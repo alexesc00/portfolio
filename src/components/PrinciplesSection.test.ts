@@ -84,7 +84,7 @@ describe('the principles section', () => {
       const tag = new RegExp(`<p[^>]* class="([^"]*)"[^>]*>${body}</p>`).exec(
         html,
       )?.[1];
-      expect(tag).toMatch(/\btext-reading\b/);
+      expect(tag).toMatch(/\btext-title\b/);
       expect(tag).toMatch(/\btext-text-muted\b/);
     }
   });

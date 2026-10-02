@@ -17,10 +17,11 @@ const project: Project = {
   solution: 'Payouts page that shows event hosts when money arrives',
   practices: ['Product design', 'Strategy'],
   segment: 'Consumer',
-  writeUp: [
-    'Plots is a phone app for finding events and buying tickets.',
-    'I designed a Payouts page for all of a host’s events.',
-  ],
+  writeUp: {
+    problem: 'Plots is a phone app for finding events and buying tickets.',
+    approach: 'I designed a Payouts page for all of a host’s events.',
+    outcome: 'The page shipped with those APIs.',
+  },
   images: {
     wide: {
       dark: picture('wide-dark', 1240),
@@ -69,7 +70,16 @@ const showcaseProject: Project = {
   },
 };
 
+const withoutOutcome: Project = {
+  ...project,
+  writeUp: {
+    problem: project.writeUp.problem,
+    approach: project.writeUp.approach,
+  },
+};
+
 let html = '';
+let htmlWithoutOutcome = '';
 let htmlWithLink = '';
 let htmlWithShowcase = '';
 
@@ -80,6 +90,7 @@ beforeAll(async () => {
       props: { project: props, id: 'works-plots' },
     });
   html = await render(project);
+  htmlWithoutOutcome = await render(withoutOutcome);
   htmlWithLink = await render(withLink);
   htmlWithShowcase = await render(showcaseProject);
 });
@@ -106,10 +117,57 @@ describe('the opened row', () => {
     expect(html).toMatch(/<h3[^>]*>\s*Plots\s*<\/h3>/);
   });
 
-  it('shows both paragraphs of the write-up, in order', () => {
-    const paragraphs = html.match(/<p[\s>][\s\S]*?<\/p>/g) ?? [];
+  /** Each chapter's label and text, in the order they show. */
+  function chaptersOf(markup: string) {
+    return [
+      ...markup.matchAll(
+        /<h4[^>]*>([\s\S]*?)<\/h4>\s*<p[^>]*>([\s\S]*?)<\/p>/g,
+      ),
+    ].map(([, label, text]) => [textOf(label), textOf(text)]);
+  }
 
-    expect(paragraphs.map(textOf)).toEqual(project.writeUp);
+  it('tells the problem, the approach and the outcome, each under its label', () => {
+    expect(chaptersOf(html)).toEqual([
+      ['Problem', project.writeUp.problem],
+      ['Approach', project.writeUp.approach],
+      ['Outcome', project.writeUp.outcome],
+    ]);
+  });
+
+  it('leaves the outcome out when the project has none', () => {
+    expect(chaptersOf(htmlWithoutOutcome)).toEqual([
+      ['Problem', project.writeUp.problem],
+      ['Approach', project.writeUp.approach],
+    ]);
+  });
+
+  // There are no case studies on the site yet, so the ask goes to Contact.
+  it('asks for the full case study by pointing to the contact section', () => {
+    const ask = /<a[^>]* href="#contact"[^>]*>[\s\S]*?<\/a>/.exec(html)?.[0];
+
+    expect(textOf(ask)).toBe('Ask for the full case study ↓');
+  });
+
+  // Like the site's other links, the arrow follows the words, and it
+  // points down because the contact is further down the page.
+  it('follows the ask with a down arrow kept from screen readers', () => {
+    const ask =
+      /<a[^>]* href="#contact"[^>]*>[\s\S]*?<\/a>/.exec(html)?.[0] ?? '';
+
+    expect(ask).not.toContain('<svg');
+    expect(ask).toMatch(
+      /<span[^>]* aria-hidden="true"[^>]*>↓<\/span>\s*<\/a>$/,
+    );
+  });
+
+  // Above the image on narrower screens, so the row ends on the ask, and
+  // screen readers hear the write-up, the image, then the ask.
+  it('ends with the ask, after the image', () => {
+    const lastImage = html.lastIndexOf('<img');
+    const ask = html.indexOf('href="#contact"');
+
+    expect(lastImage).toBeGreaterThan(-1);
+    expect(ask).toBeGreaterThan(lastImage);
   });
 
   it('shows the wide and phone images in both themes', () => {
@@ -135,18 +193,30 @@ describe('the opened row', () => {
     }
   });
 
-  it('has no link when the project has none', () => {
-    expect(html).not.toContain('<a ');
+  it('has no link out when the project has none', () => {
+    expect(html).not.toMatch(/<a[^>]* href="https:/);
   });
 
   it('links out with the project’s own words, the arrow kept from screen readers', () => {
-    const link = /<a [\s\S]*?<\/a>/.exec(htmlWithLink)?.[0] ?? '';
+    const link =
+      /<a [^>]*href="https:[\s\S]*?<\/a>/.exec(htmlWithLink)?.[0] ?? '';
 
     expect(link).toContain('href="https://apps.apple.com/us/app/plots"');
     expect(link).toMatch(/<span[^>]* aria-hidden="true"[^>]*>↗<\/span>/);
     expect(
       textOf(link.replace(/<span[^>]* aria-hidden="true"[^>]*>↗<\/span>/, '')),
     ).toBe('On the App Store');
+  });
+
+  // The link is the proof of the outcome, so it follows it.
+  it('puts the link right after the outcome', () => {
+    const outcome = htmlWithLink.indexOf(project.writeUp.outcome ?? '');
+    const link = htmlWithLink.indexOf('href="https://apps.apple.com');
+    const ask = htmlWithLink.indexOf('href="#contact"');
+
+    expect(outcome).toBeGreaterThan(-1);
+    expect(link).toBeGreaterThan(outcome);
+    expect(ask).toBeGreaterThan(link);
   });
 });
 

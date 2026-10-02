@@ -87,9 +87,24 @@
   --text-interface--letter-spacing: 0.01em;
   --text-interface--font-weight: var(--weight-interface);
 
-  /* Everything read in paragraphs. */
-  --text-reading: 1.25rem;
-  --text-reading--line-height: 1.75rem;
+  /*
+   * Names and headings: a project's name over its write-up, section
+   * titles, and the principles' short explanations. Its letter spacing,
+   * and Reading's, is set to none so the page's Interface spacing isn't
+   * inherited.
+   */
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.75rem;
+  --text-title--letter-spacing: 0em;
+  --text-title--font-weight: 400;
+
+  /*
+   * Everything read in paragraphs. It's the same at every width; where a
+   * paragraph would run too long, the layout narrows it instead.
+   */
+  --text-reading: 1rem;
+  --text-reading--line-height: 1.5rem;
+  --text-reading--letter-spacing: 0em;
   --text-reading--font-weight: 400;
 
   /*

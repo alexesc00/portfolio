@@ -73,15 +73,40 @@ const { projectName, controls, isOpen = false } = Astro.props;
   }
 
   /**
+   * Everything on the page after `group`: the groups under it in the
+   * table, then everything after the table, all the way down.
+   */
+  function everythingAfter(group: Element) {
+    const after: Element[] = [];
+    for (
+      let element: Element | null = group;
+      element && element !== document.body;
+      element = element.parentElement
+    ) {
+      for (
+        let sibling = element.nextElementSibling;
+        sibling;
+        sibling = sibling.nextElementSibling
+      ) {
+        if (!['SCRIPT', 'STYLE', 'TEMPLATE'].includes(sibling.tagName)) {
+          after.push(sibling);
+        }
+      }
+    }
+    return after;
+  }
+
+  /**
    * Opens or closes the drawer holding `panel`, the write-up under the
-   * row in `group`. The groups under it slide down to uncover it, or up
-   * over it; the last group has none under it, so its write-up fades. The
-   * groups under it can add up to less than the write-up's height, so the
-   * write-up is also clipped to their top edge, or the rest of it would
-   * show before they uncover it and linger after they've closed over it.
-   * A drawer still moving turns round from where it is. Only transform,
-   * opacity and the clip change, so the page isn't laid out again every
-   * frame.
+   * row in `group`. Everything under it slides down to uncover it, or up
+   * over it: the groups under it and the rest of the page, so the page
+   * below the table moves with them rather than jumping. The write-up is
+   * clipped to the top edge of what's sliding, since the groups under it
+   * can add up to less than its height and the rest of the page has no
+   * background to cover it with. The last group has no groups under it,
+   * so its write-up also fades. A drawer still moving turns round from
+   * where it is. Only transform, opacity and the clip change, so the page
+   * isn't laid out again every frame.
    */
   function slideDrawer(panel: HTMLElement, group: Element, isOpening: boolean) {
     const openness = currentOpenness(panel);
@@ -97,49 +122,46 @@ const { projectName, controls, isOpen = false } = Astro.props;
     }
 
     const slide = planDrawer({ isOpening, openness });
-    const below = [...(group.parentElement?.children ?? [])].filter(
-      (sibling) =>
-        sibling.tagName === 'TBODY' &&
-        group.compareDocumentPosition(sibling) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-    );
+    const after = everythingAfter(group);
+    const isLastGroup = !after.some((element) => element.tagName === 'TBODY');
     const height = panel.getBoundingClientRect().height;
     const timing = { ...settle, fill: 'forwards' as const };
-    // Several drawers can move at once, so each adds its own slide to the
-    // groups under it.
-    const animations = below.length
-      ? [
-          ...below.map((sibling) =>
-            sibling.animate(
-              [
-                { translate: `0 ${coverOffset(slide.from, height)}px` },
-                { translate: `0 ${coverOffset(slide.to, height)}px` },
-              ],
-              { ...timing, composite: 'add' },
+    // Several drawers can move at once, so each adds its own slide to
+    // everything under it.
+    const animations = [
+      ...after.map((element) =>
+        element.animate(
+          [
+            { translate: `0 ${coverOffset(slide.from, height)}px` },
+            { translate: `0 ${coverOffset(slide.to, height)}px` },
+          ],
+          { ...timing, composite: 'add' },
+        ),
+      ),
+      panel.animate(
+        [
+          { clipPath: revealClip(slide.from, height) },
+          { clipPath: revealClip(slide.to, height) },
+        ],
+        timing,
+      ),
+      ...(isLastGroup
+        ? [
+            panel.animate(
+              [{ opacity: slide.from }, { opacity: slide.to }],
+              timing,
             ),
-          ),
-          panel.animate(
-            [
-              { clipPath: revealClip(slide.from, height) },
-              { clipPath: revealClip(slide.to, height) },
-            ],
-            timing,
-          ),
-        ]
-      : [
-          panel.animate(
-            [{ opacity: slide.from }, { opacity: slide.to }],
-            timing,
-          ),
-        ];
+          ]
+        : []),
+    ];
     const drawer = { slide, animations };
     moving.set(panel, drawer);
 
     animations[0]?.finished.then(
       () => {
         if (moving.get(panel) !== drawer) return;
-        // Hidden in the same frame the groups drop their slide, so nothing
-        // jumps: the page closes up exactly where they had slid to.
+        // Hidden in the same frame everything under it drops its slide, so
+        // nothing jumps: the page closes up exactly where it had slid to.
         if (!isOpening) panel.hidden = true;
         for (const animation of animations) animation.cancel();
         moving.delete(panel);

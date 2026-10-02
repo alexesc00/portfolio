@@ -7,15 +7,14 @@ practices: [App design, Research]
 segment: Consumer
 writeUp:
   problem: >-
-    Stanford Mobile is the university’s campus app for first-year students and
-    visitors: bus schedules, dining halls and events. People needed the
-    information they used most, but it was buried, and planning a campus bus
-    trip meant remembering details between screens.
+    First-year students and visitors open the campus app for bus schedules,
+    dining halls and events. The information they used most was buried, and
+    planning a bus trip meant remembering details between screens.
   approach: >-
     My redesign puts the home screen in order of use: health check and mobile ID
-    first, then dining and transport, with events gathered at the bottom. I
-    added defaults to the trip planner, which starts from the rider’s current
-    location and will not confirm a trip without a destination.
+    first, then dining and transport, with events at the bottom. I added
+    defaults to the trip planner, which starts from the rider’s location and
+    will not confirm a trip without a destination.
 tools: [Figma]
 images:
   wide:

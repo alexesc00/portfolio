@@ -7,16 +7,16 @@ practices: [Product design, Design systems]
 segment: Business
 writeUp:
   problem: >-
-    Baobab is a web platform where a whole company collects its environmental,
-    social and governance (ESG) data. Leaders give each impact area to the staff
-    who know it, so reporting no longer falls on one consultant.
+    Before Baobab, a company’s environmental, social and governance (ESG)
+    reporting fell on one consultant instead of the staff who knew each impact
+    area.
   approach: >-
-    I built the component library in Figma first. Worksheets, dashboards and
-    team pages were assembled from the same parts, and a developer built the app
-    directly from the library.
+    In Baobab, leaders hand each impact area to the staff who know it. I built
+    the component library in Figma first, so every worksheet, dashboard and team
+    page came from the same parts, and a developer built the app from it.
   outcome: >-
-    The interface is now used to track sustainability on residential
-    construction projects.
+    The interface now tracks sustainability on residential construction
+    projects.
 isLive: true
 tools: [Figma]
 images:

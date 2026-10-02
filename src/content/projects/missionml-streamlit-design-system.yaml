@@ -7,14 +7,13 @@ practices: [Design systems, Brand identity, Development]
 segment: Government
 writeUp:
   problem: >-
-    The MissionML design system is a theme and a stylesheet that make Streamlit
-    apps look like MissionML. The company prototyped AI apps for federal
-    agencies in Streamlit, but every prototype came out in the framework’s stock
-    look.
+    MissionML had just split off from its parent company and needed its own
+    look. I designed the new brand, but the AI apps it prototyped for federal
+    agencies in Streamlit still came out in the framework’s stock look.
   approach: >-
-    I restyled Streamlit’s own widgets with one stylesheet of about 800 lines
-    and added the components it lacks, each one Python call. I tagged every
-    rule, so a page can switch the brand off and show the stock look.
+    I restyled Streamlit’s own widgets with a brand theme and one stylesheet of
+    about 800 lines, and added the components it lacks, each one Python call.
+    FDEs could then prototype AI apps rapidly, already in the MissionML look.
   outcome: >-
     Across two federal projects, the team built about fifteen prototypes on it.
 isLive: true

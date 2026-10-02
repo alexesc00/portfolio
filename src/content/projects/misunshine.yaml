@@ -7,17 +7,15 @@ practices: [Product design, Strategy]
 segment: Consumer
 writeUp:
   problem: >-
-    MiSunshine is a phone app for caregivers in the Bay Area’s Chinese community
-    who look after a family member with a mental illness. An app can do little
-    for them, so every feature had to help without pretending to fix the
-    illness.
+    Caregivers in the Bay Area’s Chinese community look after a family member
+    with a mental illness. An app can do little for them, so every feature had
+    to help without pretending to fix the illness.
   approach: >-
     I kept the app small: a medication log with reminders, and notes that track
-    the person’s progress over time. I added community events that go into the
-    phone’s calendar, and tools for the caregiver’s own care and for
-    emergencies.
+    the person’s progress over time. Community events go into the phone’s
+    calendar, next to tools for the caregiver’s own care and for emergencies.
   outcome: >-
-    MiSunshine shipped to the app store with this short list of tools.
+    MiSunshine shipped to the App Store with this short list of tools.
 isLive: true
 tools: [Figma]
 images:

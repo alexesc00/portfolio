@@ -114,7 +114,7 @@ test('the last row opens like the others, without fading', async ({ page }) => {
       const start = performance.now();
       while (performance.now() - start < milliseconds) {
         await frame();
-        if (panel?.hidden || !below) continue;
+        if (!panel || panel.hidden || !below) continue;
         const style = getComputedStyle(panel);
         const clip = /inset\(0px 0px ([\d.]+)px/.exec(style.clipPath);
         const shownBottom =

@@ -103,10 +103,10 @@ const { projectName, controls, isOpen = false } = Astro.props;
    * below the table moves with them rather than jumping. The write-up is
    * clipped to the top edge of what's sliding, since the groups under it
    * can add up to less than its height and the rest of the page has no
-   * background to cover it with. The last group has no groups under it,
-   * so its write-up also fades. A drawer still moving turns round from
-   * where it is. Only transform, opacity and the clip change, so the page
-   * isn't laid out again every frame.
+   * background to cover it with. That holds for the last group too: the
+   * page below slides over its write-up as the groups would. A drawer
+   * still moving turns round from where it is. Only transform and the clip
+   * change, so the page isn't laid out again every frame.
    */
   function slideDrawer(panel: HTMLElement, group: Element, isOpening: boolean) {
     const openness = currentOpenness(panel);
@@ -123,7 +123,6 @@ const { projectName, controls, isOpen = false } = Astro.props;
 
     const slide = planDrawer({ isOpening, openness });
     const after = everythingAfter(group);
-    const isLastGroup = !after.some((element) => element.tagName === 'TBODY');
     const height = panel.getBoundingClientRect().height;
     const timing = { ...settle, fill: 'forwards' as const };
     // Several drawers can move at once, so each adds its own slide to
@@ -145,14 +144,6 @@ const { projectName, controls, isOpen = false } = Astro.props;
         ],
         timing,
       ),
-      ...(isLastGroup
-        ? [
-            panel.animate(
-              [{ opacity: slide.from }, { opacity: slide.to }],
-              timing,
-            ),
-          ]
-        : []),
     ];
     const drawer = { slide, animations };
     moving.set(panel, drawer);

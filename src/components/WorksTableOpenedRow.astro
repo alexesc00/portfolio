@@ -4,6 +4,7 @@ import { Picture } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { worksGrid } from '../lib/works-grid';
 import ShowcaseCompare from './ShowcaseCompare.astro';
+import WorksTableNdaBox from './WorksTableNdaBox.astro';
 import WorksTableStrip from './WorksTableStrip.astro';
 
 type OpenProject = Extract<
@@ -59,7 +60,8 @@ const phoneImage = {
  * strip under the image. Every image comes in a wide and a phone version,
  * each in dark and light; only the one that fits the screen and theme
  * shows, and the hidden ones never load. A project with a live showcase
- * shows that instead. Either way the strip follows: Live, if the project
+ * shows that instead, and one under NDA shows an empty box saying so.
+ * Either way the strip follows: Live, if the project
  * shipped, and the tools it was built with. It has no line of its own:
  * the line under it belongs to the group below, which slides over it to
  * close it. Its top padding is Figma's 40px plus the 1px the row's own
@@ -90,6 +92,8 @@ const phoneImage = {
       <div>
         {'showcase' in project ? (
           <ShowcaseCompare showcase={project.showcase} />
+        ) : 'isUnderNda' in project ? (
+          <WorksTableNdaBox />
         ) : (
           <>
             <Picture

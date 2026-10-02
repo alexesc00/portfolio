@@ -86,7 +86,8 @@ export function projectSchema({ image }: SchemaContext) {
     link: z.object({ url: z.url({ protocol: /^https$/ }), text }).optional(),
   };
 
-  // Strict, so a project can't have both images and a showcase.
+  // Strict, so a project can't have more than one of images, a showcase
+  // and the NDA box.
   return z.union([
     // Under NDA: the row shows its columns and can't be opened.
     z.object({ ...row, locked: z.literal(true) }),
@@ -108,5 +109,7 @@ export function projectSchema({ image }: SchemaContext) {
         brand: stills,
       }),
     }),
+    // Under NDA but told in words: the box says the images are withheld.
+    z.strictObject({ ...opened, isUnderNda: z.literal(true) }),
   ]);
 }

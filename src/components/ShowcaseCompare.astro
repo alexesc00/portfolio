@@ -385,11 +385,18 @@ const tag = [
       showStatus('still', 'The live app couldn’t start; the stills stay');
     }
 
-    // From 1024 wide up, the app starts as soon as its row opens
+    // From 1024 wide up, the app starts as soon as its row opens. Closing
+    // the row stops it: two Python runtimes left running out of sight cost
+    // the visitor CPU and memory, so reopening starts them afresh.
     const row = root.closest('tr');
     if (row) {
       new MutationObserver(() => {
-        if (!row.hidden && wide.matches) start();
+        if (!row.hidden) {
+          if (wide.matches) start();
+        } else if (status !== 'still') {
+          stop();
+          showStatus('still', '');
+        }
       }).observe(row, { attributes: true, attributeFilter: ['hidden'] });
     }
 

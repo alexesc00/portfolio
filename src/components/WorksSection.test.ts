@@ -51,7 +51,7 @@ describe('the works section', () => {
     expect(text?.trim()).toBe(
       'Designs change on the way to launch. I design products and build them in code, so what ships is what was meant.',
     );
-    expect(statement?.[1]).toMatch(/\btext-statement\b/);
+    expect(statement?.[1]).toMatch(/\btext-lead\b/);
     expect(statement?.[1]).toMatch(/\btext-text-muted\b/);
     expect(statement?.[2]).toMatch(
       /<span[^>]* class="[^"]*\btext-text\b[^"]*"[^>]*>so what ships is what was meant\.<\/span>/,

@@ -72,11 +72,11 @@ describe('the principles section', () => {
     }
   });
 
-  it('sets the claim as a statement and the body in reading text at 60%', () => {
+  it('sets the claim in Lead and the body in reading text at 60%', () => {
     for (const claim of claims) {
       expect(html).toMatch(
         new RegExp(
-          `<p[^>]* class="[^"]*\\btext-statement\\b[^"]*"[^>]*>${claim}</p>`,
+          `<p[^>]* class="[^"]*\\btext-lead\\b[^"]*"[^>]*>${claim}</p>`,
         ),
       );
     }

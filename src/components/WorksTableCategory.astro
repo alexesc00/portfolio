@@ -44,24 +44,19 @@ const { category, name } = Astro.props;
   }
 
   /*
-   * A word arriving moves on the Æ spring, so it lands with its bounce; a
-   * word leaving settles, so it goes and never swings back into view.
-   * Fades always settle: a spring's swing back would flicker a fading word
-   * back in. A transition runs on the timing of the state it's heading
-   * into, so each state sets the timing for the words entering it.
+   * Both words settle, arriving and leaving: the row rolls without a
+   * bounce, like its arrow and its Open or Close word.
    */
-  [data-rolls] [data-category] {
+  [data-rolls] [data-category],
+  [data-rolls] [data-name] {
     transition:
       opacity var(--transition-duration-settle) var(--ease-settle),
-      translate var(--transition-duration-spring) var(--ease-spring);
+      translate var(--transition-duration-settle) var(--ease-settle);
   }
 
   [data-rolls] [data-name] {
     opacity: 0;
     translate: 0 100%;
-    transition:
-      opacity var(--transition-duration-settle) var(--ease-settle),
-      translate var(--transition-duration-settle) var(--ease-settle);
   }
 
   /*
@@ -74,9 +69,6 @@ const { category, name } = Astro.props;
       [data-category] {
       opacity: 0;
       translate: 0 -100%;
-      transition:
-        opacity var(--transition-duration-settle) var(--ease-settle),
-        translate var(--transition-duration-settle) var(--ease-settle);
     }
 
     :global(tr:hover:not(:has([aria-expanded='true'])))
@@ -84,9 +76,6 @@ const { category, name } = Astro.props;
       [data-name] {
       opacity: 1;
       translate: 0 0;
-      transition:
-        opacity var(--transition-duration-settle) var(--ease-settle),
-        translate var(--transition-duration-spring) var(--ease-spring);
     }
   }
 
@@ -95,9 +84,6 @@ const { category, name } = Astro.props;
     [data-category] {
     opacity: 0;
     translate: 0 -100%;
-    transition:
-      opacity var(--transition-duration-settle) var(--ease-settle),
-      translate var(--transition-duration-settle) var(--ease-settle);
   }
 
   :global(tr:has(:focus-visible):not(:has([aria-expanded='true'])))
@@ -105,9 +91,6 @@ const { category, name } = Astro.props;
     [data-name] {
     opacity: 1;
     translate: 0 0;
-    transition:
-      opacity var(--transition-duration-settle) var(--ease-settle),
-      translate var(--transition-duration-spring) var(--ease-spring);
   }
 
   @media (prefers-reduced-motion: reduce) {

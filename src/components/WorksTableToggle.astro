@@ -149,15 +149,14 @@ const { projectName, controls } = Astro.props;
 
 <style>
   /*
-   * The word slides in on the Æ spring as it appears beside the arrow,
-   * and fades in on the settle spring, since a spring's swing back would
-   * flicker a fade.
+   * The word slides and fades in on the settle curve as it appears
+   * beside the arrow, so it arrives without a bounce, like the arrow.
    */
   @media (prefers-reduced-motion: no-preference) {
     @media (hover: hover) {
       button:hover [data-toggle-word] {
         animation:
-          toggle-word-slide var(--transition-duration-spring) var(--ease-spring)
+          toggle-word-slide var(--transition-duration-settle) var(--ease-settle)
             both,
           toggle-word-fade var(--transition-duration-settle) var(--ease-settle)
             both;
@@ -166,7 +165,7 @@ const { projectName, controls } = Astro.props;
 
     button:focus-visible [data-toggle-word] {
       animation:
-        toggle-word-slide var(--transition-duration-spring) var(--ease-spring)
+        toggle-word-slide var(--transition-duration-settle) var(--ease-settle)
           both,
         toggle-word-fade var(--transition-duration-settle) var(--ease-settle)
           both;

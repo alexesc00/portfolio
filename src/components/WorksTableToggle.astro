@@ -27,7 +27,7 @@ const { projectName, controls } = Astro.props;
   class="group/toggle flex h-12 cursor-pointer items-center gap-2.5 rounded-xl bg-surface px-3.75 after:absolute after:inset-0 after:z-10 hover:pr-4 focus-visible:pr-4"
   data-row-toggle
 >
-  <ArrowIcon class="size-4.5 shrink-0 transition-transform duration-spring ease-spring group-hover/toggle:rotate-180 group-focus-visible/toggle:rotate-180 group-aria-expanded/toggle:rotate-180 group-aria-expanded/toggle:group-hover/toggle:rotate-0 group-aria-expanded/toggle:group-focus-visible/toggle:rotate-0 motion-reduce:transition-none" />
+  <ArrowIcon class="size-4.5 shrink-0 transition-transform duration-settle ease-settle group-hover/toggle:rotate-180 group-focus-visible/toggle:rotate-180 group-aria-expanded/toggle:rotate-180 group-aria-expanded/toggle:group-hover/toggle:rotate-0 group-aria-expanded/toggle:group-focus-visible/toggle:rotate-0 motion-reduce:transition-none" />
   <span
     class="sr-only group-hover/toggle:not-sr-only group-focus-visible/toggle:not-sr-only"
     data-toggle-word
@@ -149,15 +149,14 @@ const { projectName, controls } = Astro.props;
 
 <style>
   /*
-   * The word slides in on the Æ spring as it appears beside the arrow,
-   * and fades in on the settle spring, since a spring's swing back would
-   * flicker a fade.
+   * The word slides and fades in on the settle curve as it appears
+   * beside the arrow, so it arrives without a bounce, like the arrow.
    */
   @media (prefers-reduced-motion: no-preference) {
     @media (hover: hover) {
       button:hover [data-toggle-word] {
         animation:
-          toggle-word-slide var(--transition-duration-spring) var(--ease-spring)
+          toggle-word-slide var(--transition-duration-settle) var(--ease-settle)
             both,
           toggle-word-fade var(--transition-duration-settle) var(--ease-settle)
             both;
@@ -166,7 +165,7 @@ const { projectName, controls } = Astro.props;
 
     button:focus-visible [data-toggle-word] {
       animation:
-        toggle-word-slide var(--transition-duration-spring) var(--ease-spring)
+        toggle-word-slide var(--transition-duration-settle) var(--ease-settle)
           both,
         toggle-word-fade var(--transition-duration-settle) var(--ease-settle)
           both;

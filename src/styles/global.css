@@ -89,10 +89,9 @@
   --text-interface--font-weight: var(--weight-interface);
 
   /*
-   * Names and headings: a project's name over its write-up, section
-   * titles, and the principles' short explanations. Its letter spacing,
-   * and Reading's, is set to none so the page's Interface spacing isn't
-   * inherited.
+   * A project's name over its write-up, and the principles' short
+   * explanations. Its letter spacing, and Reading's, is set to none so the
+   * page's Interface spacing isn't inherited.
    */
   --text-title: 1.25rem;
   --text-title--line-height: 1.75rem;

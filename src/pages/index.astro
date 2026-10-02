@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import ContactSection from '../components/ContactSection.astro';
 import Hero from '../components/Hero.astro';
+import InPageLinks from '../components/InPageLinks.astro';
 import WorksSection from '../components/WorksSection.astro';
 import PrinciplesSection from '../components/PrinciplesSection.astro';
 import StatementSection from '../components/StatementSection.astro';
@@ -21,4 +22,5 @@ const projects = (await getCollection('projects')).map(({ data }) => data);
     <PrinciplesSection />
     <ContactSection />
   </main>
+  <InPageLinks />
 </Layout>

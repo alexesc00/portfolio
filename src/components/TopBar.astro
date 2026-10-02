@@ -22,39 +22,26 @@
 
   const element = document.querySelector<HTMLElement>('[data-top-bar]');
   let bar = topBarAtTop;
-  // Set between a click on a link to a section and the jump it makes.
-  let isJumping = false;
 
   function show() {
     element?.toggleAttribute('data-hidden', !bar.isShown);
   }
 
+  // A ride up the page to a section would otherwise read as a scroll up,
+  // and the bar would come back over the top of the section the visitor
+  // asked for. The ride marks the page while it runs (see InPageLinks).
   addEventListener(
     'scroll',
     () => {
       const maxScrollY = document.documentElement.scrollHeight - innerHeight;
-      bar = isJumping
-        ? landedTopBar(scrollY)
-        : nextTopBar(bar, scrollY, maxScrollY);
-      isJumping = false;
+      bar =
+        'riding' in document.documentElement.dataset
+          ? landedTopBar(scrollY)
+          : nextTopBar(bar, scrollY, maxScrollY);
       show();
     },
     { passive: true },
   );
-
-  // A jump up the page would otherwise read as a scroll up, and the bar
-  // would come back over the top of the section the visitor asked for.
-  document.addEventListener('click', (event) => {
-    if (!(event.target instanceof Element)) return;
-    if (!event.target.closest('a[href^="#"]')) return;
-    isJumping = true;
-    // A link to where the page already is makes no jump to wait for.
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        isJumping = false;
-      }),
-    );
-  });
 
   // Tabbing into the bar brings it back, so focus is never off screen.
   element?.addEventListener('focusin', () => {

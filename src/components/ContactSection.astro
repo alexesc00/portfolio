@@ -28,21 +28,7 @@ const linkedInUrl = 'https://www.linkedin.com/in/alexesc1111/';
       </a>
     </p>
   </div>
-  <a href="#top" class="mt-auto self-end" data-back-to-top>
+  <a href="#top" class="mt-auto self-end">
     <span aria-hidden="true">↑</span> <span class="sr-only">Back to </span>Top
   </a>
 </section>
-
-<script>
-  // Back to the top: a smooth scroll, or a jump with reduced motion on.
-  // Focus goes back to the top too, so the next Tab reaches the top bar.
-  const link = document.querySelector('[data-back-to-top]');
-  const top = document.getElementById('top');
-  link?.addEventListener('click', (event) => {
-    if (!top) return;
-    event.preventDefault();
-    const isReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    scrollTo({ top: 0, behavior: isReduced ? 'instant' : 'smooth' });
-    top.focus({ preventScroll: true });
-  });
-</script>

@@ -40,12 +40,12 @@ export function springProgress({ duration, bounce }: Spring, time: number) {
 }
 
 /**
- * `spring` as a CSS linear() easing, a point every 60th of a second, and
- * how long to run it: until it stays within 0.2% of rest. Snapping that
- * last 0.2% would leave a step at the end, 1.4px on a 700px drawer, so
- * the last points ease onto rest instead.
+ * `spring`'s progress a frame at a time, a point every 60th of a second,
+ * until it stays within 0.2% of rest. Snapping that last 0.2% would leave
+ * a step at the end, 1.4px on a 700px drawer, so the last points ease
+ * onto rest instead, and the last point is rest itself.
  */
-export function springCurve(spring: Spring) {
+function landedPoints(spring: Spring) {
   const values: number[] = [];
   let lastAwayFromRest = 0;
   for (let step = 0; step * frame <= longest; step++) {
@@ -59,13 +59,34 @@ export function springCurve(spring: Spring) {
     const through = Math.max(step - landingStart, 0) / landing;
     // Smoothstep: starts and ends gently, so the landing has no corners.
     const pull = through * through * (3 - 2 * through);
-    return String(Number((value + (1 - value) * pull).toFixed(4)));
+    return value + (1 - value) * pull;
   });
-  points.push('1');
+  points.push(1);
+  return points;
+}
+
+/** `spring` as a CSS linear() easing, and how long to run it. */
+export function springCurve(spring: Spring) {
+  const points = landedPoints(spring);
+  const end = points.length - 1;
   return {
-    easing: `linear(${points.join(', ')})`,
+    easing: `linear(${points.map((value) => String(Number(value.toFixed(4)))).join(', ')})`,
     duration: Math.round(end * frame),
   };
+}
+
+/**
+ * How far along `spring` is at `time` milliseconds, on the same landed
+ * curve CSS draws, for motion a script has to move itself.
+ */
+export function landedProgress(spring: Spring, time: number) {
+  const points = landedPoints(spring);
+  const end = points.length - 1;
+  const duration = Math.round(end * frame);
+  if (time >= duration) return 1;
+  const place = (time / duration) * end;
+  const step = Math.floor(place);
+  return points[step] + (points[step + 1] - points[step]) * (place - step);
 }
 
 /**

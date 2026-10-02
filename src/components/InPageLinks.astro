@@ -1,0 +1,74 @@
+{/*
+ * Renders nothing. Every link to another part of the page rides there
+ * on the settle curve instead of cutting: Work and Contact in the top
+ * bar, each row's ask for the case study, and the way back to the top.
+ */}
+<script>
+  import { rideDuration, ridePosition, rideStart } from '../lib/page-ride';
+
+  const root = document.documentElement;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let frame = 0;
+
+  // While data-riding is set, the top bar treats each scroll as part of
+  // a jump, so a ride up the page doesn't bring it back over the section.
+  function stopRiding() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    delete root.dataset.riding;
+  }
+
+  // The last scroll's event fires before the next frame, so the flag
+  // comes off only after the top bar has seen where the ride landed.
+  function land(link: HTMLAnchorElement, target: HTMLElement) {
+    if (target.hasAttribute('tabindex')) target.focus({ preventScroll: true });
+    // The page is already there, so this only records the visit and moves
+    // where the next Tab starts from, as a plain link would.
+    if (location.hash !== link.hash) location.hash = link.hash;
+    frame = requestAnimationFrame(stopRiding);
+  }
+
+  function ride(link: HTMLAnchorElement, target: HTMLElement) {
+    const maxScrollY = root.scrollHeight - innerHeight;
+    const to = Math.min(
+      scrollY + target.getBoundingClientRect().top,
+      maxScrollY,
+    );
+    root.dataset.riding = '';
+    if (reducedMotion.matches) {
+      scrollTo({ top: to, behavior: 'instant' });
+      frame = requestAnimationFrame(() => land(link, target));
+      return;
+    }
+    const start = rideStart(scrollY, to, innerHeight);
+    scrollTo({ top: start, behavior: 'instant' });
+    const began = performance.now();
+    const step = (now: number) => {
+      const time = now - began;
+      scrollTo({ top: ridePosition(start, to, time), behavior: 'instant' });
+      frame = requestAnimationFrame(
+        time < rideDuration ? step : () => land(link, target),
+      );
+    };
+    frame = requestAnimationFrame(step);
+  }
+
+  document.addEventListener('click', (event) => {
+    // A link that handles itself, like a principle's, already said so.
+    if (event.defaultPrevented || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest<HTMLAnchorElement>('a[href^="#"]');
+    const target = link && document.getElementById(link.hash.slice(1));
+    if (!link || !target) return;
+    event.preventDefault();
+    stopRiding();
+    ride(link, target);
+  });
+
+  // Scrolling, a tap or a key during a ride hands the page back.
+  for (const type of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
+    addEventListener(type, () => frame && stopRiding(), { passive: true });
+  }
+</script>

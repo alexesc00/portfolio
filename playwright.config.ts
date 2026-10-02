@@ -30,6 +30,21 @@ export default defineConfig({
       },
     },
     { name: 'phone', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'desktop-firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      name: 'desktop-safari',
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    { name: 'phone-safari', use: { ...devices['iPhone 15'] } },
   ],
   // --ignore-lock keeps the preview server in the foreground, where
   // Playwright can see it; Astro otherwise moves it to the background

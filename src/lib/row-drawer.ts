@@ -37,12 +37,3 @@ export function opennessAt({ from, to }: DrawerSlide, progress: number) {
 export function coverOffset(openness: number, height: number) {
   return (openness - 1) * height;
 }
-
-/**
- * The clip-path that shows a `height`-tall write-up only down to the top
- * edge of the rows sliding over it. Those rows can be shorter than the
- * write-up, and nothing else covers the rest of it.
- */
-export function revealClip(openness: number, height: number) {
-  return `inset(0 0 ${-coverOffset(openness, height)}px)`;
-}

@@ -70,10 +70,10 @@ const phoneImage = {
 <tr
   id={id}
   hidden={!project.isOpenByDefault}
-  class="block pt-10.25 pb-5.75"
+  class="block pt-10.25 pb-5.75 data-sliding:pointer-events-none data-sliding:overflow-hidden"
   data-opened-row
 >
-  <td colspan="5" class:list={[worksGrid, 'gap-y-10']}>
+  <td colspan="5" class:list={[worksGrid, 'pointer-events-auto gap-y-10']}>
     <div class="col-span-6 max-w-110 lg:col-span-12 xl:col-span-4 xl:row-start-1 xl:max-w-none xl:pr-6">
       <h3 class="text-title">{project.name}</h3>
       <div class="mt-8 flex flex-col gap-6">

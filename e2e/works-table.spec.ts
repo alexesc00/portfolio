@@ -5,11 +5,33 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
+/**
+ * Checks that things meant to slide together stayed within a pixel of
+ * each other on every frame. WebKit can take each position at a slightly
+ * different moment, so a frame of its readings can be off by a pixel or
+ * two either way even when the drawing isn't. There, the drift has to
+ * average under half a pixel, which a real lag one way wouldn't, and no
+ * frame can be off by as much as a jump would be.
+ */
+function expectTogether(gaps: number[], browserName: string) {
+  // Headless browsers can draw slower than 60 frames a second.
+  expect(gaps.length).toBeGreaterThan(10);
+  const sizes = gaps.map(Math.abs);
+  if (browserName !== 'webkit') {
+    for (const size of sizes) expect(size).toBeLessThanOrEqual(1);
+    return;
+  }
+  const average = sizes.reduce((sum, size) => sum + size) / sizes.length;
+  expect(average).toBeLessThanOrEqual(0.5);
+  for (const size of sizes) expect(size).toBeLessThanOrEqual(6);
+}
+
 // A row opens like a drawer: the rows under it slide down to uncover its
 // write-up. The write-up should never show past the top of those rows,
 // on the way open, on the way shut, or when turned round mid-slide.
 test('a write-up shows only as far as the rows over it have slid', async ({
   page,
+  browserName,
 }) => {
   const group = await closedRow(page).elementHandle();
   const gaps = await page.evaluate(async (group) => {
@@ -47,15 +69,16 @@ test('a write-up shows only as far as the rows over it have slid', async ({
     return gaps;
   }, group);
 
-  // Headless browsers can draw slower than 60 frames a second.
-  expect(gaps.length).toBeGreaterThan(10);
-  for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
+  expectTogether(gaps, browserName);
 });
 
 // The rest of the page slides with the rows instead of jumping: what
 // comes after the table keeps the same distance from the table's last
 // row the whole way, opening and closing.
-test('the page below the table slides with the rows', async ({ page }) => {
+test('the page below the table slides with the rows', async ({
+  page,
+  browserName,
+}) => {
   const group = await closedRow(page).elementHandle();
   const gaps = await page.evaluate(async (group) => {
     const button = group?.querySelector<HTMLElement>('[data-row-toggle]');
@@ -87,8 +110,7 @@ test('the page below the table slides with the rows', async ({ page }) => {
     return gaps;
   }, group);
 
-  expect(gaps.length).toBeGreaterThan(10);
-  for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
+  expectTogether(gaps, browserName);
 });
 
 // The last row has no rows under it, but the page below slides over its

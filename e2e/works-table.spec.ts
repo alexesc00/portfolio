@@ -5,22 +5,11 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
-/**
- * How far, in pixels, things that slide together may drift apart. WebKit
- * runs some of a drawer's animations on its graphics thread and the rest
- * on the main thread, and the main thread trails by a few milliseconds:
- * a few pixels at the fastest point of a slide, more on a phone, where
- * the slide covers more of the screen. Not enough to see, but a real
- * jump is far bigger.
- */
-const slack = (browserName: string) => (browserName === 'webkit' ? 12 : 1);
-
 // A row opens like a drawer: the rows under it slide down to uncover its
 // write-up. The write-up should never show past the top of those rows,
 // on the way open, on the way shut, or when turned round mid-slide.
 test('a write-up shows only as far as the rows over it have slid', async ({
   page,
-  browserName,
 }) => {
   const group = await closedRow(page).elementHandle();
   const gaps = await page.evaluate(async (group) => {
@@ -60,17 +49,13 @@ test('a write-up shows only as far as the rows over it have slid', async ({
 
   // Headless browsers can draw slower than 60 frames a second.
   expect(gaps.length).toBeGreaterThan(10);
-  for (const gap of gaps)
-    expect(Math.abs(gap)).toBeLessThanOrEqual(slack(browserName));
+  for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
 });
 
 // The rest of the page slides with the rows instead of jumping: what
 // comes after the table keeps the same distance from the table's last
 // row the whole way, opening and closing.
-test('the page below the table slides with the rows', async ({
-  page,
-  browserName,
-}) => {
+test('the page below the table slides with the rows', async ({ page }) => {
   const group = await closedRow(page).elementHandle();
   const gaps = await page.evaluate(async (group) => {
     const button = group?.querySelector<HTMLElement>('[data-row-toggle]');
@@ -103,8 +88,7 @@ test('the page below the table slides with the rows', async ({
   }, group);
 
   expect(gaps.length).toBeGreaterThan(10);
-  for (const gap of gaps)
-    expect(Math.abs(gap)).toBeLessThanOrEqual(slack(browserName));
+  for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
 });
 
 // The last row has no rows under it, but the page below slides over its

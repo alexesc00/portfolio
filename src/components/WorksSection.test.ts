@@ -49,6 +49,19 @@ describe('the works section', () => {
     expect(html).not.toContain('Designs change');
   });
 
+  // Every section opens on its name at the top left, an inset down, with
+  // its content 48 below on phones and 64 from 768 up.
+  it('opens on its name in Display at the top left, the table under it', () => {
+    const section = /^<section[^>]*>/.exec(html)?.[0] ?? '';
+    const heading = /<h2[^>]*>/.exec(html)?.[0] ?? '';
+
+    expect(heading).toMatch(/\btext-display\b/);
+    expect(heading).not.toMatch(/text-right/);
+    expect(heading).toMatch(/\bmb-12\b/);
+    expect(heading).toMatch(/\bmd:mb-16\b/);
+    expect(section).toMatch(/\bpt-inset\b/);
+  });
+
   it('shows the works table under the heading', () => {
     expect(html.indexOf('<table')).toBeGreaterThan(html.indexOf('<h2'));
     expect(html).toContain('AI application for a federal workforce program');

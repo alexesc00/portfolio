@@ -48,10 +48,17 @@ describe('the principles section', () => {
     expect(section).toMatch(/\bpx-page\b/);
   });
 
-  it('puts its name top left on phones and top right from 1024 up', () => {
-    const headRow = /<div[^>]*>\s*<h2/.exec(html)?.[0] ?? '';
+  // Every section opens on its name at the top left.
+  it('opens on its name in Display at the top left, the counter opposite', () => {
+    const headRow = /<div[^>]*>\s*<h2[^>]*>/.exec(html)?.[0] ?? '';
+
     expect(headRow).toMatch(/\bjustify-between\b/);
-    expect(headRow).toMatch(/\blg:flex-row-reverse\b/);
+    expect(headRow).toMatch(/\bitems-baseline\b/);
+    expect(headRow).not.toMatch(/flex-row-reverse/);
+    expect(headRow).toMatch(/<h2[^>]* class="[^"]*\btext-display\b/);
+    expect(html.indexOf('<h2')).toBeLessThan(
+      html.indexOf('data-principles-counter'),
+    );
   });
 
   it('names each principle with a heading under Principles, in order', () => {

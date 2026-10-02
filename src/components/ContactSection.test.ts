@@ -43,13 +43,18 @@ describe('the closing plate', () => {
     expect(section()).toMatch(/\bpx-page\b/);
   });
 
-  it('puts its name before the address, top right from 1024 up', () => {
-    const heading = html.indexOf('<h2');
-    expect(heading).toBeGreaterThan(-1);
-    expect(heading).toBeLessThan(html.indexOf('mailto:'));
-    expect(html).toMatch(
-      /<div[^>]* class="[^"]*\blg:flex-row-reverse\b[^"]*"[^>]*>\s*<h2/,
-    );
+  // Every section opens on its name at the top left, an inset down, with
+  // its content 48 below on phones and 64 from 768 up.
+  it('opens on its name in Display at the top left, the address under it', () => {
+    const heading = /<h2[^>]*>/.exec(html)?.[0] ?? '';
+
+    expect(html.indexOf('<h2')).toBeLessThan(html.indexOf('mailto:'));
+    expect(html).not.toMatch(/flex-row-reverse/);
+    expect(heading).toMatch(/\btext-display\b/);
+    expect(heading).toMatch(/\bmb-12\b/);
+    expect(heading).toMatch(/\bmd:mb-16\b/);
+    expect(section()).toMatch(/\bpt-inset\b/);
+    expect(section()).not.toMatch(/\blg:pt-/);
   });
 
   it('sets the address in Lead and emails it', () => {

@@ -43,6 +43,7 @@ const { projectName, controls } = Astro.props;
     coverOffset,
     opennessAt,
     planDrawer,
+    revealClip,
     type DrawerSlide,
   } from '../lib/row-drawer';
   import { toggleRow } from '../lib/row-toggle';
@@ -73,9 +74,13 @@ const { projectName, controls } = Astro.props;
   /**
    * Opens or closes the drawer holding `panel`, the write-up under the
    * row in `group`. The groups under it slide down to uncover it, or up
-   * over it; the last group has none under it, so its write-up fades. A
-   * drawer still moving turns round from where it is. Only transform and
-   * opacity change, so the page isn't laid out again every frame.
+   * over it; the last group has none under it, so its write-up fades. The
+   * groups under it can add up to less than the write-up's height, so the
+   * write-up is also clipped to their top edge, or the rest of it would
+   * show before they uncover it and linger after they've closed over it.
+   * A drawer still moving turns round from where it is. Only transform,
+   * opacity and the clip change, so the page isn't laid out again every
+   * frame.
    */
   function slideDrawer(panel: HTMLElement, group: Element, isOpening: boolean) {
     const openness = currentOpenness(panel);
@@ -102,15 +107,24 @@ const { projectName, controls } = Astro.props;
     // Several drawers can move at once, so each adds its own slide to the
     // groups under it.
     const animations = below.length
-      ? below.map((sibling) =>
-          sibling.animate(
-            [
-              { translate: `0 ${coverOffset(slide.from, height)}px` },
-              { translate: `0 ${coverOffset(slide.to, height)}px` },
-            ],
-            { ...timing, composite: 'add' },
+      ? [
+          ...below.map((sibling) =>
+            sibling.animate(
+              [
+                { translate: `0 ${coverOffset(slide.from, height)}px` },
+                { translate: `0 ${coverOffset(slide.to, height)}px` },
+              ],
+              { ...timing, composite: 'add' },
+            ),
           ),
-        )
+          panel.animate(
+            [
+              { clipPath: revealClip(slide.from, height) },
+              { clipPath: revealClip(slide.to, height) },
+            ],
+            timing,
+          ),
+        ]
       : [
           panel.animate(
             [{ opacity: slide.from }, { opacity: slide.to }],

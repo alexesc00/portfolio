@@ -7,15 +7,15 @@ practices: [Product design, Strategy]
 segment: Consumer
 writeUp:
   problem: >-
-    Plots is a phone app for finding events and buying tickets, for hosts and
-    their attendees. Payouts ran through Stripe, which the app hid once linked,
-    so when Stripe paused a payout, hosts could not see why.
+    Hosts sell tickets to their events on Plots, and payouts ran through Stripe,
+    which the app hid once it was linked. When Stripe paused a payout, hosts
+    could not see why.
   approach: >-
     I designed a Payouts page for all of a host’s events, with alerts that name
     the Stripe problem before a payout pauses. I defined three custom APIs with
     the engineers to pull the Stripe data into the app.
   outcome: >-
-    The page shipped with those APIs.
+    The Payouts page shipped with all three APIs.
 isLive: true
 tools: [Figma]
 images:

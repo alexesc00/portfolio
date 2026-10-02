@@ -89,6 +89,11 @@ function showcaseProject(): Record<string, unknown> {
   };
 }
 
+/** A project under NDA that opens: a write-up, and no images to show. */
+function ndaProject(): Record<string, unknown> {
+  return { ...without(openProject(), 'images'), isUnderNda: true };
+}
+
 /** A project under NDA: row text only, and no name, which never shows. */
 function lockedProject(): Record<string, unknown> {
   return {
@@ -130,6 +135,21 @@ describe('projectSchema', () => {
 
   it('accepts a live showcase in place of images', () => {
     expect(schema.safeParse(showcaseProject()).success).toBe(true);
+  });
+
+  it('accepts a project under NDA with no images', () => {
+    expect(schema.safeParse(ndaProject()).success).toBe(true);
+  });
+
+  it('rejects a project under NDA that also has images or a showcase', () => {
+    const withImages = { ...ndaProject(), images: openProject().images };
+    const withShowcase = {
+      ...ndaProject(),
+      showcase: showcaseProject().showcase,
+    };
+
+    expect(schema.safeParse(withImages).success).toBe(false);
+    expect(schema.safeParse(withShowcase).success).toBe(false);
   });
 
   it('rejects a project with both images and a live showcase', () => {

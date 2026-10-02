@@ -74,6 +74,20 @@ const showcaseProject: Project = {
   },
 };
 
+const ndaProject: Project = {
+  order: 1,
+  locked: false,
+  name: 'CAT',
+  category: 'Government AI',
+  solution: 'AI application for a federal workforce program',
+  practices: ['Product design', 'Development'],
+  segment: 'Government',
+  writeUp: project.writeUp,
+  isLive: false,
+  tools: ['Cursor'],
+  isUnderNda: true,
+};
+
 const notLive: Project = { ...project, isLive: false };
 
 const withoutOutcome: Project = {
@@ -89,6 +103,7 @@ let htmlWithoutOutcome = '';
 let htmlWithLink = '';
 let htmlWithShowcase = '';
 let htmlNotLive = '';
+let htmlUnderNda = '';
 
 beforeAll(async () => {
   const container = await AstroContainer.create();
@@ -101,6 +116,7 @@ beforeAll(async () => {
   htmlWithLink = await render(withLink);
   htmlWithShowcase = await render(showcaseProject);
   htmlNotLive = await render(notLive);
+  htmlUnderNda = await render(ndaProject);
 });
 
 function textOf(markup = '') {
@@ -324,5 +340,31 @@ describe('the opened row with a live showcase', () => {
     expect(textOf(stripOf(htmlWithShowcase))).toBe(
       'Live Built with Figma Cursor',
     );
+  });
+});
+
+describe('the opened row under NDA', () => {
+  const boxOf = (markup: string) =>
+    /<div[^>]* data-nda-box[^>]*>[\s\S]*?<\/div>/.exec(markup)?.[0] ?? '';
+
+  it('shows an empty box marked NDA in place of images', () => {
+    expect(htmlUnderNda).not.toMatch(/<img/);
+    expect(textOf(boxOf(htmlUnderNda))).toBe('NDA');
+  });
+
+  it('tells screen readers the images are withheld, its lock kept from them', () => {
+    const box = boxOf(htmlUnderNda);
+
+    expect(box).toMatch(/role="img"/);
+    expect(box).toContain('aria-label="Images withheld under NDA"');
+    expect(box).toMatch(/<svg[^>]*aria-hidden="true"/);
+  });
+
+  it('keeps the write-up, the strip and the ask', () => {
+    const text = textOf(htmlUnderNda);
+
+    expect(text).toContain('Problem');
+    expect(textOf(stripOf(htmlUnderNda))).toBe('Built with Cursor');
+    expect(text).toMatch(/Ask for the full case study/);
   });
 });

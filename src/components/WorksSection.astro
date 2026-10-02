@@ -12,16 +12,10 @@ const { projects } = Astro.props;
 <section
   id="work"
   aria-labelledby="work-heading"
-  class="mx-auto w-full max-w-(--breakpoint-2xl) px-page pt-8 pb-inset md:pt-7"
+  class="mx-auto w-full max-w-(--breakpoint-2xl) px-page pt-inset pb-inset"
 >
-  {/*
-   * From 1024 up the heading is a running head at the top right;
-   * narrower, it sits at the left to caption the table.
-   */}
-  <h2
-    id="work-heading"
-    class="text-interface md:text-title lg:mb-30 lg:text-right"
-  >
+  {/* Like every section, it opens on its name at the top left. */}
+  <h2 id="work-heading" class="mb-12 text-display md:mb-16">
     Selected work
   </h2>
   <WorksTable projects={projects} />

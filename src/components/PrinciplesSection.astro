@@ -39,12 +39,11 @@ const principleId = (label: string) =>
     class="mx-auto flex min-h-plate w-full max-w-(--breakpoint-2xl) flex-col px-page pt-inset group-data-staged:sticky group-data-staged:top-0 group-data-staged:h-plate"
   >
     {/*
-     * The heading comes first so screen readers meet the section's name
-     * first. From 1024 up it's a running head at the top right, like
-     * "Selected work"; narrower, it's a caption at the top left.
+     * Like every section, it opens on its name at the top left. While the
+     * stage is on, the counter sits opposite it, on the same baseline.
      */}
-    <div class="flex items-start justify-between gap-page lg:flex-row-reverse">
-      <h2 id="principles-heading" class="text-interface md:text-title">
+    <div class="flex items-baseline justify-between gap-page">
+      <h2 id="principles-heading" class="text-display">
         Principles
       </h2>
       {/* The index already says where the visitor is, so this is for sight only. */}

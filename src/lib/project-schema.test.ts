@@ -203,6 +203,16 @@ describe('projectSchema', () => {
     expect(parsed.data).toMatchObject({ isLive: false });
   });
 
+  // One row can start open; every other row starts closed.
+  it('starts a project closed unless it says otherwise', () => {
+    const parsed = schema.safeParse(openProject());
+
+    expect(parsed.data).toMatchObject({ isOpenByDefault: false });
+    expect(
+      schema.safeParse({ ...openProject(), isOpenByDefault: true }).data,
+    ).toMatchObject({ isOpenByDefault: true });
+  });
+
   it('takes the tools a project was built with, at least one', () => {
     const project = openProject();
 

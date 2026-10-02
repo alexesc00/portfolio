@@ -44,7 +44,6 @@ const { projectName, controls, isOpen = false } = Astro.props;
     coverOffset,
     opennessAt,
     planDrawer,
-    revealClip,
     type DrawerSlide,
   } from '../lib/row-drawer';
   import { toggleRow } from '../lib/row-toggle';
@@ -101,12 +100,18 @@ const { projectName, controls, isOpen = false } = Astro.props;
    * row in `group`. Everything under it slides down to uncover it, or up
    * over it: the groups under it and the rest of the page, so the page
    * below the table moves with them rather than jumping. The write-up is
-   * clipped to the top edge of what's sliding, since the groups under it
+   * cut off at the top edge of what's sliding, since the groups under it
    * can add up to less than its height and the rest of the page has no
    * background to cover it with. That holds for the last group too: the
    * page below slides over its write-up as the groups would. A drawer
-   * still moving turns round from where it is. Only transform and the clip
-   * change, so the page isn't laid out again every frame.
+   * still moving turns round from where it is.
+   *
+   * The cut is made with movement alone, like the slide: the write-up's
+   * row hides what overflows it and slides with everything under it,
+   * while what's inside slides back the other way and so stays put.
+   * Browsers can run movement off the main thread, Safari among them, so
+   * a cut made any other way would lag the slide there. Nothing else
+   * changes either, so the page isn't laid out again every frame.
    */
   function slideDrawer(panel: HTMLElement, group: Element, isOpening: boolean) {
     const openness = currentOpenness(panel);
@@ -123,28 +128,22 @@ const { projectName, controls, isOpen = false } = Astro.props;
 
     const slide = planDrawer({ isOpening, openness });
     const after = everythingAfter(group);
+    const contents = panel.firstElementChild;
     const height = panel.getBoundingClientRect().height;
     const timing = { ...settle, fill: 'forwards' as const };
-    // Several drawers can move at once, so each adds its own slide to
-    // everything under it.
-    const animations = [
-      ...after.map((element) =>
-        element.animate(
-          [
-            { translate: `0 ${coverOffset(slide.from, height)}px` },
-            { translate: `0 ${coverOffset(slide.to, height)}px` },
-          ],
-          { ...timing, composite: 'add' },
-        ),
-      ),
-      panel.animate(
-        [
-          { clipPath: revealClip(slide.from, height) },
-          { clipPath: revealClip(slide.to, height) },
-        ],
-        timing,
-      ),
+    const offsets = (sign: number) => [
+      { translate: `0 ${sign * coverOffset(slide.from, height)}px` },
+      { translate: `0 ${sign * coverOffset(slide.to, height)}px` },
     ];
+    // Several drawers can move at once, so each adds its own slide to
+    // everything under it, its own write-up's row included.
+    const animations = [
+      ...[...after, panel].map((element) =>
+        element.animate(offsets(1), { ...timing, composite: 'add' }),
+      ),
+      ...(contents ? [contents.animate(offsets(-1), timing)] : []),
+    ];
+    panel.toggleAttribute('data-sliding', true);
     const drawer = { slide, animations };
     moving.set(panel, drawer);
 
@@ -154,6 +153,7 @@ const { projectName, controls, isOpen = false } = Astro.props;
         // Hidden in the same frame everything under it drops its slide, so
         // nothing jumps: the page closes up exactly where it had slid to.
         if (!isOpening) panel.hidden = true;
+        panel.toggleAttribute('data-sliding', false);
         for (const animation of animations) animation.cancel();
         moving.delete(panel);
       },

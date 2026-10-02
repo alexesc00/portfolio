@@ -145,7 +145,29 @@ describe('the opened row', () => {
   it('asks for the full case study by pointing to the contact section', () => {
     const ask = /<a[^>]* href="#contact"[^>]*>[\s\S]*?<\/a>/.exec(html)?.[0];
 
-    expect(textOf(ask)).toBe('Ask for the full case study');
+    expect(textOf(ask)).toBe('Ask for the full case study ↓');
+  });
+
+  // Like the site's other links, the arrow follows the words, and it
+  // points down because the contact is further down the page.
+  it('follows the ask with a down arrow kept from screen readers', () => {
+    const ask =
+      /<a[^>]* href="#contact"[^>]*>[\s\S]*?<\/a>/.exec(html)?.[0] ?? '';
+
+    expect(ask).not.toContain('<svg');
+    expect(ask).toMatch(
+      /<span[^>]* aria-hidden="true"[^>]*>↓<\/span>\s*<\/a>$/,
+    );
+  });
+
+  // Above the image on narrower screens, so the row ends on the ask, and
+  // screen readers hear the write-up, the image, then the ask.
+  it('ends with the ask, after the image', () => {
+    const lastImage = html.lastIndexOf('<img');
+    const ask = html.indexOf('href="#contact"');
+
+    expect(lastImage).toBeGreaterThan(-1);
+    expect(ask).toBeGreaterThan(lastImage);
   });
 
   it('shows the wide and phone images in both themes', () => {

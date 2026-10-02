@@ -90,3 +90,54 @@ test('the page below the table slides with the rows', async ({ page }) => {
   expect(gaps.length).toBeGreaterThan(10);
   for (const gap of gaps) expect(Math.abs(gap)).toBeLessThanOrEqual(1);
 });
+
+// The last row has no rows under it, but the page below slides over its
+// write-up the same way, so it opens like every other row: uncovered at
+// full strength, never faded.
+test('the last row opens like the others, without fading', async ({ page }) => {
+  const samples = await page.evaluate(async () => {
+    const groups = document.querySelectorAll('tbody');
+    const group = groups[groups.length - 1];
+    const button = group?.querySelector<HTMLElement>('[data-row-toggle]');
+    const panel = document.getElementById(
+      button?.getAttribute('aria-controls') ?? '',
+    );
+    const below = group?.closest('section')?.nextElementSibling;
+    if (!button || !panel || !below) throw new Error('No last row');
+    if (button.getAttribute('aria-expanded') === 'true') button.click();
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    group.scrollIntoView();
+
+    const frame = () => new Promise(requestAnimationFrame);
+    const samples: { opacity: number; gap: number }[] = [];
+    async function watch(milliseconds: number) {
+      const start = performance.now();
+      while (performance.now() - start < milliseconds) {
+        await frame();
+        if (!panel || panel.hidden || !below) continue;
+        const style = getComputedStyle(panel);
+        const clip = /inset\(0px 0px ([\d.]+)px/.exec(style.clipPath);
+        const shownBottom =
+          panel.getBoundingClientRect().bottom - Number(clip?.[1] ?? 0);
+        samples.push({
+          opacity: Number(style.opacity),
+          gap: shownBottom - below.getBoundingClientRect().top,
+        });
+      }
+    }
+
+    button.click();
+    await watch(800);
+    button.click();
+    await watch(800);
+    return samples;
+  });
+
+  expect(samples.length).toBeGreaterThan(10);
+  for (const { opacity, gap } of samples) {
+    expect(opacity).toBe(1);
+    // Shown no further than the top of the page sliding over it, plus the
+    // space the page keeps between the table and what follows.
+    expect(gap).toBeLessThanOrEqual(1);
+  }
+});

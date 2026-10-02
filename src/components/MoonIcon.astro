@@ -7,17 +7,19 @@ const { class: className } = Astro.props;
 ---
 
 {/*
- * The moon beside "dark", drawn in the text color. Exported from the
- * Figma section "Theme switch icon" on the Hero type page. Decorative:
- * the button's words say what it does.
+ * The moon beside "dark", drawn in the text color, as in the Figma section
+ * "Theme switch icon" on the Hero type page. Decorative: the button's
+ * words say what it does.
+ *
+ * Figma exports its inside-aligned outline as a mask. This draws the same
+ * line as a plain stroke along the moon shrunk by half the line's width
+ * (both circles' radii 0.625 smaller), because Safari loses SVG masks
+ * inside a 3D transform, and the hero's bottom line tips back in 3D.
  */}
 <svg viewBox="0 0 14 14" fill="none" aria-hidden="true" class={className}>
-  <mask id="moon-inside" fill="white">
-    <path d="M6.49023 1.52344C5.87229 2.26144 5.5 3.21216 5.5 4.25C5.5 6.59721 7.40279 8.5 9.75 8.5C10.7878 8.5 11.7376 8.12669 12.4756 7.50879C12.2188 10.3078 9.86598 12.5 7 12.5C3.96243 12.5 1.5 10.0376 1.5 7C1.5 4.13432 3.69166 1.78064 6.49023 1.52344Z" />
-  </mask>
   <path
-    d="M6.49023 1.52344L7.44863 2.32592C7.77369 1.9377 7.83245 1.39174 7.59743 0.943246C7.36241 0.494755 6.88005 0.232344 6.37583 0.278683L6.49023 1.52344ZM12.4756 7.50879L13.7204 7.62299C13.7666 7.11881 13.5042 6.63653 13.0557 6.40156C12.6072 6.16659 12.0613 6.22535 11.6731 6.55037L12.4756 7.50879ZM6.49023 1.52344L5.53184 0.720954C4.73275 1.67529 4.25 2.90766 4.25 4.25H5.5H6.75C6.75 3.51666 7.01183 2.84758 7.44863 2.32592L6.49023 1.52344ZM5.5 4.25H4.25C4.25 7.28757 6.71243 9.75 9.75 9.75V8.5V7.25C8.09315 7.25 6.75 5.90685 6.75 4.25H5.5ZM9.75 8.5V9.75C11.0934 9.75 12.3246 9.26547 13.278 8.46721L12.4756 7.50879L11.6731 6.55037C11.1506 6.9879 10.4822 7.25 9.75 7.25V8.5ZM12.4756 7.50879L11.2308 7.39459C11.0325 9.5565 9.21356 11.25 7 11.25V12.5V13.75C10.5184 13.75 13.4051 11.0591 13.7204 7.62299L12.4756 7.50879ZM7 12.5V11.25C4.65279 11.25 2.75 9.34721 2.75 7H1.5H0.25C0.25 10.7279 3.27208 13.75 7 13.75V12.5ZM1.5 7H2.75C2.75 4.78634 4.44338 2.96682 6.60463 2.76819L6.49023 1.52344L6.37583 0.278683C2.93993 0.594462 0.25 3.48229 0.25 7H1.5Z"
-    fill="currentColor"
-    mask="url(#moon-inside)"
+    d="M5.214 2.464A4.875 4.875 0 1 0 11.536 8.786A4.875 4.875 0 0 1 5.214 2.464Z"
+    stroke="currentColor"
+    stroke-width="1.25"
   />
 </svg>

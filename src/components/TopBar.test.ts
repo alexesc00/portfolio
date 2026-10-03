@@ -29,8 +29,14 @@ describe('the top bar', () => {
   // Moving by transform never makes the browser lay the page out again.
   it('slides out of view by transform only', () => {
     expect(barClasses()).toMatch(/\bdata-hidden:-translate-y-full\b/);
-    expect(barClasses()).toMatch(/\bmotion-safe:transition-transform\b/);
+    expect(barClasses()).toMatch(/(^| )transition-transform\b/);
     expect(barClasses()).not.toMatch(/\btransition-all\b/);
+  });
+
+  // Gating only the transition property would leave the duration set, and
+  // the browser's default property list would still slide the bar.
+  it('jumps rather than slides when motion is reduced', () => {
+    expect(barClasses()).toMatch(/\bmotion-reduce:transition-none\b/);
   });
 
   // The bar is part of the page's structure, and structure doesn't bounce.

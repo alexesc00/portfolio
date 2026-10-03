@@ -1,0 +1,298 @@
+{
+  "exported": "2026-10-02",
+  "components": [
+    {
+      "name": "Hero",
+      "page": "Components",
+      "properties": {
+        "screen": "VARIANT: desktop | phone",
+        "state": "VARIANT: top | scrolled"
+      }
+    },
+    {
+      "name": "TopBar",
+      "page": "Components",
+      "properties": { "state": "VARIANT: shown | hidden | focus" }
+    },
+    {
+      "name": "DotMark",
+      "page": "Components",
+      "properties": { "screen": "VARIANT: desktop | phone" }
+    },
+    {
+      "name": "Colophon",
+      "page": "Components",
+      "properties": { "screen": "VARIANT: desktop | phone" }
+    },
+    {
+      "name": "ThemeSwitch",
+      "page": "Components",
+      "properties": { "theme": "VARIANT: dark | light" }
+    },
+    {
+      "name": "StatementSection",
+      "page": "Components",
+      "properties": {
+        "screen": "VARIANT: desktop | phone",
+        "state": "VARIANT: arrived | waiting"
+      }
+    },
+    {
+      "name": "WorksSection",
+      "page": "Components",
+      "properties": { "width": "VARIANT: 1440 | 1280 | 1024 | 768 | 390" }
+    },
+    {
+      "name": "WorksTable",
+      "page": "Components",
+      "properties": {
+        "width": "VARIANT: 1440 | 1280 | 1024 | 768 | 390",
+        "open": "VARIANT: NDA projects | design system"
+      }
+    },
+    {
+      "name": "WorksTable / Header",
+      "page": "Components",
+      "properties": { "Width": "VARIANT: 1440 | 1280 | 1024 | 390 | 768" }
+    },
+    {
+      "name": "WorksTable / Row",
+      "page": "Components",
+      "properties": {
+        "Category": "TEXT",
+        "Solution": "TEXT",
+        "What I did": "TEXT",
+        "Segment": "TEXT",
+        "Project name": "TEXT",
+        "Width": "VARIANT: 1440 | 1280 | 1024 | 390 | 768",
+        "State": "VARIANT: Closed | Open | Locked | Closed · hover | Open · hover | Closed · focus | Open · focus"
+      }
+    },
+    {
+      "name": "WorksTableToggle",
+      "page": "Components",
+      "properties": {
+        "Kind": "VARIANT: Closed | Open | Locked | Closed · hover | Open · hover | Closed · focus | Open · focus"
+      }
+    },
+    {
+      "name": "WorksTableCategory",
+      "page": "Components",
+      "properties": {
+        "Category": "TEXT",
+        "Name": "TEXT",
+        "state": "VARIANT: rest | rolled"
+      }
+    },
+    {
+      "name": "WorksTableOpenedRow / Chapter",
+      "page": "Components",
+      "properties": {
+        "Label": "TEXT",
+        "Text": "TEXT",
+        "Link": "BOOLEAN",
+        "Link text": "TEXT"
+      }
+    },
+    {
+      "name": "WorksTableOpenedRow / Write-up",
+      "page": "Components",
+      "properties": { "Name": "TEXT", "Layout": "VARIANT: Beside | Stacked" }
+    },
+    {
+      "name": "WorksTableOpenedRow / Ask",
+      "page": "Components",
+      "properties": { "State": "VARIANT: Default | Hover" }
+    },
+    {
+      "name": "WorksTableOpenedRow",
+      "page": "Components",
+      "properties": {
+        "Width": "VARIANT: 390 | 768 | 1024 | 1280 | 1440",
+        "Media": "VARIANT: Image | Showcase | NDA box"
+      }
+    },
+    {
+      "name": "ShowcaseCompare",
+      "page": "Components",
+      "properties": {
+        "Width": "VARIANT: 1440 | 1280 | 1024 | 768 | 390",
+        "State": "VARIANT: Running | Still | Starting"
+      }
+    },
+    {
+      "name": "WorksTableNdaBox",
+      "page": "Components",
+      "properties": { "screen": "VARIANT: desktop | phone" }
+    },
+    {
+      "name": "WorksTableStrip",
+      "page": "Components",
+      "properties": {
+        "Live": "BOOLEAN",
+        "Figma": "BOOLEAN",
+        "Claude": "BOOLEAN",
+        "Cursor": "BOOLEAN"
+      }
+    },
+    {
+      "name": "WorksTableStrip / Live label",
+      "page": "Components",
+      "properties": {}
+    },
+    {
+      "name": "ToolLogo",
+      "page": "Components",
+      "properties": { "tool": "VARIANT: Figma | Cursor | Claude" }
+    },
+    {
+      "name": "Works table / Device frame",
+      "page": "Components",
+      "properties": {
+        "Device": "VARIANT: Phone | Desktop",
+        "Style": "VARIANT: Solid"
+      }
+    },
+    {
+      "name": "Works table / Composition",
+      "page": "Components",
+      "properties": {
+        "Project": "VARIANT: Plots | Baobab | Tango | MiSunshine | Stanford Mobile",
+        "Size": "VARIANT: 1440 | 1280 | 1024 | 768 | 390"
+      }
+    },
+    {
+      "name": "PrinciplesSection / Index link",
+      "page": "Components",
+      "properties": {
+        "Number": "TEXT",
+        "Label": "TEXT",
+        "Show label": "BOOLEAN",
+        "state": "VARIANT: upcoming | current | passed | hover | focus"
+      }
+    },
+    {
+      "name": "PrinciplesSection",
+      "page": "Components",
+      "properties": {
+        "width": "VARIANT: 1440 | 1280 | 1024 | 768 | 390",
+        "state": "VARIANT: principle 1 | principle 2 | principle 3 | stacked"
+      }
+    },
+    {
+      "name": "ContactSection",
+      "page": "Components",
+      "properties": {
+        "screen": "VARIANT: desktop | phone",
+        "state": "VARIANT: rest | hover | focus"
+      }
+    },
+    { "name": "MoonIcon", "page": "Components", "properties": {} },
+    { "name": "SunIcon", "page": "Components", "properties": {} },
+    { "name": "ArrowIcon", "page": "Components", "properties": {} },
+    { "name": "EyeIcon", "page": "Components", "properties": {} },
+    { "name": "LockIcon", "page": "Components", "properties": {} }
+  ],
+  "siteText": [
+    "1",
+    "1 / 3",
+    "2",
+    "3",
+    "A product has to make sense the moment it opens. Anything that needs explaining is a design problem that is still open.",
+    "A product, a screen or a single chip has a job to do. Anything without one stays out, however new or fashionable it is.",
+    "AI tool that checks courses against 74 cyber work roles",
+    "AI workbench for reviewing schools’ cybersecurity programs",
+    "Across two federal projects, the team built about fifteen prototypes on it.",
+    "Alex Escudero",
+    "App design, Research",
+    "App design, Web design",
+    "Approach",
+    "Ask for the full case study",
+    "Baobab",
+    "Before Baobab, a company’s environmental, social and governance (ESG) reporting fell on one consultant instead of the staff who knew each impact area.",
+    "Branded design system for prototyping AI apps in Streamlit",
+    "Built with",
+    "Business",
+    "Caregivers in the Bay Area’s Chinese community look after a family member with a mental illness. An app can do little for them, so every feature had to help without pretending to fix the illness.",
+    "Category",
+    "Climate",
+    "Consumer",
+    "Contact",
+    "Curriculum Alignment Tool",
+    "Cyber Academic Management System",
+    "Design systems, Brand identity, Development",
+    "Designed in Figma ↗,",
+    "Designed in Figma ↗, built in the open on GitHub ↗",
+    "Designs change on the way to launch.",
+    "Designs change on the way to launch. I design products and build them in code, so what ships is what was meant.",
+    "Education",
+    "Events",
+    "Every analysis ran 74 AI checks, one per Defense Department cyber work role, and each returned about two screens of output. It all had to fit in Streamlit, MissionML’s stack at the time, for a program lead who wanted it flashy, modern and sleek.",
+    "Every part earns its place.",
+    "First-year students and visitors open the campus app for bus schedules, dining halls and events. The information they used most was buried, and planning a bus trip meant remembering details between screens.",
+    "Government",
+    "Government AI",
+    "Health",
+    "Hosts sell tickets to their events on Plots, and payouts ran through Stripe, which the app hid once it was linked. When Stripe paused a payout, hosts could not see why.",
+    "I design products and build them in code,",
+    "I designed a Payouts page for all of a host’s events, with alerts that name the Stripe problem before a payout pauses. I defined three custom APIs with the engineers to pull the Stripe data into the app.",
+    "I kept the app small: a medication log with reminders, and notes that track the person’s progress over time. Community events go into the phone’s calendar, next to tools for the caregiver’s own care and for emergencies.",
+    "I owned discovery, then built and deployed prototypes of the extraction and alignment engines for the two review steps AI would take over. I designed the platform as a workbench where schools build their documents in the app.",
+    "I pushed Streamlit’s components and state past what they were made for. A grid of 74 squares fills in green or gray as each check finishes, so the answer fits on one screen. Only the roles someone opens become tabs.",
+    "I restyled Streamlit’s own widgets with a brand theme and one stylesheet of about 800 lines, and added the components it lacks, each one Python call. FDEs could then prototype AI apps rapidly, already in the MissionML look.",
+    "In Baobab, leaders hand each impact area to the staff who know it. I built the component library in Figma first, so every worksheet, dashboard and team page came from the same parts, and a developer built the app from it.",
+    "It makes sense the first time.",
+    "LinkedIn ↗",
+    "Live",
+    "MiSunshine",
+    "MiSunshine shipped to the App Store with this short list of tools.",
+    "MissionML",
+    "MissionML design system",
+    "MissionML had just split off from its parent company and needed its own look. I designed the new brand, but the AI apps it prototyped for federal agencies in Streamlit still came out in the framework’s stock look.",
+    "Most work stops at good enough.",
+    "My redesign puts the home screen in order of use: health check and mobile ID first, then dining and transport, with events at the bottom. I added defaults to the trip planner, which starts from the rider’s location and will not confirm a trip without a destination.",
+    "NDA",
+    "Needs no explaining",
+    "On the App Store ↗",
+    "Outcome",
+    "Past good enough",
+    "Payouts page that shows event hosts when money arrives",
+    "Phone app for caregivers of family with mental illness",
+    "Plots",
+    "Principles",
+    "Problem",
+    "Product design, Design systems",
+    "Product design, Development",
+    "Product design, Strategy",
+    "Product strategy, Product design, Development",
+    "Production kept the coverage chart, result cards and evidence tables.",
+    "Production’s AI business rules are built on those prototypes.",
+    "Purpose first",
+    "Schools apply to have their cybersecurity programs designated as meeting national standards, and the manual work piled up in peer review. The question was which review steps AI could take over while staying within the policy.",
+    "Segment",
+    "Selected work",
+    "Solution",
+    "Stanford Mobile",
+    "Stock Streamlit",
+    "Students who ride transit alone in big cities need company against harassment. Testers worried about finding a buddy in a busy station with no way to reach them.",
+    "Tango",
+    "Tango matches riders on similar routes and gives each pair an in-app chat for meeting at the station, with a way to ask for a new match. I designed every screen, from matching to rating a buddy at the end, and built the landing page myself.",
+    "The Payouts page shipped with all three APIs.",
+    "The gap between good and great sits in the parts nobody will point at. Those parts decide whether the whole thing feels right.",
+    "The interface now tracks sustainability on residential construction projects.",
+    "Transit",
+    "Transit app that pairs students with a riding buddy",
+    "University campus app that puts the most-used screens first",
+    "Web platform where a whole company collects its ESG data",
+    "What I did",
+    "Work",
+    "built in the open on GitHub ↗",
+    "dark",
+    "hello@ alexescudero.design",
+    "hello@alexescudero.design",
+    "light",
+    "so what ships is what was meant.",
+    "↑ Top",
+    "↓"
+  ]
+}

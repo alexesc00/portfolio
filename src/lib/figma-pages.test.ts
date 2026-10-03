@@ -1,7 +1,5 @@
-import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import HomePage from '../pages/index.astro';
 import {
   compareComponents,
   compareWording,
@@ -21,7 +19,7 @@ describe('visibleText', () => {
   it('skips scripts, styles, drawings and the page’s head', () => {
     expect(
       visibleText(
-        '<head><title>Alex Escudero</title></head><script>const a = 1;</script><style>p{}</style><svg><text>Æ</text></svg><p>Work</p>',
+        '<!DOCTYPE html><head><title>Alex Escudero</title></head><script>const a = 1;</script><style>p{}</style><svg><text>Æ</text></svg><p>Work</p>',
       ),
     ).toEqual(['Work']);
   });
@@ -167,11 +165,30 @@ describe('the Figma file’s current pages', () => {
     readFileSync('src/styles/figma-pages.json', 'utf8'),
   ) as FigmaPagesSnapshot;
 
-  it('draw the wording the home page renders, and only that', async () => {
-    const container = await AstroContainer.create();
-    const html = await container.renderToString(HomePage);
+  // The built page, because rendering it here would need the content
+  // cache that only a build or the dev server writes.
+  it('draw the wording the built home page renders, and only that', () => {
+    const builtPage = 'dist/index.html';
+    if (!existsSync(builtPage)) {
+      throw new Error('Build the site first: npm run build');
+    }
+    const html = readFileSync(builtPage, 'utf8');
 
-    expect(compareWording(visibleText(html), snapshot.siteText)).toEqual([]);
+    expect(
+      compareWording(visibleText(html), snapshot.siteText, {
+        onlyOnSite: [
+          // The mark's stand-in until its dots are drawn. Figma draws the dots.
+          'Æ',
+          // A row's toggle word shows only on hover or keyboard focus, which
+          // the Components page draws.
+          'Open',
+          'Close',
+          // The showcase's progress while its app starts.
+          '0%',
+          'Loading Python',
+        ],
+      }),
+    ).toEqual([]);
   });
 
   it('have one component for each file in src/components', () => {
@@ -183,6 +200,15 @@ describe('the Figma file’s current pages', () => {
       compareComponents(
         snapshot.components.map((component) => component.name),
         files,
+        {
+          // Images exported from Figma into the works table, with no code.
+          withoutFile: [
+            'Works table / Device frame',
+            'Works table / Composition',
+          ],
+          // Renders no markup: it only makes in-page links scroll smoothly.
+          withoutComponent: ['InPageLinks.astro'],
+        },
       ),
     ).toEqual([]);
   });

@@ -4,6 +4,7 @@ import {
   fitApp,
   narrowestAppWidth,
   seamAfterKey,
+  shownTags,
 } from './showcase-compare';
 
 describe('fitApp', () => {
@@ -58,5 +59,28 @@ describe('seamAfterKey', () => {
   it('ignores other keys', () => {
     expect(seamAfterKey(50, 'Enter', false)).toBeNull();
     expect(seamAfterKey(50, 'ArrowUp', false)).toBeNull();
+  });
+});
+
+describe('shownTags', () => {
+  // A 872 wide screen: "Stock Streamlit" ends 140px in, "MissionML"
+  // starts 140px from the right, and the seam's handle is 36px across.
+  const tags = { stockRight: 140, brandLeft: 732 };
+  const reach = 36;
+
+  it('shows both tags fully while the seam is clear of them', () => {
+    expect(shownTags(291, tags, reach)).toEqual({ stock: 1, brand: 1 });
+    expect(shownTags(176, tags, reach)).toEqual({ stock: 1, brand: 1 });
+  });
+
+  it('fades a tag out as the seam comes within reach of it', () => {
+    expect(shownTags(158, tags, reach)).toEqual({ stock: 0.5, brand: 1 });
+    expect(shownTags(705, tags, reach)).toEqual({ stock: 1, brand: 0.75 });
+  });
+
+  it('hides a tag entirely once the seam reaches it', () => {
+    expect(shownTags(140, tags, reach)).toEqual({ stock: 0, brand: 1 });
+    expect(shownTags(0, tags, reach)).toEqual({ stock: 0, brand: 1 });
+    expect(shownTags(872, tags, reach)).toEqual({ stock: 1, brand: 0 });
   });
 });

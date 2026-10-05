@@ -108,3 +108,54 @@ test.describe('with reduced motion', () => {
     expect(fades).toBe(false);
   });
 });
+
+// A tag names the look on its side of the seam, so once the seam covers
+// that side the tag fades out, and it comes back when the seam moves away.
+// Below 1024 wide only the stills show, so the seam can be moved at once
+// rather than after the live app has loaded.
+test.describe('on the stills', () => {
+  test.use({ viewport: { width: 900, height: 900 } });
+
+  test('a tag hides while the seam covers its look', async ({ page }) => {
+    const seam = showcase(page).locator('[data-seam]');
+    const stockTag = showcase(page).locator('[data-tag=stock]');
+    const brandTag = showcase(page).locator('[data-tag=brand]');
+
+    await seam.press('Home');
+    await expect(stockTag).toHaveCSS('opacity', '0');
+    await expect(brandTag).toHaveCSS('opacity', '1');
+
+    await seam.press('End');
+    await expect(stockTag).toHaveCSS('opacity', '1');
+    await expect(brandTag).toHaveCSS('opacity', '0');
+  });
+});
+
+// The seam starts a third of the way across, but on a phone a third
+// falls on the "Stock Streamlit" tag and would hide it, so there the
+// seam starts halfway.
+test.describe('on a phone-width screen', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('the seam starts halfway, clear of both tags', async ({ page }) => {
+    await expect(showcase(page).locator('[data-seam]')).toHaveAttribute(
+      'aria-valuenow',
+      '50',
+    );
+    for (const look of ['stock', 'brand']) {
+      const opacity = await showcase(page)
+        .locator(`[data-tag=${look}]`)
+        .evaluate((element) => Number(getComputedStyle(element).opacity));
+      expect(opacity).toBeGreaterThan(0.5);
+    }
+  });
+});
+
+test('the seam starts a third of the way across from 768 wide', async ({
+  page,
+}) => {
+  await expect(showcase(page).locator('[data-seam]')).toHaveAttribute(
+    'aria-valuenow',
+    '33',
+  );
+});

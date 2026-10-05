@@ -35,6 +35,8 @@ export const heatStops = [
   0, 0.14, 0.32, 0.5, 0.56, 0.62, 0.68, 0.74, 0.8, 0.86, 0.91, 0.96, 1,
 ] as const;
 
+export const heatLightStops: readonly number[] = [];
+
 /** Odd, so a dot at rest, heat 0, has a step of its own. */
 export const heatColorCount = 129;
 /** Speed away from home, in pixels per 60Hz frame, that is fully hot. */
@@ -95,6 +97,13 @@ export function heatColors(ramp: RampStop[], foreground: string): string[] {
     return mixColors(foreground, color, heatAmount(heat));
   });
 }
+
+export const colorAmount: (heat: number) => number = () => -1;
+export const heatPaletteColors: (ramp: RampStop[]) => string[] = () => [];
+export const snapHeatColors: (
+  ramp: RampStop[],
+  rest: string,
+) => string[] = () => [];
 
 /** Whether a dot this hot or cold gets a glow around it. */
 export function isGlowing(heat: number): boolean {

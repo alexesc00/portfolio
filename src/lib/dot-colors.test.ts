@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { mixColors, rampColor } from './color-mixing';
 import {
+  colorAmount,
   createTrails,
   heatColorIndex,
   heatColors,
   heatColorCount,
+  heatLightStops,
+  heatPaletteColors,
   heatStops,
   isGlowing,
   isStreak,
+  snapHeatColors,
   smearColorCount,
   smearColorIndex,
   smearColors,
@@ -37,6 +41,19 @@ const heatRamp = [
   '#ca392c',
   '#b71b10',
 ].map((color, i) => ({ at: heatStops[i], color }));
+
+const heatLightRamp = [
+  '#335ada',
+  '#2d76ff',
+  '#009cbd',
+  '#d57700',
+  '#de4b00',
+  '#ec1b00',
+  '#ca392c',
+  '#b71b10',
+].map((color, i) => ({ at: heatLightStops[i], color }));
+/** The light-mode foreground at 60% over the light background. */
+const restingGray = '#6c6c6a';
 
 const smearWheel = [
   '#e15614',
@@ -108,6 +125,86 @@ describe('heatColors', () => {
     const warm = rampColor(heatRamp, 0.625);
 
     expect(colors[heatColorIndex(0.25)]).toBe(mixColors(foreground, warm, 0.4));
+  });
+});
+
+describe('heatLightStops', () => {
+  it('places the eight signed-off light-mode colors from 0% to 100%', () => {
+    expect(heatLightStops).toHaveLength(8);
+    expect(heatLightStops[0]).toBe(0);
+    expect(heatLightStops[7]).toBe(1);
+  });
+
+  it('leaves the middle of the ramp, where a dot rests, without a color', () => {
+    expect(heatLightStops).not.toContain(0.5);
+    expect(heatLightStops.filter((at) => at < 0.5)).toHaveLength(3);
+  });
+});
+
+describe('heatPaletteColors', () => {
+  const colors = heatPaletteColors(heatLightRamp);
+
+  it('makes a color for every step of heat', () => {
+    expect(colors).toHaveLength(heatColorCount);
+  });
+
+  it('gives gentle motion the palest color on its side, with no gray in it', () => {
+    expect(colors[heatColorIndex(0.05)]).toBe('#d57700');
+    expect(colors[heatColorIndex(-0.05)]).toBe('#009cbd');
+  });
+
+  it('runs to the ends of the ramp for hard motion', () => {
+    expect(colors[heatColorIndex(1)]).toBe('#b71b10');
+    expect(colors[heatColorIndex(-1)]).toBe('#335ada');
+  });
+});
+
+describe('snapHeatColors', () => {
+  const colors = snapHeatColors(heatLightRamp, restingGray);
+  // Every color the ramp itself can show, at the table's fineness.
+  const rampColors = new Set(
+    Array.from({ length: heatColorCount }, (_, i) =>
+      rampColor(heatLightRamp, i / (heatColorCount - 1)),
+    ),
+  );
+
+  it('makes a color for every step of heat', () => {
+    expect(colors).toHaveLength(heatColorCount);
+  });
+
+  it('is exactly the resting color at rest, matching the still', () => {
+    expect(colors[heatColorIndex(0)]).toBe(restingGray);
+  });
+
+  it('keeps the resting color below a tenth of full color', () => {
+    // Heat 0.05 takes 8% of its color; 0.08 takes 13%.
+    expect(colors[heatColorIndex(0.05)]).toBe(restingGray);
+    expect(colors[heatColorIndex(-0.05)]).toBe(restingGray);
+  });
+
+  it('snaps to full color from a tenth of full color on', () => {
+    expect(colors[heatColorIndex(0.08)]).toBe('#d57700');
+    expect(colors[heatColorIndex(-0.08)]).toBe('#009cbd');
+  });
+
+  it('shows only the resting color or the ramp’s own colors, never a mix of the two', () => {
+    for (const color of colors) {
+      expect(color === restingGray || rampColors.has(color)).toBe(true);
+    }
+  });
+
+  it('runs to the ends of the ramp for hard motion', () => {
+    expect(colors[heatColorIndex(1)]).toBe('#b71b10');
+    expect(colors[heatColorIndex(-1)]).toBe('#335ada');
+  });
+});
+
+describe('colorAmount', () => {
+  it('is nothing at rest and full well before the fastest motion', () => {
+    expect(colorAmount(0)).toBe(0);
+    expect(colorAmount(0.25)).toBeCloseTo(0.4);
+    expect(colorAmount(-0.25)).toBeCloseTo(0.4);
+    expect(colorAmount(0.8)).toBe(1);
   });
 });
 

@@ -161,12 +161,7 @@ describe('heatPaletteColors', () => {
 
 describe('snapHeatColors', () => {
   const colors = snapHeatColors(heatLightRamp, restingGray);
-  // Every color the ramp itself can show, at the table's fineness.
-  const rampColors = new Set(
-    Array.from({ length: heatColorCount }, (_, i) =>
-      rampColor(heatLightRamp, i / (heatColorCount - 1)),
-    ),
-  );
+  const palette = heatPaletteColors(heatLightRamp);
 
   it('makes a color for every step of heat', () => {
     expect(colors).toHaveLength(heatColorCount);
@@ -187,10 +182,10 @@ describe('snapHeatColors', () => {
     expect(colors[heatColorIndex(-0.08)]).toBe('#009cbd');
   });
 
-  it('shows only the resting color or the ramp’s own colors, never a mix of the two', () => {
-    for (const color of colors) {
-      expect(color === restingGray || rampColors.has(color)).toBe(true);
-    }
+  it('shows the resting color or the palette’s own, never a mix of the two', () => {
+    colors.forEach((color, step) => {
+      expect([restingGray, palette[step]]).toContain(color);
+    });
   });
 
   it('runs to the ends of the ramp for hard motion', () => {

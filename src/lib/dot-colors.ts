@@ -35,7 +35,13 @@ export const heatStops = [
   0, 0.14, 0.32, 0.5, 0.56, 0.62, 0.68, 0.74, 0.8, 0.86, 0.91, 0.96, 1,
 ] as const;
 
-export const heatLightStops: readonly number[] = [];
+/**
+ * Where the tokens heat-light-1 to heat-light-8 sit along light mode's
+ * Heat ramp. The middle, where a dot rests, has no color of its own.
+ */
+export const heatLightStops = [
+  0, 0.22, 0.38, 0.62, 0.74, 0.86, 0.93, 1,
+] as const;
 
 /** Odd, so a dot at rest, heat 0, has a step of its own. */
 export const heatColorCount = 129;
@@ -49,6 +55,11 @@ const heatRise = 40;
 const heatDeadZone = 0.3;
 /** Fainter than this, a glow reads as haze rather than light. */
 const glowFrom = 0.25;
+/**
+ * In light mode, a dot takes on color once it has this much of its full
+ * color. Below it, the dot keeps the resting color.
+ */
+const snapFrom = 0.1;
 
 /** One every 5°: a multiple of six, so each wheel color gets a step. */
 const smearDirections = 72;
@@ -73,8 +84,14 @@ const streakBend = 3;
 const shortestStreak = 0.5;
 const scratchTail = { x: 0, y: 0 };
 
-function heatAmount(heat: number): number {
+/** How much of its color a dot this hot or cold shows, from 0 to 1. */
+export function colorAmount(heat: number): number {
   return Math.min(Math.abs(heat) * heatColorGain, 1);
+}
+
+/** The heat a step of the Heat table stands for, from -1 to 1. */
+export function stepHeat(step: number): number {
+  return (step / (heatColorCount - 1)) * 2 - 1;
 }
 
 /** The step of the Heat table for `heat`. */
@@ -92,22 +109,44 @@ const restingHeat = heatColorIndex(0);
  */
 export function heatColors(ramp: RampStop[], foreground: string): string[] {
   return Array.from({ length: heatColorCount }, (_, i) => {
-    const heat = (i / (heatColorCount - 1)) * 2 - 1;
+    const heat = stepHeat(i);
     const color = rampColor(ramp, 0.5 + heat / 2);
-    return mixColors(foreground, color, heatAmount(heat));
+    return mixColors(foreground, color, colorAmount(heat));
   });
 }
 
-export const colorAmount: (heat: number) => number = () => -1;
-export const heatPaletteColors: (ramp: RampStop[]) => string[] = () => [];
-export const snapHeatColors: (
-  ramp: RampStop[],
-  rest: string,
-) => string[] = () => [];
+/**
+ * Every step's color straight from `ramp`, with no resting color mixed
+ * in. Near the middle the ramp has no color of its own, so gentle motion
+ * takes the palest color on its side.
+ */
+export function heatPaletteColors(ramp: RampStop[]): string[] {
+  const coolest = ramp.findLast((stop) => stop.at < 0.5)?.at ?? 0;
+  const warmest = ramp.find((stop) => stop.at > 0.5)?.at ?? 1;
+  return Array.from({ length: heatColorCount }, (_, i) => {
+    const at = 0.5 + stepHeat(i) / 2;
+    return rampColor(
+      ramp,
+      at < 0.5 ? Math.min(at, coolest) : Math.max(at, warmest),
+    );
+  });
+}
+
+/**
+ * Every Heat color for light mode: `rest` until a dot shows a tenth of
+ * its color, then its full palette color. A little color mixed into the
+ * resting gray reads as mud; dark mode gets away with mixing because its
+ * resting color is near white.
+ */
+export function snapHeatColors(ramp: RampStop[], rest: string): string[] {
+  return heatPaletteColors(ramp).map((color, i) =>
+    colorAmount(stepHeat(i)) >= snapFrom ? color : rest,
+  );
+}
 
 /** Whether a dot this hot or cold gets a glow around it. */
 export function isGlowing(heat: number): boolean {
-  return heatAmount(heat) >= glowFrom;
+  return colorAmount(heat) >= glowFrom;
 }
 
 /**

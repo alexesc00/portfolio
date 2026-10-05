@@ -180,6 +180,72 @@
           "css": "--color-live",
           "type": "COLOR",
           "values": { "Dark": "#33b574", "Light": "#33b574" }
+        },
+        {
+          "name": "heat-light/heat-light-1",
+          "css": "--color-heat-light-1",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-heat-1" },
+            "Light": { "alias": "--color-heat-1" }
+          }
+        },
+        {
+          "name": "heat-light/heat-light-2",
+          "css": "--color-heat-light-2",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-heat-2" },
+            "Light": { "alias": "--color-heat-2" }
+          }
+        },
+        {
+          "name": "heat-light/heat-light-3",
+          "css": "--color-heat-light-3",
+          "type": "COLOR",
+          "values": { "Dark": "#009cbd", "Light": "#009cbd" }
+        },
+        {
+          "name": "heat-light/heat-light-4",
+          "css": "--color-heat-light-4",
+          "type": "COLOR",
+          "values": { "Dark": "#d57700", "Light": "#d57700" }
+        },
+        {
+          "name": "heat-light/heat-light-5",
+          "css": "--color-heat-light-5",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-heat-10" },
+            "Light": { "alias": "--color-heat-10" }
+          }
+        },
+        {
+          "name": "heat-light/heat-light-6",
+          "css": "--color-heat-light-6",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-heat-11" },
+            "Light": { "alias": "--color-heat-11" }
+          }
+        },
+        {
+          "name": "heat-light/heat-light-7",
+          "css": "--color-heat-light-7",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-heat-12" },
+            "Light": { "alias": "--color-heat-12" }
+          }
+        },
+        {
+          "name": "heat-light/heat-light-8",
+          "css": "--color-heat-light-8",
+          "type": "COLOR",
+          "values": {
+            "Dark": { "alias": "--color-heat-13" },
+            "Light": { "alias": "--color-heat-13" }
+          }
         }
       ]
     },

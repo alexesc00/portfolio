@@ -1,5 +1,5 @@
 {
-  "exported": "2026-10-02",
+  "exported": "2026-10-04",
   "components": [
     {
       "name": "Hero",
@@ -17,7 +17,10 @@
     {
       "name": "DotMark",
       "page": "Components",
-      "properties": { "screen": "VARIANT: desktop | phone" }
+      "properties": {
+        "screen": "VARIANT: desktop | phone",
+        "theme": "VARIANT: light | dark"
+      }
     },
     {
       "name": "Colophon",

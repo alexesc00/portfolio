@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mixColors, rampColor, wheelColor } from './color-mixing';
+import { mixColors, rampColor } from './color-mixing';
 
 describe('mixColors', () => {
   it('returns the first color at 0 and the second at 1', () => {
@@ -45,30 +45,5 @@ describe('rampColor', () => {
   it('holds the end colors past either end', () => {
     expect(rampColor(ramp, -0.5)).toBe('#000000');
     expect(rampColor(ramp, 1.5)).toBe('#e15614');
-  });
-});
-
-describe('wheelColor', () => {
-  const wheel = ['#e15614', '#d8c42c', '#6b9041', '#0f7166'];
-
-  it('spaces the colors evenly round one turn', () => {
-    expect(wheelColor(wheel, 0)).toBe('#e15614');
-    expect(wheelColor(wheel, 0.25)).toBe('#d8c42c');
-    expect(wheelColor(wheel, 0.5)).toBe('#6b9041');
-  });
-
-  it('mixes the two neighbours between them', () => {
-    const between = wheelColor(wheel, 0.125);
-
-    expect(between).toMatch(/^#[0-9a-f]{6}$/);
-    expect(between).toBe(mixColors('#e15614', '#d8c42c', 0.5));
-    expect(between).not.toBe('#e15614');
-    expect(between).not.toBe('#d8c42c');
-  });
-
-  it('wraps from the last color back to the first', () => {
-    expect(wheelColor(wheel, 0.875)).toBe(mixColors('#0f7166', '#e15614', 0.5));
-    expect(wheelColor(wheel, 1)).toBe('#e15614');
-    expect(wheelColor(wheel, -0.25)).toBe('#0f7166');
   });
 });

@@ -93,17 +93,3 @@ export function rampColor(ramp: RampStop[], at: number): string {
   const amount = (at - before.at) / (after.at - before.at);
   return mixColors(before.color, after.color, amount);
 }
-
-/**
- * The color `turn` of the way round a wheel of `colors`, spaced evenly
- * from the first at 0, mixing neighbours and wrapping past the last.
- */
-export function wheelColor(colors: string[], turn: number): string {
-  const position = (((turn % 1) + 1) % 1) * colors.length;
-  const before = Math.floor(position);
-  return mixColors(
-    colors[before],
-    colors[(before + 1) % colors.length],
-    position - before,
-  );
-}

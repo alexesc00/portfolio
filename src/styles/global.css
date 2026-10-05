@@ -75,6 +75,20 @@
   --color-heat-11: #ec1b00;
   --color-heat-12: #ca392c;
   --color-heat-13: #b71b10;
+  /*
+   * Heat for light mode, also cold to hot: the colors of Heat's ramp that
+   * show on a light background. The white and yellows in the middle are
+   * left out, and the cyan (3) and amber (4) are darkened. A dot at rest
+   * is the muted text color, which sits between 3 and 4.
+   */
+  --color-heat-light-1: var(--color-heat-1);
+  --color-heat-light-2: var(--color-heat-2);
+  --color-heat-light-3: #009cbd;
+  --color-heat-light-4: #d57700;
+  --color-heat-light-5: var(--color-heat-10);
+  --color-heat-light-6: var(--color-heat-11);
+  --color-heat-light-7: var(--color-heat-12);
+  --color-heat-light-8: var(--color-heat-13);
   --color-smear-1: #e15614;
   --color-smear-2: #d8c42c;
   --color-smear-3: #6b9041;

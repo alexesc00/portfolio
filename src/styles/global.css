@@ -57,10 +57,9 @@
   --color-live: #33b574;
 
   /*
-   * The dotted Æ's colors while it moves, and nothing else's. Heat, for
-   * dark mode, runs from cold to hot along a ramp; where each color sits
-   * on it is in src/lib/dot-colors.ts. Smear, for light mode, is a wheel
-   * of directions, one color every 60° from travelling right.
+   * The dotted Æ's colors while it moves, and nothing else's: Heat, a
+   * ramp from cold to hot, one for each theme. Where each color sits on
+   * its ramp is in src/lib/dot-colors.ts.
    */
   --color-heat-1: #335ada;
   --color-heat-2: #2d76ff;
@@ -76,8 +75,8 @@
   --color-heat-12: #ca392c;
   --color-heat-13: #b71b10;
   /*
-   * Heat for light mode, also cold to hot: the colors of Heat's ramp that
-   * show on a light background. The white and yellows in the middle are
+   * Heat for light mode: the colors of dark mode's ramp that show on a
+   * light background. The white and yellows in the middle are
    * left out, and the cyan (3) and amber (4) are darkened. A dot at rest
    * is the muted text color, which sits between 3 and 4.
    */
@@ -89,12 +88,6 @@
   --color-heat-light-6: var(--color-heat-11);
   --color-heat-light-7: var(--color-heat-12);
   --color-heat-light-8: var(--color-heat-13);
-  --color-smear-1: #e15614;
-  --color-smear-2: #d8c42c;
-  --color-smear-3: #6b9041;
-  --color-smear-4: #0f7166;
-  --color-smear-5: #1f6fc0;
-  --color-smear-6: #db4578;
 
   /* Everything scanned: header, hero corners, table, labels, buttons. */
   --text-interface: 0.875rem;
@@ -301,7 +294,6 @@
   );
   --transition-duration-settle: 533ms;
   --transition-duration-afterglow-heat: 900ms;
-  --transition-duration-afterglow-smear: 700ms;
 }
 
 @layer base {

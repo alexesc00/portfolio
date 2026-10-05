@@ -11,7 +11,7 @@
 >
   <canvas class="invisible absolute inset-0 size-full group-data-drawn:visible"></canvas>
   <span
-    class="still absolute top-1/2 left-1/2 -translate-1/2 text-mark text-foreground select-none group-data-drawn:invisible"
+    class="still absolute top-1/2 left-1/2 -translate-1/2 text-mark text-foreground select-none group-data-drawn:invisible light:text-text-muted"
     data-still
   >
     Æ
@@ -38,19 +38,19 @@
 <script>
   import { millisecondsOf } from '../lib/css-duration';
   import {
+    colorAmount,
     createTrails,
     heatColorCount,
     heatColorIndex,
     heatColors,
+    heatLightStops,
+    heatPaletteColors,
     heatStops,
     isGlowing,
-    isStreak,
-    smearColorCount,
-    smearColorIndex,
-    smearColors,
+    snapHeatColors,
     sortByColor,
+    stepHeat,
     stepTrails,
-    streakTail,
     type Trails,
   } from '../lib/dot-colors';
   import {
@@ -72,7 +72,12 @@
   const glowReach = 3.2;
   /** A glow's opacity at its middle, where it's brightest. */
   const glowStrength = 0.35;
-  const smearWheelSize = 6;
+  /**
+   * The wash's opacity at its middle, for a dot showing all its color. The
+   * wash stands in for the glow in light mode, where there's no room to
+   * add light, and fades with the dot's heat.
+   */
+  const washStrength = 0.35;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   function token(name: string): string {
@@ -97,10 +102,35 @@
   }
 
   /**
-   * A soft round glow in `color`, drawn once so each frame only has to
-   * copy it: blending a new gradient for every dot every frame is slow.
+   * `color` as it shows over `background`, as one solid color. The still
+   * draws the resting letter see-through in light mode; the canvas draws
+   * it solid, over a background of its own, so the swap can't be seen.
    */
-  function makeGlow(color: string, radius: number, scale: number) {
+  function solidColor(color: string, background: string): string {
+    const swatch = document.createElement('canvas');
+    swatch.width = 1;
+    swatch.height = 1;
+    const context = swatch.getContext('2d', { willReadFrequently: true });
+    if (!context) throw new Error('No canvas to mix the resting color on');
+    context.fillStyle = background;
+    context.fillRect(0, 0, 1, 1);
+    context.fillStyle = color;
+    context.fillRect(0, 0, 1, 1);
+    const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+    return `#${[red, green, blue].map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  /**
+   * A soft round glow in `color` at `strength` opacity in its middle,
+   * drawn once so each frame only has to copy it: blending a new gradient
+   * for every dot every frame is slow.
+   */
+  function makeGlow(
+    color: string,
+    radius: number,
+    scale: number,
+    strength: number,
+  ) {
     const size = Math.ceil(radius * 2 * scale);
     const glow = document.createElement('canvas');
     glow.width = size;
@@ -116,7 +146,7 @@
       middle,
       middle,
     );
-    context.globalAlpha = glowStrength;
+    context.globalAlpha = strength;
     // Fading to `transparent` would pass through black, as that's
     // transparent black; the same color at no opacity fades cleanly.
     gradient.addColorStop(0, color);
@@ -186,19 +216,17 @@
     // order of it, so each color is drawn as one path.
     let colors = new Uint16Array(0);
     let order = new Uint32Array(0);
-    // Which dots Smear draws as streaks rather than dots, 1 or 0.
-    let streaks = new Uint8Array(0);
     // Made once and reused, so drawing a frame leaves nothing to collect.
     const heatStarts = new Uint32Array(heatColorCount + 1);
-    const smearStarts = new Uint32Array(smearColorCount + 1);
-    const tail = { x: 0, y: 0 };
     let heatTable: string[] = [];
-    let smearTable: string[] = [];
+    // Light mode only: the palette's own colors, for the washes, and the
+    // background the washes darken.
+    let washColors: string[] = [];
+    let background = '';
     let glows = new Map<number, HTMLCanvasElement>();
-    const afterglow = {
-      heat: tokenInMilliseconds('--transition-duration-afterglow-heat'),
-      smear: tokenInMilliseconds('--transition-duration-afterglow-smear'),
-    };
+    const afterglow = tokenInMilliseconds(
+      '--transition-duration-afterglow-heat',
+    );
     let pointer: Point | null = null;
     // Counted from the start, so the mark rests a moment before wandering.
     let pointerGoneAt = performance.now();
@@ -248,7 +276,6 @@
       trails = createTrails(dots.x.length);
       colors = new Uint16Array(dots.x.length);
       order = new Uint32Array(dots.x.length);
-      streaks = new Uint8Array(dots.x.length);
       recolor();
 
       draw();
@@ -257,25 +284,31 @@
     }
 
     /**
-     * Mixes the palette for the theme showing into its table. Mixing
-     * throws if a token can't be read, so nothing changes until it has
-     * worked: a first build leaves the CSS still showing, and a theme
-     * switch keeps the colors it had.
+     * Mixes the palette for the theme showing into its table: Heat's ramp
+     * in dark mode, and in light mode its colors that show on a light
+     * background, snapping from the resting gray. Mixing throws if a token
+     * can't be read, so nothing changes until it has worked: a first
+     * build leaves the CSS still showing, and a theme switch keeps the
+     * colors it had.
      */
     function recolor() {
       const nextTheme = currentTheme();
-      const foreground = token('--color-foreground');
       if (nextTheme === 'dark') {
         const ramp = heatStops.map((at, i) => ({
           at,
           color: token(`--color-heat-${i + 1}`),
         }));
-        heatTable = heatColors(ramp, foreground);
+        heatTable = heatColors(ramp, token('--color-foreground'));
       } else {
-        const wheel = Array.from({ length: smearWheelSize }, (_, i) =>
-          token(`--color-smear-${i + 1}`),
-        );
-        smearTable = smearColors(wheel, foreground);
+        const ramp = heatLightStops.map((at, i) => ({
+          at,
+          color: token(`--color-heat-light-${i + 1}`),
+        }));
+        const nextBackground = token('--color-background');
+        const rest = solidColor(getComputedStyle(still).color, nextBackground);
+        heatTable = snapHeatColors(ramp, rest);
+        washColors = heatPaletteColors(ramp);
+        background = nextBackground;
       }
       theme = nextTheme;
       glows = new Map();
@@ -283,10 +316,18 @@
 
     function draw() {
       if (!dots) return;
+      const width = canvas.width / scale;
+      const height = canvas.height / scale;
       context.setTransform(scale, 0, 0, scale, 0, 0);
-      context.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
-      if (theme === 'dark') drawHeat(dots);
-      else drawSmear(dots);
+      if (theme === 'dark') {
+        context.clearRect(0, 0, width, height);
+      } else {
+        // Multiplying needs something to multiply into: on a clear canvas
+        // a wash would just be painted on.
+        context.fillStyle = background;
+        context.fillRect(0, 0, width, height);
+      }
+      drawHeat(dots);
     }
 
     function drawHeat(dots: Dots) {
@@ -295,9 +336,12 @@
       for (let i = 0; i < x.length; i++) colors[i] = heatColorIndex(heat[i]);
       sortByColor(colors, order, heatStarts);
 
-      // Glows first, added as light, so overlapping ones brighten.
+      // Glows first. In dark mode they're added as light, so overlapping
+      // ones brighten; in light mode they're washes, multiplied in, so
+      // overlapping ones deepen, like marker strokes crossing.
       const glowRadius = dotRadius * glowReach;
-      context.globalCompositeOperation = 'lighter';
+      context.globalCompositeOperation =
+        theme === 'dark' ? 'lighter' : 'multiply';
       for (let i = 0; i < x.length; i++) {
         if (!isGlowing(heat[i])) continue;
         context.drawImage(
@@ -312,24 +356,6 @@
 
       forEachColor((color, start, end) => {
         fillDots(dots, heatTable[color], start, end);
-      });
-    }
-
-    function drawSmear(dots: Dots) {
-      const { vx, vy } = trails;
-      let hasStreaks = false;
-      for (let i = 0; i < dots.x.length; i++) {
-        colors[i] = smearColorIndex(vx[i], vy[i]);
-        streaks[i] = isStreak(vx[i], vy[i]) ? 1 : 0;
-        hasStreaks ||= streaks[i] === 1;
-      }
-      sortByColor(colors, order, smearStarts);
-
-      // Dots with tails too short to see are drawn as dots, which is far
-      // cheaper than lines.
-      forEachColor((color, start, end) => {
-        fillDots(dots, smearTable[color], start, end, streaks);
-        if (hasStreaks) strokeStreaks(dots, smearTable[color], start, end);
       });
     }
 
@@ -348,56 +374,42 @@
     }
 
     /**
-     * Fills the dots from `start` to `end` in `order` as one path, leaving
-     * out any marked in `skip`: a single fill is far cheaper than one for
-     * each dot.
+     * Fills the dots from `start` to `end` in `order` as one path: a
+     * single fill is far cheaper than one for each dot.
      */
     function fillDots(
       { x, y }: Dots,
       style: string,
       start: number,
       end: number,
-      skip?: Uint8Array,
     ) {
       context.fillStyle = style;
       context.beginPath();
       for (let n = start; n < end; n++) {
         const i = order[n];
-        if (skip?.[i]) continue;
         context.moveTo(x[i] + dotRadius, y[i]);
         context.arc(x[i], y[i], dotRadius, 0, Math.PI * 2);
       }
       context.fill();
     }
 
-    /** Draws the streaks among the dots from `start` to `end` in `order`. */
-    function strokeStreaks(
-      { x, y }: Dots,
-      style: string,
-      start: number,
-      end: number,
-    ) {
-      const { vx, vy } = trails;
-      // A round-capped line as wide as a dot, from its tail to the dot.
-      context.lineCap = 'round';
-      context.lineWidth = dotRadius * 2;
-      context.strokeStyle = style;
-      context.beginPath();
-      for (let n = start; n < end; n++) {
-        const i = order[n];
-        if (!streaks[i]) continue;
-        streakTail(vx[i], vy[i], tail);
-        context.moveTo(x[i] + tail.x, y[i] + tail.y);
-        context.lineTo(x[i], y[i]);
-      }
-      context.stroke();
-    }
-
-    /** The glow for a Heat step, made the first time it's needed. */
+    /**
+     * The glow for a Heat step, made the first time it's needed. A dark
+     * glow is the dot's own color. A light wash is the palette's own color:
+     * the resting gray in a dot's color would multiply into a smudge.
+     */
     function glowFor(step: number, radius: number) {
       let glow = glows.get(step);
       if (!glow) {
-        glow = makeGlow(heatTable[step], radius, scale);
+        glow =
+          theme === 'dark'
+            ? makeGlow(heatTable[step], radius, scale, glowStrength)
+            : makeGlow(
+                washColors[step],
+                radius,
+                scale,
+                washStrength * colorAmount(stepHeat(step)),
+              );
         glows.set(step, glow);
       }
       return glow;

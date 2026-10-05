@@ -134,42 +134,6 @@
           "values": { "Dark": "#b71b10", "Light": "#b71b10" }
         },
         {
-          "name": "smear/smear-1",
-          "css": "--color-smear-1",
-          "type": "COLOR",
-          "values": { "Dark": "#e15614", "Light": "#e15614" }
-        },
-        {
-          "name": "smear/smear-2",
-          "css": "--color-smear-2",
-          "type": "COLOR",
-          "values": { "Dark": "#d8c42c", "Light": "#d8c42c" }
-        },
-        {
-          "name": "smear/smear-3",
-          "css": "--color-smear-3",
-          "type": "COLOR",
-          "values": { "Dark": "#6b9041", "Light": "#6b9041" }
-        },
-        {
-          "name": "smear/smear-4",
-          "css": "--color-smear-4",
-          "type": "COLOR",
-          "values": { "Dark": "#0f7166", "Light": "#0f7166" }
-        },
-        {
-          "name": "smear/smear-5",
-          "css": "--color-smear-5",
-          "type": "COLOR",
-          "values": { "Dark": "#1f6fc0", "Light": "#1f6fc0" }
-        },
-        {
-          "name": "smear/smear-6",
-          "css": "--color-smear-6",
-          "type": "COLOR",
-          "values": { "Dark": "#db4578", "Light": "#db4578" }
-        },
-        {
           "name": "border-strong",
           "css": "--color-border-strong",
           "type": "COLOR",
@@ -423,12 +387,6 @@
           "css": "--transition-duration-afterglow-heat",
           "type": "TIMING",
           "values": { "Default": 0.9 }
-        },
-        {
-          "name": "duration/afterglow-smear",
-          "css": "--transition-duration-afterglow-smear",
-          "type": "TIMING",
-          "values": { "Default": 0.7 }
         },
         {
           "name": "duration/spring",

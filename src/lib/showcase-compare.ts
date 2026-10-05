@@ -26,6 +26,25 @@ export function clampSeam(percent: number) {
 }
 
 /**
+ * How much of each tag shows, from 0 to 1, with the seam `seamX` pixels
+ * from the screen's left. A tag names the look on its side of the seam,
+ * so as the seam comes within `reach` of it the tag fades out, gone by
+ * the time the seam touches it: the look it names is mostly covered.
+ */
+export function shownTags(
+  seamX: number,
+  tags: { stockRight: number; brandLeft: number },
+  reach: number,
+) {
+  const shown = (distance: number) =>
+    Math.min(1, Math.max(0, distance / reach));
+  return {
+    stock: shown(seamX - tags.stockRight),
+    brand: shown(tags.brandLeft - seamX),
+  };
+}
+
+/**
  * Where the seam goes when `key` is pressed on it, or null for a key that
  * doesn't move it. `isBigStep` is Shift held down.
  */

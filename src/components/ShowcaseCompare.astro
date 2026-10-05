@@ -30,8 +30,6 @@ const still = 'size-full object-cover object-top-left';
 // Out of the layout, so a still fills its layer rather than the <picture>
 const wrapper = { class: 'contents' };
 
-const initialSeam = 100 / 3;
-
 /*
  * The screen shows a light app in both of the site's themes, so what sits
  * on it keeps the dark mode's colors in light mode too: dark, with light
@@ -41,7 +39,7 @@ const onScreen =
   'bg-background text-text light:bg-foreground light:text-background';
 const tag = [
   onScreen,
-  'pointer-events-none absolute bottom-3.5 flex h-7 items-center rounded-full px-3 text-interface transition-opacity duration-settle ease-settle',
+  'showcase-tag pointer-events-none absolute bottom-3.5 flex h-7 items-center rounded-full px-3 text-interface',
 ];
 ---
 
@@ -54,7 +52,6 @@ const tag = [
  */}
 <div
   class="group/showcase"
-  style={`--seam: ${initialSeam}%`}
   data-status="still"
   data-showcase
   data-app={showcase.app}
@@ -113,7 +110,7 @@ const tag = [
           aria-label="Seam between stock Streamlit and the MissionML look"
           aria-valuemin="0"
           aria-valuemax="100"
-          aria-valuenow={Math.round(initialSeam)}
+          aria-valuenow="33"
           aria-valuetext="A third stock Streamlit"
           class="showcase-seam absolute inset-y-0 left-(--seam) z-10 -ml-5 flex w-10 cursor-ew-resize touch-none justify-center"
           data-seam
@@ -128,6 +125,7 @@ const tag = [
               'absolute top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full',
             ]}
             aria-hidden="true"
+            data-seam-handle
           >
             <svg
               viewBox="0 0 36 36"
@@ -142,8 +140,12 @@ const tag = [
             </svg>
           </span>
         </div>
-        <span class:list={[tag, 'left-3.5 z-10']}>Stock Streamlit</span>
-        <span class:list={[tag, 'right-3.5 z-10']}>MissionML</span>
+        <span class:list={[tag, 'left-3.5 z-10']} data-tag="stock">
+          Stock Streamlit
+        </span>
+        <span class:list={[tag, 'right-3.5 z-10']} data-tag="brand">
+          MissionML
+        </span>
       </div>
       {/*
        * How far the live app has got starting up, over the blurred view:
@@ -180,6 +182,7 @@ const tag = [
     clampSeam,
     fitApp,
     seamAfterKey,
+    shownTags,
     type ShowcaseStatus,
   } from '../lib/showcase-compare';
   import { mirror } from '../lib/showcase-mirror';
@@ -230,29 +233,66 @@ const tag = [
         '[data-layer=brand] [data-live]',
       ),
     };
+    const tags = {
+      stock: screen.querySelector<HTMLElement>('[data-tag=stock]'),
+      brand: screen.querySelector<HTMLElement>('[data-tag=brand]'),
+    };
+    const handle = seam.querySelector<HTMLElement>('[data-seam-handle]');
 
     // The seam
-    let seamAt = Number(seam.getAttribute('aria-valuenow'));
+    // Where the seam starts depends on the screen's width; see the styles
+    let seamAt = parseFloat(getComputedStyle(root).getPropertyValue('--seam'));
+    /*
+     * Where the tags sit, measured when the screen changes size rather
+     * than on every move of the seam, so dragging never makes the browser
+     * lay the page out again.
+     */
+    let tagBounds = { stockRight: 0, brandLeft: 0, reach: 0 };
+    function measureTags() {
+      if (!tags.stock || !tags.brand || !handle) return;
+      tagBounds = {
+        stockRight: tags.stock.offsetLeft + tags.stock.offsetWidth,
+        brandLeft: tags.brand.offsetLeft,
+        reach: handle.offsetWidth,
+      };
+    }
+    function showTags() {
+      // Not measured yet, or the screen isn't showing
+      if (!tagBounds.reach) return;
+      const shown = shownTags(
+        (seamAt / 100) * (screen?.clientWidth ?? 0),
+        tagBounds,
+        tagBounds.reach,
+      );
+      tags.stock?.style.setProperty('--shown', String(shown.stock));
+      tags.brand?.style.setProperty('--shown', String(shown.brand));
+    }
     function setSeam(percent: number) {
       seamAt = clampSeam(percent);
       root.style.setProperty('--seam', `${seamAt}%`);
+      showTags();
       seam?.setAttribute('aria-valuenow', String(Math.round(seamAt)));
       seam?.setAttribute(
         'aria-valuetext',
         `${Math.round(seamAt)}% stock Streamlit`,
       );
     }
+    setSeam(seamAt);
     const percentAt = (event: PointerEvent) => {
       const box = screen.getBoundingClientRect();
       return ((event.clientX - box.left) / box.width) * 100;
     };
     seam.addEventListener('pointerdown', (event) => {
       seam.setPointerCapture(event.pointerId);
+      root.toggleAttribute('data-dragging', true);
       const move = (moveEvent: PointerEvent) => setSeam(percentAt(moveEvent));
       seam.addEventListener('pointermove', move);
       seam.addEventListener(
         'lostpointercapture',
-        () => seam.removeEventListener('pointermove', move),
+        () => {
+          seam.removeEventListener('pointermove', move);
+          root.removeAttribute('data-dragging');
+        },
         { once: true },
       );
     });
@@ -291,6 +331,8 @@ const tag = [
         holder.style.height = `${size.height}px`;
         holder.style.transform = `scale(${size.scale})`;
       }
+      measureTags();
+      showTags();
     }
     new ResizeObserver(fit).observe(screen);
 
@@ -437,8 +479,53 @@ const tag = [
 </script>
 
 <style>
+  /*
+   * Where the seam starts: a third of the way across, or halfway on
+   * phones, where a third falls on the "Stock Streamlit" tag and would
+   * hide it.
+   */
+  [data-showcase] {
+    --seam: 33.3333%;
+  }
+
+  @media (width < 48rem) {
+    [data-showcase] {
+      --seam: 50%;
+    }
+  }
+
   /* The brand copy covers the stock one to the right of the seam */
   [data-showcase] [data-layer='brand'] {
     clip-path: inset(0 0 0 var(--seam));
+  }
+
+  /*
+   * As the seam nears a tag, the tag fades and slides 8px toward its own
+   * edge, out of the seam's way, by how much of it still shows (--shown,
+   * set by the script). Dragging, it follows the visitor's hand exactly;
+   * when the seam jumps (arrow keys, Home and End, the screen resizing)
+   * it settles there instead of snapping.
+   */
+  .showcase-tag {
+    --away: -1;
+    opacity: var(--shown, 1);
+    translate: calc((1 - var(--shown, 1)) * var(--away) * var(--spacing) * 2) 0;
+    transition:
+      opacity var(--transition-duration-settle) var(--ease-settle),
+      translate var(--transition-duration-settle) var(--ease-settle);
+  }
+
+  [data-tag='brand'] {
+    --away: 1;
+  }
+
+  [data-dragging] .showcase-tag {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .showcase-tag {
+      transition: none;
+    }
   }
 </style>

@@ -88,3 +88,23 @@ test('reopening the row soon after closing keeps the running app', async ({
   await expect(showcase(page)).toHaveAttribute('data-status', 'live');
   expect(await frame?.evaluate((element) => element.isConnected)).toBe(true);
 });
+
+// With reduced motion on, the live app appears over the stills at once
+// rather than fading in.
+test.describe('with reduced motion', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  test('the live app appears without fading', async ({ page }) => {
+    const fades = await showcase(page)
+      .locator('[data-live]')
+      .first()
+      .evaluate((element) => {
+        const style = getComputedStyle(element);
+        return (
+          style.transitionProperty !== 'none' &&
+          style.transitionDuration.split(',').some((d) => parseFloat(d) > 0)
+        );
+      });
+    expect(fades).toBe(false);
+  });
+});

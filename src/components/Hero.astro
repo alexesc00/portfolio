@@ -84,8 +84,10 @@ import TopBar from './TopBar.astro';
   }
 
   @media (prefers-reduced-motion: reduce) {
+    [data-bottom-line] > :global(*),
     [data-bottom-line][data-hidden]:not(:has(:focus-visible)) > :global(*) {
       transform: none;
+      transition: none;
     }
   }
 </style>

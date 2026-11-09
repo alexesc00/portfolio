@@ -1,8 +1,8 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 // The Calibration design exercise: a service blueprint and four wireframes at
-// /calibration/, each one HTML file with its styles and script inlined. These
-// check the behavior the pages share, on every browser the site is tested in.
+// /calibration/. These check the behavior the pages share, on every browser the
+// site is tested in.
 
 const blueprint = '/calibration/';
 const views = {
@@ -276,15 +276,15 @@ test.describe('margin notes', () => {
   test('notes follow the layout when its breakpoint moves', async ({
     page,
   }) => {
-    await page.route(`**${views.decide}`, async (route) => {
+    await page.route('**/calibration/components.css', async (route) => {
       const response = await route.fetch();
       // Only the stylesheet's breakpoint, so a script that keeps its own
       // copy would be caught out
-      const html = (await response.text()).replaceAll(
+      const css = (await response.text()).replaceAll(
         '@media (min-width: 1100px)',
         '@media (min-width: 1300px)',
       );
-      await route.fulfill({ response, body: html });
+      await route.fulfill({ response, body: css });
     });
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.goto(views.decide);
@@ -398,5 +398,35 @@ test('check marks on finished rows aren’t read aloud', async ({ page }) => {
     const snapshot = await page.locator(selector).ariaSnapshot();
     expect(snapshot, path).toContain('ccepted');
     expect(snapshot, path).not.toContain('✓');
+  }
+});
+
+// The notes and the font come from shared files, which a wrong path would
+// quietly lose.
+test('the notes sheet opens with the notes and closes, on every page', async ({
+  page,
+}) => {
+  for (const path of [blueprint, ...Object.values(views)]) {
+    await page.goto(path);
+    await page.getByRole('button', { name: 'Notes' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Calibration loop notes' });
+    await expect(
+      sheet.getByRole('heading', { name: 'Decisions', exact: true }),
+      path,
+    ).toBeVisible();
+    await sheet.getByRole('button', { name: 'Close' }).click();
+    await expect(sheet, path).toBeHidden();
+  }
+});
+
+test('every page loads the Calibration typeface', async ({ page }) => {
+  for (const path of [blueprint, ...Object.values(views)]) {
+    await page.goto(path);
+    const faces = await page.evaluate(async () =>
+      (await document.fonts.load('1em "Calibration Grotesk"')).map(
+        (face) => face.status,
+      ),
+    );
+    expect(faces, path).toEqual(['loaded']);
   }
 });

@@ -1,0 +1,261 @@
+/* Calibration loop: design tokens
+ *
+ * What this system is for: grayscale wireframes of a question-calibration tool and the
+ * service blueprint around it. Low in polish, high in decisions. So there is no brand
+ * color, one typeface, and a short type scale. The product's hierarchy comes from weight,
+ * size and lightness alone. One hue marks the designer's notes on a view, and nothing in
+ * the product uses it.
+ *
+ * Three layers. Pages take every color, type role and motion from the last two. Spacing,
+ * weight, radius and line height can come straight from the base scale.
+ *   1. Base tokens: raw values (the gray ramp, sizes, spacing). Named by position on a
+ *      scale, never by what they're for. They never change between themes.
+ *   2. Semantic tokens: what a value is for (page background, muted text). Each points
+ *      at a base token. Only the theme colors get remapped for dark mode.
+ *   3. Alias tokens: roles that are another semantic token in disguise (a count mark is
+ *      text-colored). Point one somewhere else to restyle just that role.
+ *
+ * To restyle a role, change where its token points. To change a value everywhere, change
+ * the base token. base.css holds the page defaults and one class per type role.
+ * components.css holds the components pages share.
+ */
+
+/* ------------------------------------------------------------------ */
+/* 1. Base tokens                                                      */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Gray ramp in oklch, neutral (chroma 0). L is perceived lightness, so equal steps
+     look equally far apart. 100 to 900 step by 0.08. The ends step finer, because
+     surfaces sit there and need small, even differences: 0.02 at the light end,
+     0.03 at the dark end, where the eye needs a little more. */
+  --gray-0: oklch(1 0 0);
+  --gray-25: oklch(0.98 0 0);
+  --gray-50: oklch(0.96 0 0);
+  --gray-100: oklch(0.93 0 0);
+  --gray-200: oklch(0.85 0 0);
+  --gray-300: oklch(0.77 0 0);
+  --gray-400: oklch(0.69 0 0);
+  --gray-500: oklch(0.61 0 0);
+  --gray-600: oklch(0.53 0 0);
+  --gray-700: oklch(0.45 0 0);
+  --gray-800: oklch(0.37 0 0);
+  --gray-900: oklch(0.29 0 0);
+  --gray-925: oklch(0.24 0 0);
+  --gray-950: oklch(0.21 0 0);
+  --gray-975: oklch(0.18 0 0);
+
+  /* Typeface: Overused Grotesk, the portfolio site's, as "Calibration Grotesk" (see
+     base.css). One family; hierarchy comes from size and weight. */
+  --font-family-sans: "Calibration Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Type scale in rem, so it follows the reader's font-size setting.
+     Small steps at the bottom for dense rows, bigger steps at the top for hierarchy. */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.8125rem;  /* 13px */
+  --font-size-md: 0.875rem;   /* 14px */
+  --font-size-lg: 1rem;       /* 16px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.75rem;   /* 28px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.5;
+
+  /* Overused Grotesk fits tighter than most faces, so the scale sits a step looser:
+     big type tightens less, and small text opens a little. */
+  --letter-spacing-tighter: -0.01em;
+  --letter-spacing-tight: -0.005em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-open: 0.01em;
+  --letter-spacing-wide: 0.04em;
+
+  /* Spacing on a 4px unit (space-4 is 4 units, 16px), plus 2, 6 and 10 for small gaps */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-14: 56px;
+
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-full: 999px;
+
+  --border-width-thin: 1px;
+  --border-width-medium: 1.5px;
+  --border-width-thick: 2px;
+
+  /* Durations, and the easing curves they go with */
+  --duration-150: 150ms;
+  --duration-200: 200ms;
+  --duration-300: 300ms;
+  --easing-out: ease-out;
+  --easing-out-long: cubic-bezier(0.32, 0.72, 0, 1);   /* fast, then a long settle */
+  --easing-in: cubic-bezier(0.4, 0, 1, 1);             /* slow, then fast */
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Semantic tokens that don't change with the theme                 */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Type roles. Use with `font: var(--type-body)`, or the .t-* classes in base.css,
+     which also apply tracking, case and wrapping. */
+  --type-display: var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-tight) var(--font-family-sans);
+  --type-title: var(--font-weight-semibold) var(--font-size-xl) / var(--line-height-snug) var(--font-family-sans);
+  --type-heading: var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-snug) var(--font-family-sans);
+  --type-body: var(--font-weight-regular) var(--font-size-md) / var(--line-height-relaxed) var(--font-family-sans);
+  --type-small: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans);
+  --type-caption: var(--font-weight-regular) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans);
+  --type-label: var(--font-weight-medium) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans);
+  --type-note: var(--type-body);   /* notes read like the page's prose, not like captions */
+
+  --tracking-display: var(--letter-spacing-tighter);
+  --tracking-title: var(--letter-spacing-tight);
+  /* Text at 14px and below, set once on the body. The portfolio site opens its 14px
+     text by the same amount. */
+  --tracking-text: var(--letter-spacing-open);
+  /* Labels are sentence case. For uppercase labels, set --case-label: uppercase and
+     --tracking-label: var(--letter-spacing-wide) together. */
+  --tracking-label: var(--letter-spacing-open);
+  --case-label: none;
+
+  /* Reading width for prose */
+  --measure: 65ch;
+
+  /* The widest a page gets. The site header is always this wide, so it sits in the same
+     place on every page. */
+  --width-page-max: 2200px;
+
+  /* Blueprint block width: every action fits in 3 lines and its records in 2, at 13px */
+  --width-blueprint-block: 192px;
+
+  /* Margin note markers: the numbered circle, in a note and on the view's edge */
+  --size-note-marker: 20px;
+
+  /* Spacing roles */
+  --space-page-gutter: var(--space-4);
+  --space-inset-compact: var(--space-2-5) var(--space-3);
+  --space-inset: var(--space-4);
+  --space-gap-tight: var(--space-1-5);
+  --space-gap: var(--space-2);
+  --space-gap-group: var(--space-4);
+  --space-gap-section: var(--space-7);
+
+  /* Shape */
+  --radius-control: var(--radius-sm);
+  --radius-surface: var(--radius-md);
+  --radius-pill: var(--radius-full);
+  --stroke-hairline: var(--border-width-thin);
+  --stroke-connector: var(--border-width-medium);   /* secondary arrows and lines */
+  --stroke-emphasis: var(--border-width-thick);
+
+  /* Motion: a duration and its curve, as in `transition: opacity var(--motion-quick)`.
+     Small changes, such as a hover or a press, are quick. A sheet arrives in 300ms and
+     settles, and leaves in 200ms, faster because the reader has already moved on. Something
+     going back to its place on the page returns in 200ms too, but settles as it lands,
+     since it stays in view. */
+  --motion-quick: var(--duration-150) var(--easing-out);
+  --motion-enter: var(--duration-300) var(--easing-out-long);
+  --motion-exit: var(--duration-200) var(--easing-in);
+  --motion-return: var(--duration-200) var(--easing-out-long);
+  /* How long the pointer rests on a link before its tip shows */
+  --delay-tip: var(--duration-200);
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Semantic color tokens                                            */
+/* Each holds a light value and a dark one, in light-dark(). The page  */
+/* follows the reader's system setting, and [data-theme] sets a theme  */
+/* on any element, so one page can show a light and a dark panel side  */
+/* by side. A token takes its light or dark value on the element that  */
+/* uses it, so the alias tokens below follow along on their own.       */
+/*                                                                     */
+/* Dark is derived by flipping the ramp: text and borders take the     */
+/* mirror steps. Muted text sits one step lighter than the mirror (300, */
+/* not 400), because light-on-dark needs more contrast to read the     */
+/* same. Dashed edges sit one step brighter than solid ones (700, not  */
+/* 800): a dash shows about half the ink, and on a dark page that half */
+/* fades. The note color is lighter and a little less saturated, so it */
+/* doesn't glare on a dark page.                                       */
+/*                                                                     */
+/* Contrast, worst case across page, surface, subtle and sunken, both  */
+/* themes (WCAG 2 / APCA):                                             */
+/*   text 14.7:1 / Lc 97, muted text 4.7:1 / Lc 60,                    */
+/*   control border 3.4:1 / Lc 34, note color 4.7:1 / Lc 53,           */
+/*   numerals on the note color 5.3:1 / Lc 55.                         */
+/* Plain borders are decorative and stay light on purpose.             */
+/* ------------------------------------------------------------------ */
+:root { color-scheme: light dark; }
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+:root {
+  /* The page is darker than the surfaces on it, in both themes. */
+  --color-bg-page: light-dark(var(--gray-25), var(--gray-975));
+  --color-bg-surface: light-dark(var(--gray-0), var(--gray-950));
+  --color-bg-subtle: light-dark(var(--gray-50), var(--gray-925));    /* one step toward the text: headers, label columns */
+  --color-bg-sunken: light-dark(var(--gray-25), var(--gray-975));    /* wells and bands set into a surface */
+
+  --color-text: light-dark(var(--gray-950), var(--gray-50));
+  --color-text-muted: light-dark(var(--gray-600), var(--gray-300));
+
+  --color-border-subtle: light-dark(var(--gray-100), var(--gray-900));   /* dividers inside a surface */
+  --color-border: light-dark(var(--gray-200), var(--gray-800));          /* edges of surfaces */
+  --color-border-dashed: light-dark(var(--gray-200), var(--gray-700));   /* dashed edges: records the platform keeps on its own */
+  --color-border-control: var(--gray-500);                               /* edges of inputs and checkboxes, 3:1 in both themes */
+
+  --color-note: light-dark(oklch(0.55 0.17 38), oklch(0.74 0.14 42));   /* the one hue, only for the designer's notes */
+
+  --color-scrim: light-dark(oklch(0 0 0 / 0.24), oklch(0 0 0 / 0.5));   /* dims the page under a sheet */
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. Alias tokens                                                     */
+/* Each points at a semantic token, so it takes that token's light or  */
+/* dark value wherever it's used.                                      */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Inverse: solid fills such as the primary button */
+  --color-bg-inverse: var(--color-text);
+  --color-text-inverse: var(--color-bg-surface);
+
+  --color-border-strong: var(--color-text);
+  --color-focus: var(--color-text);
+
+  /* Counts: "4 of 10" drawn as filled and empty marks. The number is always written
+     beside them, so the empty mark can stay light. */
+  --color-mark: var(--color-text);
+  --color-mark-empty: var(--color-border);
+
+  /* Margin notes (components.css): the designer's voice on a view, kept apart from the
+     product's by the note color */
+  --color-note-text: var(--color-text);
+  --color-note-lead: var(--color-note);                          /* the bold phrase that says the decision */
+  --color-note-marker-bg: var(--color-note);
+  --color-note-marker-text: var(--color-text-inverse);
+  --color-note-leader: var(--color-note);                        /* joins a marker to its note */
+
+  /* Blueprint blocks (components.css). A record the platform keeps on its own uses the
+     same border, dashed and unfilled. */
+  --color-blueprint-block-bg: var(--color-bg-surface);
+  --color-blueprint-block-border: var(--color-border);
+  --color-blueprint-block-rule: var(--color-border-subtle);      /* above the records line */
+  --color-blueprint-block-records: var(--color-text-muted);
+
+  /* Page chain (components.css): the links between the loop's pages */
+  --color-page-chain-text: var(--color-text-muted);
+  --color-page-chain-current: var(--color-text);                  /* the page being read */
+  --color-page-chain-rule: var(--color-border);                   /* between the map and the views */
+}

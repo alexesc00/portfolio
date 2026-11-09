@@ -1,0 +1,82 @@
+/* Calibration loop: base styles
+ *
+ * Load after tokens.css. Sets page defaults once, and gives each type role a class so a
+ * page says what its text is (a label, a caption) rather than how big it is. Every color
+ * is a semantic token.
+ */
+
+/* Overused Grotesk, the portfolio site's typeface (variable, 300 to 900), with two
+   changes so it sets like the IBM Plex Sans this system was tuned on:
+   - Its tabular figures are the default digits, as Plex's were. Its proportional 1 is
+     narrow and crowds the next word ("Q1 mid", "1 of 2"). CSS can't switch them on
+     everywhere, since the font shorthand resets it and Grotesk's tabular set also
+     widens the hyphen. The license reserves the name for the unchanged font, so this
+     copy is called Calibration Grotesk. License in /calibration/fonts/OFL.txt.
+   - size-adjust scales it to Plex's x-height (0.516 of the font size, against 0.5),
+     so every size in the scale reads as tuned. Line heights don't change. */
+@font-face {
+  font-family: "Calibration Grotesk";
+  src: url("/calibration/fonts/calibration-grotesk.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 103.2%;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  /* A missing weight should look missing, not faked */
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg-page);
+  color: var(--color-text);
+  font: var(--type-body);
+  letter-spacing: var(--tracking-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, dl, dd, figure, blockquote { margin: 0; }
+/* Headings get their look from a role class, not from the tag */
+h1, h2, h3, h4, h5, h6 { font: inherit; }
+
+:focus-visible {
+  outline: var(--stroke-emphasis) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Type roles                                                          */
+/* ------------------------------------------------------------------ */
+.t-display { font: var(--type-display); letter-spacing: var(--tracking-display); text-wrap: balance; }
+.t-title   { font: var(--type-title); letter-spacing: var(--tracking-title); text-wrap: balance; }
+.t-heading { font: var(--type-heading); text-wrap: balance; }
+.t-body    { font: var(--type-body); }
+.t-small   { font: var(--type-small); }
+.t-caption { font: var(--type-caption); }
+.t-label   { font: var(--type-label); letter-spacing: var(--tracking-label); text-transform: var(--case-label); }
+.t-note    { font: var(--type-note); color: var(--color-note-text); }
+
+/* Modifiers. They come after the roles so they win over the role's own weight. */
+.t-strong { font-weight: var(--font-weight-semibold); }
+.t-muted  { color: var(--color-text-muted); }
+.t-num    { font-variant-numeric: tabular-nums; }   /* counts, times, anything in a column */
+.t-prose  { max-width: var(--measure); text-wrap: pretty; }
+.t-nowrap { white-space: nowrap; }
+
+/* Read by screen readers, not drawn. components.css and the question history repeat this
+   recipe where it only applies in one state or at one width. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

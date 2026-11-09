@@ -1,0 +1,892 @@
+/* Calibration loop: components
+ *
+ * Load after tokens.css and base.css. Each component says what it's for, its parts and
+ * its variants. The larger ones take their colors from alias tokens in tokens.css, so
+ * restyling one means changing where those point.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Blueprint block                                                     */
+/* ------------------------------------------------------------------ */
+/* One thing that happens at one step of the service blueprint.
+   Parts:
+     - The action: what happens, in plain words. Required.
+     - The records line: what it leaves on record, after a bold "Records:". Optional.
+   Variants:
+     - A person's action, the default: solid border, surface fill.
+     - .is-platform, a record the platform keeps on its own: dashed and unfilled,
+       because nobody acted to make it. It has no records line, since it is one.
+   Markup:
+     <div class="blueprint-block">
+       <p>Writes each question and its rubric</p>
+       <p class="blueprint-block-records"><b>Records:</b> question, rubric</p>
+     </div>
+   Its width is fixed, so it keeps it in a row of blocks. */
+.blueprint-block {
+  width: var(--width-blueprint-block);
+  flex: none;
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-inset-compact);
+  font: var(--type-small);
+  background: var(--color-blueprint-block-bg);
+  border: var(--stroke-hairline) solid var(--color-blueprint-block-border);
+  border-radius: var(--radius-control);
+}
+
+.blueprint-block-records {
+  padding-top: var(--space-2);
+  border-top: var(--stroke-hairline) solid var(--color-blueprint-block-rule);
+  color: var(--color-blueprint-block-records);
+}
+.blueprint-block-records b {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.blueprint-block.is-platform {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--color-border-dashed);
+}
+
+/* ------------------------------------------------------------------ */
+/* Margin notes                                                        */
+/* ------------------------------------------------------------------ */
+/* The designer's voice on a view, kept apart from the product's. Each note is numbered,
+   and the same number marks the element it's about, on the edge of the view.
+   Parts:
+     - .notes: the list, under a "Notes" label.
+     - .marker: the number in a filled circle. In a note it leads the text.
+       .is-on-frame puts it half outside the frame's right edge, level with its element.
+     - The note: .t-note text, led by a bold phrase that says the decision.
+     The marker, the leader and the bold phrase are in the note color.
+   Behavior (components.js): adds the markers to the frame. When the layout puts the notes
+   beside the view, it sets .is-placed, moves each note level with its marker and draws a
+   leader between the two, so the note's own number and the label go. A note that would
+   overlap the one above moves down, and its leader angles down to it. When the notes sit
+   under the view, they follow it as a numbered list.
+   Markup:
+     <aside class="notes" aria-labelledby="notes-h">
+       <p class="t-label t-muted" id="notes-h">Notes</p>
+       <ol>
+         <li data-for="1"><span class="marker t-label">1</span>
+           <p class="t-note"><b>The decision.</b> Why.</p></li>
+       </ol>
+     </aside> */
+.marker {
+  width: var(--size-note-marker);
+  height: var(--size-note-marker);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--color-note-marker-bg);
+  color: var(--color-note-marker-text);
+  font-variant-numeric: tabular-nums;
+}
+/* A ring of page color sets it apart from the frame's border. The frame needs
+   position: relative. */
+.marker.is-on-frame {
+  position: absolute;
+  right: calc(var(--size-note-marker) / -2);
+  box-shadow: 0 0 0 var(--stroke-emphasis) var(--color-bg-page);
+}
+
+.notes { display: grid; gap: var(--space-3); }
+.notes ol {
+  display: grid;
+  gap: var(--space-4);
+  max-width: var(--measure);
+  padding: 0;
+  list-style: none;
+}
+.notes li {
+  display: grid;
+  grid-template-columns: var(--size-note-marker) minmax(0, 1fr);
+  gap: var(--space-2-5);
+  align-items: start;
+}
+.notes li p b {
+  color: var(--color-note-lead);
+  font-weight: var(--font-weight-semibold);
+}
+
+.notes.is-placed { position: relative; }
+.notes.is-placed > .t-label { display: none; }
+.notes.is-placed ol { position: relative; display: block; }
+.notes.is-placed li { position: absolute; left: 0; right: 0; display: block; }
+/* The leader stands in for the number on screen; screen readers still hear it. The
+   recipe is .visually-hidden's, from base.css, for this state only. */
+.notes.is-placed li > .marker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.notes-leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.notes-leaders path { fill: none; stroke: var(--color-note-leader); stroke-width: var(--stroke-connector); }
+
+/* ------------------------------------------------------------------ */
+/* View page                                                           */
+/* ------------------------------------------------------------------ */
+/* A wireframe's page: a short intro, then the view (one bordered frame) with its margin
+   notes beside it. Under 1100px the notes follow the frame as a list.
+   Parts:
+     - .view-page: the page's main column. It's as wide as the site header, so both start
+       at the same edge.
+     - .intro: the page's title, and what its sample shows. The blueprint uses it too.
+     - .view-layout: the frame and its notes.
+     - .frame: the view. Its sections are its children, ruled off from each other. It
+       opens with a frame bar, then a .frame-head: the screen's title, and its .status on
+       the right.
+     - .block: one section of the view, led by a .block-head. Nothing inside it, such as a
+       wide table, can widen the page.
+   Markup:
+     <main class="view-page">
+       <header class="intro">…</header>
+       <div class="view-layout">
+         <figure class="frame" aria-label="Wireframe: …">
+           <div class="frame-bar" aria-hidden="true">…</div>
+           <header class="frame-head"><div>…</div><div class="status">…</div></header>
+           <section class="block"><div class="block-head">…</div>…</section>
+         </figure>
+         <aside class="notes">…</aside>
+       </div>
+     </main> */
+:root {
+  --frame-w: 860px;
+  --notes-w: 300px;
+  --frame-pad: var(--space-6);
+}
+
+.view-page {
+  max-width: var(--width-page-max);
+  margin: 0 auto;
+  padding-inline: max(var(--space-page-gutter), env(safe-area-inset-left, 0px)) max(var(--space-page-gutter), env(safe-area-inset-right, 0px));
+  padding-block: var(--space-8) var(--space-14);
+  display: grid;
+  gap: var(--space-8);
+}
+.intro { display: grid; gap: var(--space-gap); min-width: 0; }
+
+.view-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .view-layout { grid-template-columns: minmax(0, var(--frame-w)) var(--notes-w); gap: var(--space-14); }
+}
+
+.frame {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  background: var(--color-bg-surface);
+  border: var(--stroke-hairline) solid var(--color-border);
+  border-radius: var(--radius-surface);
+}
+.frame > * + *:not(.marker) { border-top: var(--stroke-hairline) solid var(--color-border-subtle); }
+
+.frame-head,
+.block { padding: var(--frame-pad); }
+
+.frame-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--space-3) var(--space-6);
+}
+.frame-head > div { display: grid; gap: var(--space-1); }
+.status { display: grid; justify-items: end; gap: var(--space-1); text-align: end; }
+
+.block { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-gap-group); }
+.block-head { display: grid; gap: var(--space-0-5); }
+
+@media (max-width: 640px) {
+  :root { --frame-pad: var(--space-4); }
+  .view-page { padding-block: var(--space-8) var(--space-10); }
+  .status { justify-items: start; text-align: start; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Frame bar                                                           */
+/* ------------------------------------------------------------------ */
+/* A plain browser window's top edge on a wireframe, so the frame reads as a screen in the
+   product and not as part of the page. The address says where the screen lives.
+   Parts: three window dots, the address, and an empty end that keeps the address centered.
+   It is the frame's first child, and a full border sets it off from the view below.
+   Markup:
+     <div class="frame-bar" aria-hidden="true">
+       <span class="frame-bar-dots"><i></i><i></i><i></i></span>
+       <span class="frame-bar-address t-caption">/assessments/systems-engineering/decide</span>
+       <span></span>
+     </div> */
+.frame-bar {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 28rem) 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-subtle);
+  border-radius: calc(var(--radius-surface) - var(--stroke-hairline)) calc(var(--radius-surface) - var(--stroke-hairline)) 0 0;
+}
+/* Beats the frame's lighter divider between sections */
+.frame > .frame-bar + :not(.marker) { border-top: var(--stroke-hairline) solid var(--color-border); }
+.frame-bar-dots { display: flex; gap: var(--space-1-5); }
+.frame-bar-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+.frame-bar-address {
+  min-width: 0;
+  padding: var(--space-0-5) var(--space-3);
+  background: var(--color-bg-surface);
+  border: var(--stroke-hairline) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------ */
+/* Well                                                                */
+/* ------------------------------------------------------------------ */
+/* A record the platform keeps on its own, set into the view: sunken and dashed, because
+   nobody typed it. A label opens it, naming the platform and what the record shows.
+   Markup:
+     <div class="well">
+       <p class="t-label t-muted">Colare platform · Changed since run 1</p>
+       <dl class="facts t-small">…</dl>
+     </div> */
+.well {
+  display: grid;
+  gap: var(--space-2-5);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-sunken);
+  border: var(--stroke-hairline) dashed var(--color-border-dashed);
+  border-radius: var(--radius-control);
+}
+
+/* ------------------------------------------------------------------ */
+/* Facts                                                               */
+/* ------------------------------------------------------------------ */
+/* Short facts in two columns: what each one is, then what it says. A .full item spans
+   both columns.
+   Markup:
+     <dl class="facts t-small">
+       <dt>Rubric</dt><dd>Unchanged.</dd>
+     </dl> */
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-1-5) var(--space-4);
+}
+.facts dt { color: var(--color-text-muted); }
+.facts .full { grid-column: 1 / -1; }
+
+/* ------------------------------------------------------------------ */
+/* Drawn button                                                        */
+/* ------------------------------------------------------------------ */
+/* A button in the product, drawn and not live, since each view is a picture of one
+   moment. A .row lines up buttons and the note beside them, and wraps when it must.
+   Variants:
+     - The default: an outlined button.
+     - .primary: the view's main action, filled.
+     - .is-pressed: the option chosen.
+     - .is-off: not available yet.
+   Markup:
+     <div class="row">
+       <span class="button primary">Send pushback</span>
+       <span class="t-small t-muted">The author takes the next turn.</span>
+     </div> */
+:root { --button-h: 32px; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--button-h);
+  padding: var(--space-1-5) var(--space-3);
+  font: var(--type-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  background: var(--color-bg-surface);
+  border: var(--stroke-hairline) solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+}
+.button.is-pressed { border-color: var(--color-border-strong); box-shadow: inset 0 0 0 var(--stroke-hairline) var(--color-border-strong); }
+.button.primary { color: var(--color-text-inverse); background: var(--color-bg-inverse); border-color: var(--color-bg-inverse); }
+.button.is-off { color: var(--color-text-muted); background: transparent; border-color: var(--color-border); }
+
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+
+/* ------------------------------------------------------------------ */
+/* Pill                                                                */
+/* ------------------------------------------------------------------ */
+/* A state that asks for attention, such as "Your turn", in a rounded outline.
+   Markup: <span class="pill t-label">Your turn</span> */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-0-5) var(--space-2);
+  border: var(--stroke-hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mark                                                                */
+/* ------------------------------------------------------------------ */
+/* One tester's result on one question. Shape carries the meaning, so it survives
+   grayscale. The count is always written beside the marks, and screen readers get it in
+   words, so the marks are hidden from them.
+   Variants: .w answered well (filled), .p partly (half filled), .o poorly (an outline),
+   .b blank or not reached (a dash).
+   Markup: <span class="mark w" aria-hidden="true"></span> */
+:root { --mark-size: 10px; }
+
+.mark {
+  display: inline-block;
+  width: var(--mark-size);
+  height: var(--mark-size);
+  border-radius: var(--radius-pill);
+  flex: none;
+  vertical-align: middle;
+}
+.mark.w { background: var(--color-mark); }
+.mark.p { border: var(--stroke-connector) solid var(--color-mark); background: linear-gradient(90deg, var(--color-mark) 50%, transparent 50%); }
+.mark.o { border: var(--stroke-connector) solid var(--color-mark); }
+.mark.b { height: var(--stroke-connector); border-radius: 0; background: var(--color-mark); }
+
+/* ------------------------------------------------------------------ */
+/* Entry                                                               */
+/* ------------------------------------------------------------------ */
+/* Something a person typed into the record: a byline saying who and what kind of entry,
+   then what they wrote. A .reply sits inside the entry it answers, set in by a rule.
+   Markup:
+     <article class="entry">
+       <p class="by t-label"><b>Reviewer</b> · Pushback after run 3</p>
+       <p class="t-prose">…</p>
+       <article class="entry reply">…</article>
+     </article> */
+.entry { display: grid; gap: var(--space-2); }
+.by { color: var(--color-text-muted); }
+.by b { color: var(--color-text); font-weight: var(--font-weight-semibold); }
+.reply {
+  margin-top: var(--space-2);
+  padding-inline-start: var(--space-4);
+  border-inline-start: var(--stroke-emphasis) solid var(--color-border);
+}
+
+/* ------------------------------------------------------------------ */
+/* Question row                                                        */
+/* ------------------------------------------------------------------ */
+/* One question in the assessment's list: its number and name, a detail (its intent, the
+   proposal for it, or what changed), and on some views its state. Each view sets the
+   name and state columns with --q-name-w and --q-state-w.
+   Variants:
+     - .is-open on the question: the one being worked on. An inset shadow draws it, not a
+       border, so its text lines up with the other rows, and its record follows inside.
+     - .is-done on the state: settled, with a check mark.
+   On a phone the detail moves under the name and the state.
+   Markup:
+     <ol class="questions">
+       <li class="question">
+         <div class="q-row t-small">
+           <span class="q-name"><b>Q1</b>Requirements breakdown</span>
+           <span class="q-detail"><b>Keep</b></span>
+           <span class="q-state is-done">Accepted</span>
+         </div>
+       </li>
+     </ol> */
+.questions { display: grid; padding: 0; list-style: none; }
+.question { border-top: var(--stroke-hairline) solid var(--color-border-subtle); }
+.question:first-child { border-top: 0; }
+.q-row {
+  display: grid;
+  grid-template-columns: minmax(0, var(--q-name-w)) minmax(0, 1fr) var(--q-state-w);
+  gap: var(--space-1) var(--space-4);
+  align-items: baseline;
+  padding: var(--space-3) var(--space-4);
+}
+.q-name b { font-weight: var(--font-weight-semibold); margin-inline-end: var(--space-1); }
+.q-detail { color: var(--color-text-muted); }
+.q-detail b { font-weight: var(--font-weight-semibold); color: var(--color-text); }
+.q-state { justify-self: end; color: var(--color-text-muted); white-space: nowrap; }
+/* The row already says it's settled, so screen readers skip the mark */
+.q-state.is-done::before { content: "\2713" / ""; margin-inline-end: var(--space-1); }
+
+.question.is-open {
+  margin-block: var(--space-2);
+  border-top: 0;
+  box-shadow: inset 0 0 0 var(--stroke-hairline) var(--color-border-strong);
+  border-radius: var(--radius-surface);
+}
+.question.is-open:last-child { margin-bottom: 0; }
+.question.is-open + .question { border-top: 0; }
+.question.is-open .q-state { color: var(--color-text); }
+
+@media (max-width: 640px) {
+  .q-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .q-detail { grid-column: 1 / -1; grid-row: 2; }
+  .q-state { grid-row: 1; grid-column: 2; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll box                                                          */
+/* ------------------------------------------------------------------ */
+/* A table that scrolls sideways in its own box on a narrow screen, instead of widening the
+   page. position: relative keeps the table's hidden screen-reader labels inside the box.
+   Behavior (components.js): while the table overflows, the box takes keyboard focus, so
+   arrow keys can scroll it, and the table's caption names it.
+   Markup:
+     <div class="table-scroll">
+       <table><caption class="visually-hidden">…</caption>…</table>
+     </div> */
+.table-scroll { position: relative; overflow-x: auto; }
+
+/* ------------------------------------------------------------------ */
+/* Page chain                                                          */
+/* ------------------------------------------------------------------ */
+/* Moves a reader between the loop's pages. The blueprint is the map of the whole loop, and
+   the wireframes follow one assessment through it.
+   Parts:
+     - The map: a link to the blueprint.
+     - The wireframes: an ordered list in loop order, after a "Wireframes" label that a rule
+       sets apart from the map, with an arrow from each one to the next.
+     - A tip for each link: one line on what that page shows. It appears under the link on
+       hover, after a short delay, and at once on keyboard focus. The pointer can move onto
+       it, and Escape hides it until the pointer leaves and focus moves on. Once one tip has
+       shown, the next one shows without the delay, and a tip near the right edge moves left
+       to stay on screen (components.js).
+   State: the page being read has aria-current="page", in text color and not underlined.
+     Any link can have it, the map's included.
+   Behavior: it wraps like a line of text, between pages and never inside a name. An arrow
+     wraps with the wireframe it points to.
+   Markup:
+     <nav class="page-chain" aria-label="Calibration loop">
+       <span class="page-chain-item">
+         <a href="/calibration/" aria-describedby="tip-map">Blueprint</a>
+         <span class="page-chain-tip" role="tooltip" id="tip-map">Every step of the loop…</span>
+       </span>
+       <span class="page-chain-label t-label" id="chain-views">Wireframes</span>
+       <ol role="list" aria-labelledby="chain-views">
+         <li class="page-chain-item"><a …>Write</a><span class="page-chain-tip" …>…</span></li>
+       </ol>
+     </nav>
+   role="list" keeps the wireframes a list in Safari, which drops the role when markers are off. */
+.page-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  font: var(--type-small);
+  color: var(--color-page-chain-text);
+}
+/* The wireframes wrap with the map's link, as one line */
+.page-chain ol {
+  display: contents;
+  list-style: none;
+}
+.page-chain li { white-space: nowrap; }
+.page-chain li + li::before {
+  content: "→" / "";
+  margin-right: var(--space-2);
+}
+.page-chain-label {
+  margin-right: var(--space-1);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+/* The rule between the map and the wireframes */
+.page-chain-label::before {
+  content: "";
+  display: inline-block;
+  height: 1lh;
+  margin-inline: var(--space-1) var(--space-3);
+  border-left: var(--stroke-hairline) solid var(--color-page-chain-rule);
+  vertical-align: top;
+}
+.page-chain a {
+  /* A taller hit area that doesn't move anything: vertical padding on an inline link
+     doesn't change the line's height. Wrapped rows sit a gap apart, so the areas don't
+     overlap. */
+  padding-block: var(--space-1);
+  color: inherit;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: from-font;
+}
+.page-chain a[aria-current="page"] {
+  color: var(--color-page-chain-current);
+  text-decoration: none;
+}
+
+.page-chain-item { position: relative; }
+/* Hidden at rest, not just transparent, so a screen reader reads the tip only as its
+   link's description */
+.page-chain-tip {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: calc(var(--space-2) * -1);
+  z-index: 1;
+  width: max-content;
+  max-width: 17rem;
+  padding: var(--space-1-5) var(--space-2);
+  font: var(--type-caption);
+  white-space: normal;
+  color: var(--color-text-inverse);
+  background: var(--color-bg-inverse);
+  border-radius: var(--radius-control);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    opacity var(--motion-quick),
+    transform var(--motion-quick),
+    visibility var(--motion-quick);
+}
+/* Fills the gap above the tip, so the pointer stays on the link's item on its way down */
+.page-chain-tip::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: var(--space-2);
+}
+/* Hover only where there is hover: a tap follows the link instead */
+@media (hover: hover) and (pointer: fine) {
+  .page-chain-item:hover .page-chain-tip { visibility: visible; opacity: 1; transform: none; transition-delay: var(--delay-tip); }
+  .page-chain.is-warm .page-chain-item:hover .page-chain-tip { transition-delay: 0ms; transition-duration: 0ms; }
+}
+.page-chain-item a:focus-visible + .page-chain-tip { visibility: visible; opacity: 1; transform: none; }
+/* Escape hides the tip that's showing (components.js). Comes after the rules that show it. */
+.page-chain .page-chain-item.is-dismissed .page-chain-tip { visibility: hidden; opacity: 0; transition: none; }
+/* Without hover there are no tips; screen readers still get each one as the link's description */
+@media not ((hover: hover) and (pointer: fine)) {
+  .page-chain-tip { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-chain-tip { transform: none; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Site header                                                         */
+/* ------------------------------------------------------------------ */
+/* The top of every page: the page chain, and a button that opens the notes. It sits outside
+   the page and is always as wide as the widest page, so it stays in the same place from
+   page to page.
+   Markup:
+     <header class="site-header">
+       <div class="site-header-in">
+         <nav class="page-chain" …>…</nav>
+         <button type="button" class="notes-open" aria-haspopup="dialog">Notes</button>
+       </div>
+     </header>
+   Where Notes sits is shared with the notes sheet, so its Close lands on the same spot and
+   the notes open and close without moving the pointer. --site-header-top is the row's
+   distance from the top. --site-header-margin is the space beside the header once the
+   screen is wider than it, and --site-header-end is Notes' distance from the right edge.
+   Notes stays on the first row at every width, with the page chain wrapping beside it, so
+   these always hold. */
+:root {
+  --site-header-top: var(--space-10);
+  --site-header-margin: max(0px, (100vw - var(--width-page-max)) / 2);
+  --site-header-end: calc(max(var(--space-page-gutter), env(safe-area-inset-right, 0px)) + var(--site-header-margin));
+}
+@media (max-width: 640px) {
+  :root { --site-header-top: var(--space-7); }
+}
+.site-header {
+  padding-top: var(--site-header-top);
+  /* A tip near the right edge can't widen the page */
+  overflow-x: clip;
+}
+.site-header-in {
+  max-width: var(--width-page-max);
+  margin-inline: auto;
+  padding-inline: max(var(--space-page-gutter), env(safe-area-inset-left, 0px)) max(var(--space-page-gutter), env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-6);
+}
+
+.notes-open,
+.notes-sheet-close {
+  position: relative;
+  padding: var(--space-0-5) var(--space-3);
+  font: var(--type-small);
+  color: var(--color-text);
+  background: var(--color-bg-surface);
+  border: var(--stroke-hairline) solid var(--color-border-control);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--motion-quick), transform var(--motion-quick);
+}
+.notes-open { flex: none; margin-left: auto; }
+/* A 44px hit area around a 24px button */
+.notes-open::before,
+.notes-sheet-close::before { content: ""; position: absolute; inset: -10px -6px; }
+@media (hover: hover) and (pointer: fine) {
+  .notes-open:hover,
+  .notes-sheet-close:hover { background: var(--color-bg-subtle); }
+}
+.notes-open:active,
+.notes-sheet-close:active { transform: scale(0.96); }
+
+/* ------------------------------------------------------------------ */
+/* Notes sheet                                                         */
+/* ------------------------------------------------------------------ */
+/* The notes, over any page, sliding in from the right edge. A <dialog> opened as a modal,
+   so focus moves into it and back to the button after, and Esc closes it. Close and a click
+   on the dimmed page close it too (components.js).
+   Parts:
+     - The bar: the notes' title and Close, pinned while the notes scroll. Close lands right
+       where Notes was, from the site header's values, so the reader closes the notes
+       without moving the pointer. The bar keeps its height while the notes scroll, since
+       the pointer stays there while reading.
+     - The body: the notes at reading width, a section under each heading. Tables and
+       bullets speak in the margin notes' voice: the lead in text color, the rest muted.
+   The sides use the page's gutter. On a screen wider than the header, the sheet widens by
+   the space beside the header, so its content ends where the page's content ends.
+   Motion: it slides in on --motion-enter and out on --motion-exit, which is quicker
+   because the reader has already moved on, with the page dimming in step. Reduced motion
+   skips both. */
+html:has(.notes-sheet[open]) { overflow: hidden; }
+
+.notes-sheet {
+  margin: 0 0 0 auto;
+  width: min(calc(680px + var(--site-header-margin)), 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  border-inline-start: var(--stroke-hairline) solid var(--color-border);
+  background: var(--color-bg-surface);
+  color: var(--color-text);
+  overscroll-behavior: contain;
+  /* Closing: out to the right, quickly */
+  transform: translateX(100%);
+  transition:
+    transform var(--motion-exit),
+    overlay var(--motion-exit) allow-discrete,
+    display var(--motion-exit) allow-discrete;
+}
+/* Opening: in from the right, settling */
+.notes-sheet[open] {
+  transform: none;
+  transition:
+    transform var(--motion-enter),
+    overlay var(--motion-enter) allow-discrete,
+    display var(--motion-enter) allow-discrete;
+}
+@starting-style {
+  .notes-sheet[open] { transform: translateX(100%); }
+}
+
+.notes-sheet::backdrop {
+  background: var(--color-scrim, oklch(0 0 0 / 0.24));
+  opacity: 0;
+  transition:
+    opacity var(--motion-exit),
+    overlay var(--motion-exit) allow-discrete,
+    display var(--motion-exit) allow-discrete;
+}
+.notes-sheet[open]::backdrop {
+  opacity: 1;
+  transition:
+    opacity var(--motion-enter),
+    overlay var(--motion-enter) allow-discrete,
+    display var(--motion-enter) allow-discrete;
+}
+@starting-style {
+  .notes-sheet[open]::backdrop { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notes-sheet,
+  .notes-sheet[open],
+  .notes-sheet::backdrop,
+  .notes-sheet[open]::backdrop { transition: none; }
+}
+
+.notes-sheet-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--site-header-top) var(--site-header-end) var(--space-3) max(var(--space-page-gutter), env(safe-area-inset-left, 0px));
+  background: var(--color-bg-surface);
+  border-bottom: var(--stroke-hairline) solid var(--color-border-subtle);
+}
+
+.notes-sheet-body {
+  display: grid;
+  gap: var(--space-4);
+  padding:
+    var(--space-6)
+    var(--site-header-end)
+    max(var(--space-10), env(safe-area-inset-bottom, 0px))
+    max(var(--space-page-gutter), env(safe-area-inset-left, 0px));
+}
+.notes-sheet-body > * { max-width: var(--measure); }
+.notes-sheet-body > table { max-width: none; }
+/* Sections stand apart; a heading stays close to what it heads */
+.notes-sheet-body h3 { margin-top: var(--space-6); }
+.notes-sheet-body h3:first-child { margin-top: 0; }
+
+.notes-sheet-body ul {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding-inline-start: 1.25em;
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+.notes-sheet-body li::marker { color: var(--color-border-control); }
+.notes-sheet-body b {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.notes-sheet-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-small);
+}
+.notes-sheet-body th {
+  padding: 0 var(--space-4) var(--space-2) 0;
+  font: var(--type-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text-muted);
+  text-align: start;
+  vertical-align: bottom;
+  border-bottom: var(--stroke-hairline) solid var(--color-border);
+}
+.notes-sheet-body td {
+  padding: var(--space-2-5) var(--space-4) var(--space-2-5) 0;
+  text-align: start;
+  vertical-align: top;
+  color: var(--color-text-muted);
+  border-bottom: var(--stroke-hairline) solid var(--color-border-subtle);
+  text-wrap: pretty;
+}
+.notes-sheet-body td:first-child {
+  width: 34%;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+.notes-sheet-body th:last-child,
+.notes-sheet-body td:last-child { padding-inline-end: 0; }
+
+@media (max-width: 640px) {
+  .notes-sheet { border-inline-start: 0; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Full screen toggle                                                  */
+/* ------------------------------------------------------------------ */
+/* Gives one part of a page the whole window, such as a canvas too big for its place on the
+   page, and takes it back. It's a tool for that part, not a page action like Notes, so it
+   has no edge or fill of its own. It's an icon and a word, with a fill only under the
+   pointer, as tall as Notes. The icon lines up with the text beside the button, and the
+   fill reaches out past it.
+   Parts:
+     - The button: four corners pointing out to enter and pointing in to leave, in a
+       hairline on the pixel grid so they stay sharp, and a label that says what pressing it
+       will do, "Full screen" or "Exit full screen". The class is-on, while the part fills
+       the window or is on its way there, turns the corners in.
+     - The part it fills, named by the button's aria-controls. While it fills the window, it
+       has the class is-full-screen and sits over the page on the page's color, with the
+       page's gutter around it, as tall as its content, up to the window's height. Once it
+       has settled, everything else on the page is hidden, not only covered, so Tab can't
+       reach it.
+   Motion (components.js): the part grows out of its place on the page into the window on
+   --motion-enter, over the page, and shrinks back into its place on --motion-return,
+   uncovering the page. It's the same element either way, so a part that scrolls keeps its
+   place, and nothing inside it reflows on the way. Pressing again or Esc partway turns it
+   around. Reduced motion skips the move.
+   Markup:
+     <button type="button" class="full-screen-toggle" aria-controls="canvas">
+       <svg class="full-screen-toggle-icon" viewBox="0 0 16 16" aria-hidden="true">
+         <path class="enter" d="…"/>
+         <path class="exit" d="…"/>
+       </svg>
+       <span class="full-screen-toggle-label">Full screen</span>
+     </button> */
+.full-screen-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-height: var(--space-6);
+  margin-inline-start: calc(var(--space-1-5) * -1);
+  padding: 0 var(--space-2) 0 var(--space-1-5);
+  font: var(--type-small);
+  color: var(--color-text);
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--motion-quick), transform var(--motion-quick);
+}
+/* A 44px hit area around a 24px button */
+.full-screen-toggle::before { content: ""; position: absolute; inset: -10px -6px; }
+@media (hover: hover) and (pointer: fine) {
+  .full-screen-toggle:hover { background: var(--color-bg-subtle); }
+}
+.full-screen-toggle:active { transform: scale(0.96); }
+
+.full-screen-toggle-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-hairline);
+  stroke-linecap: square;
+}
+.full-screen-toggle-icon .exit,
+.full-screen-toggle.is-on .full-screen-toggle-icon .enter { display: none; }
+.full-screen-toggle.is-on .full-screen-toggle-icon .exit { display: inline; }
+
+/* The part it fills. html in front, so this wins over the page's own sizing of the part. */
+html:has(.is-full-screen) { overflow: hidden; }
+html:has(.is-full-screen:not(.is-moving)) body > * { visibility: hidden; }
+html .is-full-screen {
+  position: fixed;
+  z-index: 1;
+  top: max(var(--space-page-gutter), env(safe-area-inset-top, 0px));
+  right: max(var(--space-page-gutter), env(safe-area-inset-right, 0px));
+  left: max(var(--space-page-gutter), env(safe-area-inset-left, 0px));
+  max-height: calc(100dvh - max(var(--space-page-gutter), env(safe-area-inset-top, 0px)) - max(var(--space-page-gutter), env(safe-area-inset-bottom, 0px)));
+  background: var(--color-bg-page);
+  visibility: visible;
+}

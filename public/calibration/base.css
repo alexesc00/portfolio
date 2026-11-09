@@ -57,6 +57,7 @@ h1, h2, h3, h4, h5, h6 { font: inherit; }
 .t-display { font: var(--type-display); letter-spacing: var(--tracking-display); text-wrap: balance; }
 .t-title   { font: var(--type-title); letter-spacing: var(--tracking-title); text-wrap: balance; }
 .t-heading { font: var(--type-heading); text-wrap: balance; }
+.t-lede    { font: var(--type-lede); letter-spacing: var(--tracking-lede); }
 .t-body    { font: var(--type-body); }
 .t-small   { font: var(--type-small); }
 .t-caption { font: var(--type-caption); }

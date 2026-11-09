@@ -150,7 +150,7 @@ test.describe('page chain tips', () => {
   test('a tip stays open while the pointer moves onto it', async ({ page }) => {
     await page.goto(views.decide);
     const tip = page.locator('#tip-promotion');
-    await page.getByRole('link', { name: 'Promotion' }).hover();
+    await page.getByRole('link', { name: 'Promote to production' }).hover();
     await settle(page);
     expect(await isShown(tip)).toBe(true);
 
@@ -164,7 +164,7 @@ test.describe('page chain tips', () => {
     page,
   }) => {
     await page.goto(views.decide);
-    const link = page.getByRole('link', { name: 'Promotion' });
+    const link = page.getByRole('link', { name: 'Promote to production' });
     const tip = page.locator('#tip-promotion');
     await link.hover();
     await settle(page);
@@ -180,7 +180,7 @@ test.describe('page chain tips', () => {
 
   test('Escape hides a tip opened by keyboard focus', async ({ page }) => {
     await page.goto(views.decide);
-    const link = page.getByRole('link', { name: 'Promotion' });
+    const link = page.getByRole('link', { name: 'Promote to production' });
     const tip = page.locator('#tip-promotion');
     // A key press first, so the browser treats the focus as keyboard focus
     await page.keyboard.press('Shift');
@@ -221,7 +221,7 @@ test('screen readers get each tip once, as the link’s description', async ({
 }) => {
   await page.goto(views.decide);
   await expect(
-    page.getByRole('link', { name: 'Promotion' }),
+    page.getByRole('link', { name: 'Promote to production' }),
   ).toHaveAccessibleDescription(/^Step 6, where the owner/);
   const nav = page.getByRole('navigation', { name: 'Calibration loop' });
   expect(await nav.ariaSnapshot()).not.toContain('Step 6, where the owner');

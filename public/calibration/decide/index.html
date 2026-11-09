@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Calibration Decide Record</title>
+<title>Calibration Decide Edits</title>
 <link rel="preload" href="/calibration/fonts/calibration-grotesk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/calibration/tokens.css">
 <link rel="stylesheet" href="/calibration/base.css">
 <link rel="stylesheet" href="/calibration/components.css">
 <style>
-  /* The Decide record's own parts. The page, the frame, wells, facts, buttons, marks,
+  /* The Decide edits view's own parts. The page, the frame, wells, facts, buttons, marks,
      entries and question rows are shared components in components.css. */
   :root {
     --q-col-w: 52px;           /* one score column */
@@ -149,10 +149,10 @@
       <span class="page-chain-item"><a href="/calibration/" aria-describedby="tip-blueprint">Blueprint</a><span class="page-chain-tip" role="tooltip" id="tip-blueprint">Every step of the loop, with who does what and what it leaves on record.</span></span>
       <span class="page-chain-label t-label" id="chain-views">Wireframes</span>
       <ol role="list" aria-labelledby="chain-views">
-        <li class="page-chain-item"><a href="/calibration/write/" aria-describedby="tip-write">Write</a><span class="page-chain-tip" role="tooltip" id="tip-write">Steps 0 and 1, where the author marks what to test and writes each question.</span></li>
-        <li class="page-chain-item"><a href="/calibration/decide/" aria-current="page" aria-describedby="tip-decide">Decide record</a><span class="page-chain-tip" role="tooltip" id="tip-decide">Step 4, where the author proposes edits and the reviewer accepts or pushes back.</span></li>
-        <li class="page-chain-item"><a href="/calibration/promotion/" aria-describedby="tip-promotion">Promotion</a><span class="page-chain-tip" role="tooltip" id="tip-promotion">Step 6, where the owner checks the whole assessment and promotes it.</span></li>
-        <li class="page-chain-item"><a href="/calibration/history/" aria-describedby="tip-history">Question history</a><span class="page-chain-tip" role="tooltip" id="tip-history">Production, where candidates' results come back to each question's history.</span></li>
+        <li class="page-chain-item"><a href="/calibration/write/" aria-describedby="tip-write">Write questions</a><span class="page-chain-tip" role="tooltip" id="tip-write">Steps 0 and 1, where the author marks what to test and writes each question.</span></li>
+        <li class="page-chain-item"><a href="/calibration/decide/" aria-current="page" aria-describedby="tip-decide">Decide edits</a><span class="page-chain-tip" role="tooltip" id="tip-decide">Step 4, where the author proposes edits and the reviewer accepts or pushes back.</span></li>
+        <li class="page-chain-item"><a href="/calibration/promotion/" aria-describedby="tip-promotion">Promote to production</a><span class="page-chain-tip" role="tooltip" id="tip-promotion">Step 6, where the owner checks the whole assessment and promotes it.</span></li>
+        <li class="page-chain-item"><a href="/calibration/history/" aria-describedby="tip-history">Track results</a><span class="page-chain-tip" role="tooltip" id="tip-history">Production, where candidates' results come back to each question's history.</span></li>
       </ol>
     </nav>
     <button type="button" class="notes-open" aria-haspopup="dialog">Notes</button>
@@ -162,12 +162,12 @@
 <main class="view-page">
 
   <header class="intro">
-    <h1 class="t-display">Decide record</h1>
+    <h1 class="t-display">Decide edits</h1>
     <p class="t-lede t-prose">After each tester run, the author proposes edits to each question on this screen, and the reviewer accepts or pushes back, with reasons on record. The sample shows the reviewer pushing back on Q2 after run&nbsp;2, the brief's "57% to 90%" case.</p>
   </header>
 
   <div class="view-layout">
-    <figure class="frame" aria-label="Wireframe: the Decide record at the reviewer's turn">
+    <figure class="frame" aria-label="Wireframe: deciding edits at the reviewer's turn">
       <div class="frame-bar" aria-hidden="true">
         <span class="frame-bar-dots"><i></i><i></i><i></i></span>
         <span class="frame-bar-address t-caption">/assessments/systems-engineering/decide</span>

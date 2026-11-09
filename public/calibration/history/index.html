@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Calibration Question History</title>
+<title>Calibration Track Results</title>
 <link rel="preload" href="/calibration/fonts/calibration-grotesk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/calibration/tokens.css">
 <link rel="stylesheet" href="/calibration/base.css">
 <link rel="stylesheet" href="/calibration/components.css">
 <style>
-  /* The question history's own parts. The page, the frame, wells, facts, buttons and
+  /* The Track results view's own parts. The page, the frame, wells, facts, buttons and
      entries are shared components in components.css. */
   :root {
     --sittings-min-w: 36rem;   /* below this, the sittings table scrolls in its own box */
@@ -144,10 +144,10 @@
       <span class="page-chain-item"><a href="/calibration/" aria-describedby="tip-blueprint">Blueprint</a><span class="page-chain-tip" role="tooltip" id="tip-blueprint">Every step of the loop, with who does what and what it leaves on record.</span></span>
       <span class="page-chain-label t-label" id="chain-views">Wireframes</span>
       <ol role="list" aria-labelledby="chain-views">
-        <li class="page-chain-item"><a href="/calibration/write/" aria-describedby="tip-write">Write</a><span class="page-chain-tip" role="tooltip" id="tip-write">Steps 0 and 1, where the author marks what to test and writes each question.</span></li>
-        <li class="page-chain-item"><a href="/calibration/decide/" aria-describedby="tip-decide">Decide record</a><span class="page-chain-tip" role="tooltip" id="tip-decide">Step 4, where the author proposes edits and the reviewer accepts or pushes back.</span></li>
-        <li class="page-chain-item"><a href="/calibration/promotion/" aria-describedby="tip-promotion">Promotion</a><span class="page-chain-tip" role="tooltip" id="tip-promotion">Step 6, where the owner checks the whole assessment and promotes it.</span></li>
-        <li class="page-chain-item"><a href="/calibration/history/" aria-current="page" aria-describedby="tip-history">Question history</a><span class="page-chain-tip" role="tooltip" id="tip-history">Production, where candidates' results come back to each question's history.</span></li>
+        <li class="page-chain-item"><a href="/calibration/write/" aria-describedby="tip-write">Write questions</a><span class="page-chain-tip" role="tooltip" id="tip-write">Steps 0 and 1, where the author marks what to test and writes each question.</span></li>
+        <li class="page-chain-item"><a href="/calibration/decide/" aria-describedby="tip-decide">Decide edits</a><span class="page-chain-tip" role="tooltip" id="tip-decide">Step 4, where the author proposes edits and the reviewer accepts or pushes back.</span></li>
+        <li class="page-chain-item"><a href="/calibration/promotion/" aria-describedby="tip-promotion">Promote to production</a><span class="page-chain-tip" role="tooltip" id="tip-promotion">Step 6, where the owner checks the whole assessment and promotes it.</span></li>
+        <li class="page-chain-item"><a href="/calibration/history/" aria-current="page" aria-describedby="tip-history">Track results</a><span class="page-chain-tip" role="tooltip" id="tip-history">Production, where candidates' results come back to each question's history.</span></li>
       </ol>
     </nav>
     <button type="button" class="notes-open" aria-haspopup="dialog">Notes</button>
@@ -157,7 +157,7 @@
 <main class="view-page">
 
   <header class="intro">
-    <h1 class="t-display">Question history</h1>
+    <h1 class="t-display">Track results</h1>
     <p class="t-lede t-prose">Each question's whole history is on one screen, from its first review to how candidates do in production, so the team can see whether each edit worked. The sample shows Q5 four weeks in, after 6 of 31 candidates ran out of time.</p>
   </header>
 

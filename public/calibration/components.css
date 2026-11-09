@@ -489,7 +489,7 @@
        </span>
        <span class="page-chain-label t-label" id="chain-views">Wireframes</span>
        <ol role="list" aria-labelledby="chain-views">
-         <li class="page-chain-item"><a …>Write</a><span class="page-chain-tip" …>…</span></li>
+         <li class="page-chain-item"><a …>Write questions</a><span class="page-chain-tip" …>…</span></li>
        </ol>
      </nav>
    role="list" keeps the wireframes a list in Safari, which drops the role when markers are off. */

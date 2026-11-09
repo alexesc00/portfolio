@@ -72,6 +72,77 @@ test.describe('the blueprint', () => {
   });
 });
 
+test.describe('full screen', () => {
+  const canvas = (page: Page) => page.locator('.canvas');
+  const toggle = (page: Page) => page.locator('.full-screen-toggle');
+  // Once the blueprint has finished growing or shrinking
+  const still = (page: Page) =>
+    page.waitForFunction(
+      () => document.querySelector('.canvas')?.getAnimations().length === 0,
+    );
+  const gutter = 16;
+
+  test('fills the window and goes back to its place, scrolled where it was', async ({
+    page,
+  }) => {
+    await page.goto(blueprint);
+    const inPlace = await boxOf(canvas(page));
+    await canvas(page).evaluate((box) => {
+      box.scrollLeft = 200;
+    });
+
+    await toggle(page).click();
+    await expect(toggle(page)).toHaveText('Exit full screen');
+    await still(page);
+    const full = await boxOf(canvas(page));
+    const viewport = page.viewportSize();
+    expect(full.x).toBe(gutter);
+    expect(full.y).toBe(gutter);
+    expect(full.x + full.width).toBe((viewport?.width ?? 0) - gutter);
+    expect(await canvas(page).evaluate((box) => box.scrollLeft)).toBe(200);
+
+    await page.keyboard.press('Escape');
+    await expect(toggle(page)).toHaveText('Full screen');
+    await still(page);
+    expect(await boxOf(canvas(page))).toEqual(inPlace);
+    expect(await canvas(page).evaluate((box) => box.scrollLeft)).toBe(200);
+  });
+
+  // Covered isn't enough: Tab would still reach the links under it.
+  test('hides the rest of the page', async ({ page }) => {
+    await page.goto(blueprint);
+    await toggle(page).click();
+    await still(page);
+    await expect(page.locator('.intro h1')).toBeHidden();
+    await expect(page.locator('.notes-open')).toBeHidden();
+    await expect(toggle(page)).toBeVisible();
+  });
+
+  test('Escape partway through turns it back', async ({ page }) => {
+    await page.goto(blueprint);
+    await toggle(page).focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Escape');
+    await still(page);
+    await expect(toggle(page)).toHaveText('Full screen');
+    await expect(canvas(page)).not.toHaveClass(/is-full-screen/);
+    await expect(page.locator('.intro h1')).toBeVisible();
+  });
+
+  test.describe('with reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('switches at once', async ({ page }) => {
+      await page.goto(blueprint);
+      await toggle(page).click();
+      expect(
+        await canvas(page).evaluate((box) => box.getAnimations().length),
+      ).toBe(0);
+      expect((await boxOf(canvas(page))).y).toBe(gutter);
+    });
+  });
+});
+
 test.describe('page chain tips', () => {
   test.skip(({ isMobile }) => isMobile, 'Tips only show where there is hover');
 

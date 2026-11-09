@@ -1,5 +1,5 @@
 # The showcase's Python app, copied as it is from its own repo
 public/showcase/missionml/app/
 
-# The Calibration pages, copied as they are from their own folder
+# The Calibration pages, formatted by hand; Prettier would rewrite them
 public/calibration/

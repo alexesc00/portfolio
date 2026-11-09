@@ -115,6 +115,9 @@
   --type-display: var(--font-weight-semibold) var(--font-size-2xl) / var(--line-height-tight) var(--font-family-sans);
   --type-title: var(--font-weight-semibold) var(--font-size-xl) / var(--line-height-snug) var(--font-family-sans);
   --type-heading: var(--font-weight-semibold) var(--font-size-lg) / var(--line-height-snug) var(--font-family-sans);
+  /* The paragraph under a page's title. It's the page's own voice, so it sits a size above
+     the text in the views and is read before them. */
+  --type-lede: var(--font-weight-regular) var(--font-size-lg) / var(--line-height-relaxed) var(--font-family-sans);
   --type-body: var(--font-weight-regular) var(--font-size-md) / var(--line-height-relaxed) var(--font-family-sans);
   --type-small: var(--font-weight-regular) var(--font-size-sm) / var(--line-height-normal) var(--font-family-sans);
   --type-caption: var(--font-weight-regular) var(--font-size-xs) / var(--line-height-normal) var(--font-family-sans);
@@ -126,6 +129,8 @@
   /* Text at 14px and below, set once on the body. The portfolio site opens its 14px
      text by the same amount. */
   --tracking-text: var(--letter-spacing-open);
+  /* The lede is 16px, so it sets without that extra spacing */
+  --tracking-lede: var(--letter-spacing-normal);
   /* Labels are sentence case. For uppercase labels, set --case-label: uppercase and
      --tracking-label: var(--letter-spacing-wide) together. */
   --tracking-label: var(--letter-spacing-open);

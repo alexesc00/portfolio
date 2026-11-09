@@ -144,7 +144,8 @@
    Parts:
      - .view-page: the page's main column. It's as wide as the site header, so both start
        at the same edge.
-     - .intro: the page's title, and what its sample shows. The blueprint uses it too.
+     - .intro: the page's title, then a .t-lede paragraph on what the screen is and what
+       its sample shows. The blueprint uses it too.
      - .view-layout: the frame and its notes.
      - .frame: the view. Its sections are its children, ruled off from each other. It
        opens with a frame bar, then a .frame-head: the screen's title, and its .status on

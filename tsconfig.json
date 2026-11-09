@@ -3,6 +3,7 @@
   "include": [
     ".astro/types.d.ts",
     "src",
+    "scripts",
     "astro.config.mjs",
     "vitest.config.ts",
     "e2e",

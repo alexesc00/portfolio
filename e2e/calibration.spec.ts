@@ -1,8 +1,8 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-// The Calibration design exercise: a service blueprint and four wireframes,
-// copied into /calibration/ by scripts/sync-calibration.mjs. These check the
-// behavior the pages share, on every browser the site is tested in.
+// The Calibration design exercise: a service blueprint and four wireframes at
+// /calibration/, each one HTML file with its styles and script inlined. These
+// check the behavior the pages share, on every browser the site is tested in.
 
 const blueprint = '/calibration/';
 const views = {

@@ -127,6 +127,15 @@ describe('the works table', () => {
     ]);
   });
 
+  // On phones What I did moves into the opened write-up, so each row is
+  // one block of text beside its button. The row still reads it out.
+  it('hides What I did from sight on phones but still reads it out', () => {
+    for (const row of bodyRows()) {
+      const whatIDid = elements(row, 'td')[3] ?? '';
+      expect(/^<td[^>]*>/.exec(whatIDid)?.[0]).toMatch(/\bmax-md:sr-only\b/);
+    }
+  });
+
   it('says a locked row is locked, in words as well as the padlock', () => {
     const [padlockCell] = elements(bodyRows()[0], 'td');
 

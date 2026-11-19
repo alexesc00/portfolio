@@ -62,3 +62,31 @@ for (const theme of ['dark', 'light'] as const) {
     });
   }
 }
+
+// Each row is one block of text with its button level with it, so rows
+// are short and the button doesn't float at the top of a tall row.
+for (const width of [320, 430]) {
+  test(`every row's button sits level with its text at ${width} wide`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/');
+
+    const offsets = await page.evaluate(() =>
+      [...document.querySelectorAll('#work tbody > tr:first-child')].map(
+        (row) => {
+          const [details, , solution] = row.children;
+          const control = details?.firstElementChild?.getBoundingClientRect();
+          const text = solution?.getBoundingClientRect();
+          if (!control || !text) return Infinity;
+          return Math.abs(
+            control.top + control.height / 2 - (text.top + text.height / 2),
+          );
+        },
+      ),
+    );
+
+    expect(offsets.length).toBeGreaterThan(0);
+    for (const offset of offsets) expect(offset).toBeLessThanOrEqual(1);
+  });
+}

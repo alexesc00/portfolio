@@ -57,7 +57,7 @@ describe('the works section', () => {
 
     expect(heading).toMatch(/\btext-display\b/);
     expect(heading).not.toMatch(/text-right/);
-    expect(heading).toMatch(/\bmb-12\b/);
+    expect(heading).toMatch(/\bmb-8\b/);
     expect(heading).toMatch(/\bmd:mb-16\b/);
     expect(section).toMatch(/\bpt-inset\b/);
   });

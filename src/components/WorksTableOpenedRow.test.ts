@@ -144,6 +144,18 @@ describe('the opened row', () => {
     expect(html).toMatch(/<h3[^>]*>\s*Plots\s*<\/h3>/);
   });
 
+  // Phones have no room for What I did in the row, so the write-up says
+  // it under the name. The row still reads it out, so screen readers
+  // don't hear it twice.
+  it('says what I did under the name on phones, for sighted visitors only', () => {
+    const line = /<\/h3>\s*(<p[^>]*>[\s\S]*?<\/p>)/.exec(html)?.[1] ?? '';
+    const openingTag = /^<p[^>]*>/.exec(line)?.[0] ?? '';
+
+    expect(textOf(line)).toBe('Product design, Strategy');
+    expect(openingTag).toMatch(/\bmd:hidden\b/);
+    expect(openingTag).toContain('aria-hidden="true"');
+  });
+
   /** Each chapter's label and text, in the order they show. */
   function chaptersOf(markup: string) {
     return [

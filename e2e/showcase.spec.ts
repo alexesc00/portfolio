@@ -7,6 +7,12 @@ const showcase = (page: Page) => page.locator('[data-status]');
 const toggle = (page: Page) =>
   page.locator('tbody:has([data-status]) [data-row-toggle]');
 
+/** Where the seam is, as a percentage of the screen from the left. */
+const seamPercent = (page: Page) =>
+  page
+    .locator('[data-showcase]')
+    .evaluate((root) => parseFloat(root.style.getPropertyValue('--seam')));
+
 /** Waits for the live app to finish starting. */
 async function live(page: Page) {
   await expect(showcase(page)).toHaveAttribute('data-status', 'live', {
@@ -91,6 +97,33 @@ test('reopening the row soon after closing keeps the running app', async ({
 
 // With reduced motion on, the live app appears over the stills at once
 // rather than fading in.
+// The seam's strip is wider than its line, so where the press lands on it
+// is rarely the line itself. The seam moves as far as the pointer does,
+// rather than jumping to it first.
+test('the seam follows a drag by how far it moves, without jumping', async ({
+  page,
+}) => {
+  // The seam only takes a drag once the app has started
+  test.setTimeout(180_000);
+  await live(page);
+  const seam = page.locator('[data-seam]');
+  const box = await seam.boundingBox();
+  const width = await page
+    .locator('[data-screen]')
+    .evaluate((screen) => screen.getBoundingClientRect().width);
+  if (!box) throw new Error('No seam on screen');
+  const before = await seamPercent(page);
+
+  await page.mouse.move(box.x + box.width / 2 + 12, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 72, box.y + box.height / 2, {
+    steps: 6,
+  });
+  await page.mouse.up();
+
+  expect(await seamPercent(page)).toBeCloseTo(before + (60 / width) * 100, 0);
+});
+
 test.describe('with reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 

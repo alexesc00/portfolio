@@ -33,6 +33,11 @@ describe('the top bar', () => {
     expect(barClasses()).not.toMatch(/\btransition-all\b/);
   });
 
+  // While it follows a thumb, a slide would leave it trailing behind.
+  it('moves with the thumb without sliding', () => {
+    expect(barClasses()).toMatch(/\bdata-following:transition-none\b/);
+  });
+
   // Gating only the transition property would leave the duration set, and
   // the browser's default property list would still slide the bar.
   it('jumps rather than slides when motion is reduced', () => {

@@ -106,3 +106,44 @@ export function stepConstants(spring: Spring, stepLength: number) {
   const springStrength = (1 + damping - 2 * shrink * Math.cos(turn)) / damping;
   return { springStrength, damping };
 }
+
+/**
+ * Where a thing on `spring` is `time` milliseconds on, and how fast it's
+ * going: `offset` is its distance from its target, `velocity` how fast
+ * that distance grows, per second. Unlike a CSS curve, which always
+ * starts from a standstill, this carries a thing's speed in, so motion
+ * a script hands over (a thumb letting go, a target that changes) keeps
+ * going without a corner. Exact, so frame rate doesn't change the path.
+ */
+export function springStep(
+  { duration, bounce }: Spring,
+  offset: number,
+  velocity: number,
+  time: number,
+) {
+  const stiffness = (2 * Math.PI) / (duration / 1000);
+  const damping = 1 - bounce;
+  const t = time / 1000;
+  const decay = Math.exp(-damping * stiffness * t);
+  if (damping >= 1) {
+    const pull = velocity + stiffness * offset;
+    return {
+      offset: (offset + pull * t) * decay,
+      velocity: (velocity - stiffness * pull * t) * decay,
+    };
+  }
+  const swing = stiffness * Math.sqrt(1 - damping ** 2);
+  const cos = Math.cos(swing * t);
+  const sin = Math.sin(swing * t);
+  return {
+    offset:
+      (offset * cos +
+        ((velocity + damping * stiffness * offset) / swing) * sin) *
+      decay,
+    velocity:
+      (velocity * cos -
+        ((stiffness ** 2 * offset + damping * stiffness * velocity) / swing) *
+          sin) *
+      decay,
+  };
+}

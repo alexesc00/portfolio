@@ -115,7 +115,7 @@ const tag = [
           aria-valuemax="100"
           aria-valuenow={Math.round(initialSeam)}
           aria-valuetext="A third stock Streamlit"
-          class="showcase-seam absolute inset-y-0 left-(--seam) z-10 -ml-5 flex w-10 cursor-ew-resize touch-none justify-center"
+          class="showcase-seam absolute inset-y-0 left-(--seam) z-10 -ml-5 flex w-10 cursor-ew-resize touch-pan-y justify-center"
           data-seam
         >
           <span
@@ -242,13 +242,18 @@ const tag = [
         `${Math.round(seamAt)}% stock Streamlit`,
       );
     }
-    const percentAt = (event: PointerEvent) => {
-      const box = screen.getBoundingClientRect();
-      return ((event.clientX - box.left) / box.width) * 100;
-    };
+    /*
+     * The seam moves as far as the finger does, rather than jumping to it:
+     * the strip is wider than the line, and a thumb only passing through
+     * on its way up or down the page shouldn't shift it. A drag up or down
+     * scrolls the page, which takes the pointer from the seam.
+     */
     seam.addEventListener('pointerdown', (event) => {
       seam.setPointerCapture(event.pointerId);
-      const move = (moveEvent: PointerEvent) => setSeam(percentAt(moveEvent));
+      const width = screen.getBoundingClientRect().width;
+      const from = { x: event.clientX, seamAt };
+      const move = (moveEvent: PointerEvent) =>
+        setSeam(from.seamAt + ((moveEvent.clientX - from.x) / width) * 100);
       seam.addEventListener('pointermove', move);
       seam.addEventListener(
         'lostpointercapture',

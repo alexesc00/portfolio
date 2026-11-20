@@ -3,9 +3,11 @@
  * shows through as it passes under. It slides away as the visitor reads
  * down and comes back as soon as they scroll up. It settles both ways:
  * the bar is part of the page's structure, and structure doesn't bounce.
+ * On a touch screen it moves with the thumb instead (see the script), and
+ * doesn't slide while it does.
  */}
 <div
-  class="fixed inset-x-0 top-0 z-30 bg-background py-inset transition-transform duration-settle ease-settle data-hidden:-translate-y-full motion-reduce:transition-none"
+  class="fixed inset-x-0 top-0 z-30 bg-background py-inset transition-transform duration-settle ease-settle data-following:transition-none data-hidden:-translate-y-full motion-reduce:transition-none"
   data-top-bar
 >
   <div class="mx-auto flex w-full max-w-(--breakpoint-2xl) items-start justify-between gap-page px-page">
@@ -18,14 +20,218 @@
 </div>
 
 <script>
-  import { landedTopBar, nextTopBar, topBarAtTop } from '../lib/top-bar';
+  import { settleSpring, springStep } from '../lib/spring';
+  import {
+    barSpeedFor,
+    coastedTopBar,
+    flickedHiddenBy,
+    followScroll,
+    landedTopBar,
+    nextTopBar,
+    settledHiddenBy,
+    speedOf,
+    topBarAtTop,
+    type FollowingBar,
+  } from '../lib/top-bar';
 
   const element = document.querySelector<HTMLElement>('[data-top-bar]');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let bar = topBarAtTop;
 
   function show() {
     element?.toggleAttribute('data-hidden', !bar.isShown);
   }
+
+  /*
+   * On a touch screen the bar moves with the thumb rather than switching:
+   * a thumb that wobbles while reading reverses the page by a few pixels
+   * all the time, and a bar that slid all the way in and out on each one
+   * couldn't make up its mind. Following the page, it only peeks in as
+   * far as the page went back. When the thumb lets go, the bar settles by
+   * where the flick was heading, on a spring that starts at the thumb's
+   * speed, while the page coasts on underneath. A mouse wheel or trackpad
+   * keeps the switch, which suits their bigger, steadier steps.
+   */
+  let isTouch = false;
+  let isTouching = false;
+  let following: FollowingBar | null = null;
+  /** A touch let go without a flick: any scrolling after it, the bar follows. */
+  let isFollowingCoast = false;
+  /*
+   * The thumb's last tenth of a second, to read how fast it let go. Read
+   * from the touch rather than the scrolling, which can trail it by a
+   * frame: a quick flick can be let go before its scrolling arrives.
+   */
+  let trail: { time: number; value: number }[] = [];
+  let settling: {
+    hiddenBy: number;
+    velocity: number;
+    target: number;
+    time: number;
+  } | null = null;
+  let settleFrame = 0;
+  let settleTimer: ReturnType<typeof setTimeout> | undefined;
+
+  /** Moves the bar by hand, with its transition off. */
+  function place(hiddenBy: number) {
+    if (!element) return;
+    element.toggleAttribute('data-following', true);
+    element.style.translate = `0 ${-hiddenBy}px`;
+  }
+
+  /** Hands the bar back to its transition. */
+  function letGo() {
+    following = null;
+    settling = null;
+    cancelAnimationFrame(settleFrame);
+    clearTimeout(settleTimer);
+    if (!element) return;
+    element.style.translate = '';
+    element.removeAttribute('data-following');
+  }
+
+  function stepSettling(now: number) {
+    if (!settling) return;
+    const { target } = settling;
+    const before = settling.hiddenBy - target;
+    const { offset, velocity } = springStep(
+      settleSpring,
+      before,
+      settling.velocity,
+      now - settling.time,
+    );
+    // Arrived, or about to swing past the end, where the bar would lift
+    // off the top of the screen.
+    const isAtRest = Math.abs(offset) < 0.5 && Math.abs(velocity) < 20;
+    if (isAtRest || Math.sign(offset) !== Math.sign(before)) {
+      letGo();
+      show();
+      return;
+    }
+    settling = { hiddenBy: target + offset, velocity, target, time: now };
+    place(settling.hiddenBy);
+    settleFrame = requestAnimationFrame(stepSettling);
+  }
+
+  /** Springs the bar from `hiddenBy`, moving at `velocity`, to `target`. */
+  function settleTo(hiddenBy: number, velocity: number, target: number) {
+    following = null;
+    clearTimeout(settleTimer);
+    cancelAnimationFrame(settleFrame);
+    const maxScrollY = document.documentElement.scrollHeight - innerHeight;
+    bar = { isShown: target === 0, anchor: Math.min(scrollY, maxScrollY) };
+    if (reducedMotion.matches || hiddenBy === target) {
+      letGo();
+      show();
+      return;
+    }
+    settling = { hiddenBy, velocity, target, time: performance.now() };
+    settleFrame = requestAnimationFrame(stepSettling);
+  }
+
+  /** Where the bar is: how far it has slid up out of view. */
+  function measuredHiddenBy(height: number) {
+    const top = element?.getBoundingClientRect().top ?? 0;
+    return Math.min(height, Math.max(0, -top));
+  }
+
+  /** Settles by the flick the thumb let go with. */
+  function release() {
+    if (!element) return;
+    const height = element.offsetHeight;
+    // The page moves the other way to the thumb.
+    const speed = -speedOf(trail, performance.now());
+    if (!following && speed === 0) {
+      isFollowingCoast = true;
+      return;
+    }
+    const hiddenBy = following?.hiddenBy ?? measuredHiddenBy(height);
+    settleTo(
+      hiddenBy,
+      barSpeedFor(hiddenBy, speed, height),
+      flickedHiddenBy(hiddenBy, speed, height),
+    );
+  }
+
+  /* When the browser takes the touch from the page, there's no letting go
+   * to read, so the bar keeps following and settles a beat after the last
+   * scroll: Safari has no event for a scroll coming to rest. */
+  function settleSoon() {
+    clearTimeout(settleTimer);
+    if (isTouching) return;
+    settleTimer = setTimeout(() => {
+      if (!following || !element) return;
+      const { hiddenBy } = following;
+      settleTo(hiddenBy, 0, settledHiddenBy(hiddenBy, element.offsetHeight));
+    }, 120);
+  }
+
+  function follow(scrollY: number, maxScrollY: number) {
+    if (!element) return;
+    const height = element.offsetHeight;
+    // Picks up from wherever the bar is, even partway through settling.
+    const start = following ?? {
+      hiddenBy: measuredHiddenBy(height),
+      lastY: lastScrollY,
+    };
+    settling = null;
+    isFollowingCoast = false;
+    cancelAnimationFrame(settleFrame);
+    following = followScroll(start, scrollY, maxScrollY, height);
+    place(following.hiddenBy);
+  }
+
+  /** Adds where the thumb is now to its trail. */
+  function track(event: TouchEvent) {
+    const touch = event.touches[0];
+    if (!touch) return;
+    const now = performance.now();
+    trail = [
+      ...trail.filter(({ time }) => now - time <= 100),
+      { time: now, value: touch.clientY },
+    ];
+  }
+
+  addEventListener(
+    'touchstart',
+    (event) => {
+      isTouch = true;
+      isTouching = true;
+      isFollowingCoast = false;
+      trail = [];
+      track(event);
+      clearTimeout(settleTimer);
+    },
+    { passive: true },
+  );
+  addEventListener('touchmove', track, { passive: true });
+  addEventListener(
+    'touchend',
+    () => {
+      isTouching = false;
+      release();
+    },
+    { passive: true },
+  );
+  addEventListener(
+    'touchcancel',
+    () => {
+      isTouching = false;
+      settleSoon();
+    },
+    { passive: true },
+  );
+  addEventListener(
+    'wheel',
+    () => {
+      isTouch = false;
+      if (following || settling) letGo();
+      show();
+    },
+    { passive: true },
+  );
+
+  let lastScrollY = scrollY;
 
   // A ride up the page to a section would otherwise read as a scroll up,
   // and the bar would come back over the top of the section the visitor
@@ -34,17 +240,36 @@
     'scroll',
     () => {
       const maxScrollY = document.documentElement.scrollHeight - innerHeight;
-      bar =
-        'riding' in document.documentElement.dataset
-          ? landedTopBar(scrollY)
-          : nextTopBar(bar, scrollY, maxScrollY);
-      show();
+      if ('riding' in document.documentElement.dataset) {
+        letGo();
+        bar = landedTopBar(scrollY);
+        show();
+      } else if (isTouch && (isTouching || following || isFollowingCoast)) {
+        follow(scrollY, maxScrollY);
+        settleSoon();
+      } else if (isTouch && element) {
+        // The page coasting on after the thumb let go.
+        const height = element.offsetHeight;
+        const coasted = coastedTopBar(bar, scrollY, maxScrollY, height);
+        if (coasted.isShown !== bar.isShown) {
+          const target = coasted.isShown ? 0 : height;
+          // A bar still settling turns, keeping its speed.
+          if (settling) settling.target = target;
+          else settleTo(height - target, 0, target);
+        }
+        bar = coasted;
+      } else {
+        bar = nextTopBar(bar, scrollY, maxScrollY);
+        show();
+      }
+      lastScrollY = scrollY;
     },
     { passive: true },
   );
 
   // Tabbing into the bar brings it back, so focus is never off screen.
   element?.addEventListener('focusin', () => {
+    letGo();
     bar = { isShown: true, anchor: scrollY };
     show();
   });

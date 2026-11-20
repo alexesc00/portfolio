@@ -7,6 +7,7 @@ import {
   springCurve,
   springProgress,
   landedProgress,
+  springStep,
   stepConstants,
 } from './spring';
 
@@ -127,6 +128,55 @@ describe('stepConstants', () => {
 
     expect(springStrength).toBeCloseTo(0.08, 3);
     expect(damping).toBeCloseTo(0.85, 2);
+  });
+});
+
+describe('springStep', () => {
+  // Script-driven motion steps the spring a frame at a time, carrying
+  // its speed, so a thing already moving keeps going rather than
+  // starting over from a standstill.
+  it('moves a thing at rest along the same curve CSS draws', () => {
+    for (const spring of [aeSpring, settleSpring]) {
+      for (const time of [16, 100, 250, 500]) {
+        const { offset } = springStep(spring, 100, 0, time);
+        expect(offset).toBeCloseTo(100 * (1 - springProgress(spring, time)), 6);
+      }
+    }
+  });
+
+  it('leaves a thing at rest on its target where it is', () => {
+    expect(springStep(settleSpring, 0, 0, 16)).toEqual({
+      offset: 0,
+      velocity: 0,
+    });
+  });
+
+  it('carries a thing already moving onward', () => {
+    const { offset, velocity } = springStep(settleSpring, 0, 1000, 16);
+
+    // A 60th of a second at 1,000 px/s is about 16px, less what the
+    // spring has pulled back already.
+    expect(offset).toBeGreaterThan(10);
+    expect(offset).toBeLessThan(16);
+    expect(velocity).toBeLessThan(1000);
+  });
+
+  it('lands in the same place however the time is cut into frames', () => {
+    const once = springStep(settleSpring, 68, -900, 48);
+    let stepped = { offset: 68, velocity: -900 };
+    for (let frame = 0; frame < 3; frame++) {
+      stepped = springStep(settleSpring, stepped.offset, stepped.velocity, 16);
+    }
+
+    expect(stepped.offset).toBeCloseTo(once.offset, 6);
+    expect(stepped.velocity).toBeCloseTo(once.velocity, 6);
+  });
+
+  it('comes to rest from a flick', () => {
+    const { offset, velocity } = springStep(settleSpring, 40, 2000, 2000);
+
+    expect(Math.abs(offset)).toBeLessThan(0.01);
+    expect(Math.abs(velocity)).toBeLessThan(0.1);
   });
 });
 

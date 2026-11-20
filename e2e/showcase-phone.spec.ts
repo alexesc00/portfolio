@@ -36,3 +36,38 @@ test('a thumb that starts on the seam still scrolls the page', async ({
   );
   await expect(seam).toHaveAttribute('aria-valuenow', seamBefore ?? '');
 });
+
+test('a sideways drag on the seam moves it as far as the thumb goes', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const seam = page.locator('[data-seam]');
+  await seam.evaluate((element) =>
+    element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+  );
+  const box = await seam.boundingBox();
+  if (!box) throw new Error('No seam on screen');
+  const width = await page
+    .locator('[data-screen]')
+    .evaluate((screen) => screen.getBoundingClientRect().width);
+  const seamPercent = () =>
+    page
+      .locator('[data-showcase]')
+      .evaluate((root) => parseFloat(root.style.getPropertyValue('--seam')));
+  const before = await seamPercent();
+
+  // Off the seam's centre line but on its strip, as a thumb would be.
+  const x = Math.round(box.x + box.width / 2 + 12);
+  const y = Math.round(box.y + box.height / 2);
+  const session = await page.context().newCDPSession(page);
+  const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', atX: number) =>
+    session.send('Input.dispatchTouchEvent', {
+      type,
+      touchPoints: type === 'touchEnd' ? [] : [{ x: atX, y }],
+    });
+  await touch('touchStart', x);
+  for (let step = 1; step <= 6; step++) await touch('touchMove', x + step * 10);
+  await touch('touchEnd', x + 60);
+
+  expect(await seamPercent()).toBeCloseTo(before + (60 / width) * 100, 0);
+});
